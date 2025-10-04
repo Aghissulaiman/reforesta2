@@ -6,6 +6,7 @@ import HubungiKami from "./componen/landingpage/HubungiKami";
 import Komunitas from "./componen/landingpage/Komunitas";
 import Navbar from "./componen/landingpage/Navbar";
 
+
 export default function Home() {
   return (
     <div>

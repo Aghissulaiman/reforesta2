@@ -1,8 +1,21 @@
+
 @import "tailwindcss";
+
 
 :root {
   --background: linear-gradient(135deg, #4CAF50, #039B09);
   --foreground: #171717;
+  --brandgreen: #4CAF50;
+  --hover:#1CA221;
+}
+
+input::placeholder {
+  color: #9ca3af; /* abu-abu (Tailwind gray-400) */
+}
+
+/* Saat fokus berubah jadi hijau */
+input:focus::placeholder {
+  color: #4CAF50; /* brandgreen */
 }
 
 @theme inline {
