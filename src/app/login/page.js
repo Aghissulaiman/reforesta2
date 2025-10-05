@@ -141,7 +141,7 @@ export default function Login() {
       Kita butuh kamu lagi. Bumi gak bisa nunggu
     </p>
     <p className="mt-4 text-sm">
-      Belum Punya <span className="text-[#4CAF50] font-semibold">akun?</span>
+      Belum Punya <span className="text-[#4CAF50] font-semibold">Akun?</span>
     </p>
     <a
       href="/register"
