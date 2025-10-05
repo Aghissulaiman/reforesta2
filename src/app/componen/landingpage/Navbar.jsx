@@ -72,13 +72,13 @@ export default function Navbar() {
         {/* Tombol Daftar dan Masuk */}
         <div className="flex gap-3">
           <Link
-            href="/daftar"
+            href="/register"
             className="px-5 py-1 rounded-full border border-green-500 text-green-600 font-semibold shadow-sm hover:bg-green-50 transition"
           >
             Daftar
           </Link>
           <Link
-            href="/masuk"
+            href="/login"
             className="px-5 py-1 rounded-full border border-green-500 text-green-600 font-semibold shadow-sm hover:bg-green-50 transition"
           >
             Masuk
