@@ -1,9 +1,9 @@
-'use client'
+"use client";
 
 import React from "react";
 
 import Image from "next/image";
-import  Link  from "next/link";
+import Link from "next/link";
 
 export default function Login() {
   return (
@@ -19,7 +19,7 @@ export default function Login() {
           </div>
 
           <p className="mt-3 text-xl text-center text-[#4CAF50] ">
-           Selamat Datang Kembali!
+            Selamat Datang Kembali!
           </p>
 
           <a
@@ -59,7 +59,7 @@ export default function Login() {
               href="#"
               className="text-xs text-center text-gray-500 uppercase dark:text-gray-400 hover:underline"
             >
-             atau masuk dengan email
+              atau masuk dengan email
             </a>
 
             <span className="w-1/5 border-b dark:border-gray-400 lg:w-1/4"></span>
@@ -70,7 +70,7 @@ export default function Login() {
               className="block mb-2 text-sm font-medium text-gray-600 dark:text-gray-200"
               htmlFor="LoggingEmailAddress"
             >
-              Email 
+              Email
             </label>
             <input
               id="Masukan Email"
@@ -102,11 +102,13 @@ export default function Login() {
             />
           </div>
 
-          <div className="mt-6">
-            <button className="w-full px-6 py-3 text-sm font-medium tracking-wide text-white capitalize transition-colors duration-300 transform bg-[#4CAF50] rounded-lg hover:bg-[#69cd6d] focus:outline-none focus:ring focus:ring-gray-300 focus:ring-opacity-50">
-              Masuk
-            </button>
-          </div>
+<div className="mt-6">
+  <Link href="/home">
+    <button className="w-full px-6 py-3 text-sm font-medium tracking-wide text-white capitalize transition-colors duration-300 transform bg-[#4CAF50] rounded-lg hover:bg-[#69cd6d] focus:outline-none focus:ring focus:ring-gray-300 focus:ring-opacity-50">
+      Masuk
+    </button>
+  </Link>
+</div>
 
           <div className="flex items-center justify-between mt-4">
             <span className="w-1/5 border-b dark:border- md:w-1/4"></span>
@@ -122,38 +124,40 @@ export default function Login() {
           </div>
         </div>
         {/* Bagian kanan (gambar + teks tengah) */}
-<div
-  className="relative hidden bg-cover lg:flex lg:w-1/2 items-center justify-center rounded-tr-lg rounded-br-lg"
-  style={{
-    backgroundImage: "url('/gambar-pohon.png')", // gambar lokal
-  }}
->
-  {/* Overlay gelap transparan */}
-  <div className="absolute inset-0 bg-black/40 rounded-tr-lg rounded-br-lg"></div>
+        <div
+          className="relative hidden bg-cover lg:flex lg:w-1/2 items-center justify-center rounded-tr-lg rounded-br-lg"
+          style={{
+            backgroundImage: "url('/gambar-pohon.png')", // gambar lokal
+          }}
+        >
+          {/* Overlay gelap transparan */}
+          <div className="absolute inset-0 bg-black/40 rounded-tr-lg rounded-br-lg"></div>
 
-  {/* Konten tengah di atas gambar */}
-  <div className="relative z-10 text-center text-white p-6">
-    <img src="/logo.png" alt="Logo" className="w-30 h-30 object-contain  ml-26" />
-    <p className="mt-4 font-semibold text-lg">
-      Selamat datang kembali, Penjaga Bumi
-    </p>
-    <p className="text-sm mt-1">
-      Kita butuh kamu lagi. Bumi gak bisa nunggu
-    </p>
-    <p className="mt-4 text-sm">
-      Belum Punya <span className="text-[#4CAF50] font-semibold">Akun?</span>
-    </p>
-    <a
-      href="/register"
-      className="inline-block mt-3 w-50 h-10 px-6 py-2 bg-white text-[#4CAF50] font-medium transition-colors duration-300 transform border rounded-lg dark:border-[#4CAF50] dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#1CA221]"
-    >
-      Daftar
-    </a>
-  </div>
-</div>
-
-
-        
+          {/* Konten tengah di atas gambar */}
+          <div className="relative z-10 text-center text-white p-6">
+            <img
+              src="/logo.png"
+              alt="Logo"
+              className="w-30 h-30 object-contain  ml-26"
+            />
+            <p className="mt-4 font-semibold text-lg">
+              Selamat datang kembali, Penjaga Bumi
+            </p>
+            <p className="text-sm mt-1">
+              Kita butuh kamu lagi. Bumi gak bisa nunggu
+            </p>
+            <p className="mt-4 text-sm">
+              Belum Punya{" "}
+              <span className="text-[#4CAF50] font-semibold">Akun?</span>
+            </p>
+            <a
+              href="/register"
+              className="inline-block mt-3 w-50 h-10 px-6 py-2 bg-white text-[#4CAF50] font-medium transition-colors duration-300 transform border rounded-lg dark:border-[#4CAF50] dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#1CA221]"
+            >
+              Daftar
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   );
