@@ -4,42 +4,42 @@ import { useState } from "react";
 import Image from "next/image";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { motion } from "framer-motion";
+import useDaerah from "../../../../hooks/daerah";
 
 export default function PilihLokasi({ onChange }) {
-  const lokasi = [
-    { nama: "Jawa Barat", img: "/lokasi1.png" },
-    { nama: "Jawa Tengah", img: "/lokasi2.png" },
-    { nama: "Jawa Timur", img: "/lokasi3.png" },
-    { nama: "Sumatera Barat", img: "/lokasi4.png" },
-    { nama: "Kalimantan Timur", img: "/lokasi5.png" },
-    { nama: "Sulawesi Selatan", img: "/lokasi6.png" },
-  ];
-
+  const { daerah, loading, error } = useDaerah();
   const [index, setIndex] = useState(0);
 
+  if (loading) return <p className="text-gray-500">Memuat data lokasi...</p>;
+  if (error) return <p className="text-red-500">Error: {error}</p>;
+  if (!daerah || daerah.length === 0)
+    return <p className="text-gray-500">Tidak ada data daerah.</p>;
+
+  // === Navigasi Carousel ===
   const nextSlide = () => {
-    const newIndex = (index + 1) % lokasi.length;
+    const newIndex = (index + 1) % daerah.length;
     setIndex(newIndex);
-    onChange?.(lokasi[newIndex]);
+    onChange?.(daerah[newIndex]);
   };
 
   const prevSlide = () => {
-    const newIndex = (index - 1 + lokasi.length) % lokasi.length;
+    const newIndex = (index - 1 + daerah.length) % daerah.length;
     setIndex(newIndex);
-    onChange?.(lokasi[newIndex]);
+    onChange?.(daerah[newIndex]);
   };
 
+  // === Posisi gambar (tengah, kiri, kanan) ===
   const getPosition = (i) => {
-    const diff = (i - index + lokasi.length) % lokasi.length;
+    const diff = (i - index + daerah.length) % daerah.length;
     if (diff === 0) return "center";
-    if (diff === 1 || diff === -lokasi.length + 1) return "right";
-    if (diff === lokasi.length - 1 || diff === -1) return "left";
+    if (diff === 1 || diff === -daerah.length + 1) return "right";
+    if (diff === daerah.length - 1 || diff === -1) return "left";
     return "hidden";
   };
 
   return (
-    <div className="flex items-center pl-10"> 
-      {/* Tombol kiri (dekat gambar) */}
+    <div className="flex items-center pl-10">
+      {/* Tombol kiri */}
       <button
         onClick={prevSlide}
         className="bg-green-600 text-white p-3 rounded-full hover:bg-green-700 transition z-10 shadow-md mr-3"
@@ -49,7 +49,7 @@ export default function PilihLokasi({ onChange }) {
 
       {/* Carousel */}
       <div className="relative w-[650px] h-[250px] flex items-center justify-center overflow-hidden">
-        {lokasi.map((item, i) => {
+        {daerah.map((item, i) => {
           const pos = getPosition(i);
           let x = 0,
             scale = 1,
@@ -77,7 +77,7 @@ export default function PilihLokasi({ onChange }) {
 
           return (
             <motion.div
-              key={i}
+              key={item.id || i}
               animate={{ x, scale, opacity }}
               transition={{ duration: 0.6, ease: "easeInOut" }}
               className="absolute"
@@ -85,8 +85,8 @@ export default function PilihLokasi({ onChange }) {
             >
               <div className="relative w-[260px] h-[230px] rounded-xl overflow-hidden shadow-lg">
                 <Image
-                  src={item.img}
-                  alt={item.nama}
+                  src={item.gambar}
+                  alt={item.daerah}
                   fill
                   className="object-cover"
                 />
@@ -100,7 +100,7 @@ export default function PilihLokasi({ onChange }) {
                     pos === "center" ? "opacity-100" : "opacity-0"
                   }`}
                 >
-                  {item.nama}
+                  {item.daerah}
                 </h3>
               </div>
             </motion.div>
@@ -108,7 +108,7 @@ export default function PilihLokasi({ onChange }) {
         })}
       </div>
 
-      {/* Tombol kanan (dekat gambar) */}
+      {/* Tombol kanan */}
       <button
         onClick={nextSlide}
         className="bg-green-600 text-white p-3 rounded-full hover:bg-green-700 transition z-10 shadow-md ml-3"

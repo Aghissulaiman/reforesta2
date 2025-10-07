@@ -7,8 +7,8 @@ export default function Hero() {
         {/* Bagian kiri */}
         <div className="flex flex-col items-start md:items-start space-y-6">
           {/* Logo */}
-          <div className="flex items-center gap-2">
-           <svg xmlns="http://www.w3.org/2000/svg" className="w-12 h-12 text-[#047857] " viewBox="0 0 48 48"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M24 42V26m17.942-15.993c-.776 13.024-9.13 17.236-15.946 17.896C24.896 28.009 24 27.104 24 26v-8.372c0-.233.04-.468.125-.684C27.117 9.199 34.283 8.155 40 8.02c1.105-.027 2.006.884 1.94 1.987M7.998 6.072c9.329.685 14.197 6.091 15.836 9.558c.115.242.166.508.166.776v7.504c0 1.14-.96 2.055-2.094 1.94C7.337 24.384 6.11 14.786 6.009 8C5.993 6.894 6.897 5.99 8 6.072"/></svg>
+          <div className="flex flex-col items-center gap-2">
+           <svg xmlns="http://www.w3.org/2000/svg" className="w-40 h-40z text-[#059669]" viewBox="0 0 24 24"><path fill="currentColor" d="M5.998 3a7 7 0 0 1 6.913 5.895A6.48 6.48 0 0 1 17.498 7h4.5v2.5a6.5 6.5 0 0 1-6.5 6.5h-2.5v5h-2v-8h-2a7 7 0 0 1-7-7V3zm14 6h-2.5a4.5 4.5 0 0 0-4.5 4.5v.5h2.5a4.5 4.5 0 0 0 4.5-4.5zm-14-4h-2v1a5 5 0 0 0 5 5h2v-1a5 5 0 0 0-5-5"/></svg>
             <h1 className="text-4xl font-extrabold text-[#059669] tracking-wide">
               REFORESTACIA
             </h1>
@@ -51,7 +51,7 @@ export default function Hero() {
 
             {/* Bibit Ditanam */}
             <div className="bg-[#047857] text-white px-6 py-4 rounded-xl shadow-md flex flex-col items-center w-32">
-              <span className="text-2xl mb-1">🌱</span>
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-12 h-12" viewBox="0 0 36 36"><path fill="currentColor" d="M18 2C10.8 1.7 4.8 7.3 4.5 14.5S9.8 27.7 17 28v-5.2l-5.2-5.2c-.4-.4-.4-1 0-1.4s1-.4 1.4 0L17 20v-6.2l-2.7-2.7c-.4-.4-.4-1 0-1.4s1-.4 1.4 0L19 13v3l3.3-3.3c.4-.4 1-.4 1.4 0s.4 1 0 1.4L19 18.8V28c7.2-.3 12.8-6.3 12.5-13.5S25.2 1.7 18 2" class="clr-i-solid clr-i-solid-path-1"/><path fill="currentColor" d="M18 28h-1v5c0 .6.4 1 1 1s1-.4 1-1v-5z" class="clr-i-solid clr-i-solid-path-2"/><path fill="none" d="M0 0h36v36H0z"/></svg>
               <p className="text-lg font-bold leading-none">1000</p>
               <p className="text-xs">Bibit Ditanam</p>
             </div>

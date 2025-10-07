@@ -2,8 +2,11 @@
 
 import { supabase } from "../../../lib/supabaseClient";
 import React, { useState } from "react";
+import useAuthRedirect from "../../../hooks/useAuthRedirect";
+
 
 export default function Register() {
+  useAuthRedirect(); 
   const [accountType, setAccountType] = useState(""); // Komunitas / Sekolah
   const [gender, setGender] = useState("");
   const [userRole, setUserRole] = useState(""); // Donatur / Penanam

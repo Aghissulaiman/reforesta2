@@ -1,17 +1,28 @@
 import { NextResponse } from "next/server";
-import { createMiddlewareClient } from "@supabase/auth-helpers-nextjs";
+import { createClient } from "@supabase/supabase-js";
 
-export async function middleware() {
-    const res = NextResponse.next();
-    const supabase = createMiddlewareClient({req, res});
+export async function middleware(req) {
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  );
 
-    const {
-        data: {user},
-    } = await supabase.auth.getUser();
+  const { data } = await supabase.auth.getSession();
+  const session = data?.session;
 
-    if (!user) {
-      return NextResponse.redirect(new URL("/login", req.url));  
-    }
+  const { pathname } = req.nextUrl;
 
-    return res
+  if (!session && pathname.startsWith("/home")) {
+    return NextResponse.redirect(new URL("/login", req.url));
+  }
+
+  if (session && ["/", "/login", "/register"].includes(pathname)) {
+    return NextResponse.redirect(new URL("/home", req.url));
+  }
+
+  return NextResponse.next();
 }
+
+export const config = {
+  matcher: ["/", "/login", "/register", "/home/:path*"],
+};

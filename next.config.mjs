@@ -5,7 +5,8 @@ const nextConfig = {
       "gratisongkir-storage.com",
       "www.static-src.com",
       "img.lazcdn.com",
-      "down-id.img.susercontent.com"
+      "down-id.img.susercontent.com",
+      "blue.kumparan.com"
     ],
   },
 };
