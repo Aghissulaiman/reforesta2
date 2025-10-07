@@ -1,11 +1,41 @@
 "use client";
 
-import React from "react";
-
+import { supabase } from "../../../lib/supabaseClient";
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
 export default function Login() {
+    const [form, setForm] = useState({
+    email: "",
+    password: "",
+  });
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: form.email,
+      password: form.password,
+    });
+
+    if (error) {
+      setError(error.message);
+    } else {
+      console.log("Login sukses:", data.user);
+      window.location.href = "/home";
+    }
+
+    setLoading(false);
+  };
   return (
     <div>
       <div className="flex w-full mt-10 max-w-sm mx-auto overflow-hidden bg-white rounded-lg shadow-lg dark:bg-white lg:max-w-4xl">

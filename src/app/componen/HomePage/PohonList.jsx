@@ -1,53 +1,44 @@
 "use client";
 
 import Image from "next/image";
+import usePohon from "../../../../hooks/pohon";
 
 export default function PilihBibitPohon() {
-  const bibit = [
-    { nama: "Pohon Mahoni", harga: "Rp 13.000", img: "/bibit1.png" },
-    { nama: "Pohon Mangga", harga: "Rp 15.000", img: "/bibit1.png" },
-    { nama: "Pohon Jati", harga: "Rp 18.000", img: "/bibit1.png" },
-    { nama: "Pohon Trembesi", harga: "Rp 20.000", img: "/bibit1.png" },
-    { nama: "Pohon Sengon", harga: "Rp 12.000", img: "/bibit1.png" },
-    { nama: "Pohon Durian", harga: "Rp 25.000", img: "/bibit1.png" },
-  ];
+  const { pohon, loading, error } = usePohon();
+
+  if (loading) return <p className="text-gray-500">Memuat data pohon...</p>;
+  if (error) return <p className="text-red-500">Error: {error}</p>;
 
   return (
-    <section className="w-full py-6 pl-8">
-      {/* Judul di kiri */}
-      <div className="mb-4">
-        <h2 className="text-xl font-bold text-gray-900">Pilih Bibit Pohon</h2>
+    <section className="w-full py-8 px-6">
+      <div className="mb-6">
+        <h2 className="text-2xl font-bold text-gray-900">Pilih Bibit Pohon</h2>
         <p className="text-gray-600 text-sm">
-          Pilih bibit pohon yang akan ditanam
+          Pilih bibit pohon yang ingin kamu tanam
         </p>
       </div>
 
-      {/* Grid 2 kolom per baris */}
-      <div className="flex flex-col items-start space-y-4">
-        {[0, 1, 2].map((row) => (
-          <div key={row} className="flex space-x-4">
-            {bibit.slice(row * 2, row * 2 + 2).map((item, i) => (
-              <div
-                key={i}
-                className="bg-white rounded-lg overflow-hidden w-[260px] border border-gray-200 shadow-sm"
-              >
-                <div className="relative w-full h-[190px]">
-                  <Image
-                    src={item.img}
-                    alt={item.nama}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-                <div className="bg-[#047857] text-white text-center py-3">
-                  <h3 className="font-semibold text-base">{item.nama}</h3>
-                  <p className="text-xs">Harga {item.harga}</p>
-                  <button className="mt-2 bg-white text-[#047857] text-xs font-semibold px-3 py-1 rounded-full hover:bg-green-100 transition">
-                    Pilih Tanaman
-                  </button>
-                </div>
-              </div>
-            ))}
+      <div className="w-[600px] grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-6">
+        {pohon.map((item, i) => (
+          <div
+            key={i}
+            className="bg-white rounded-xl overflow-hidden border border-gray-200 shadow-sm hover:shadow-md transition"
+          >
+            <div className="relative w-[400px] h-[200px]">
+              <Image
+                src={item.gambar || "/placeholder.png"}
+                alt={item.nama}
+                fill
+                className="object-cover"
+              />
+            </div>
+            <div className="bg-green-700 text-white text-center py-4">
+              <h3 className="font-semibold text-base">{item.nama}</h3>
+              <p className="text-xs mt-1">Harga: Rp {item.harga}</p>
+              <button className="mt-3 bg-white text-green-700 text-xs font-semibold px-4 py-1.5 rounded-full hover:bg-green-100 transition">
+                Pilih Tanaman
+              </button>
+            </div>
           </div>
         ))}
       </div>

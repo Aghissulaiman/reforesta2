@@ -30,8 +30,8 @@ export default function Navbar() {
     >
       {/* Logo */}
       <Link href="/" className="flex items-center gap-2">
-        <span className="text-2xl text-green-700">🌱</span>
-        <span className="text-lg font-semibold text-green-700">reforesta</span>
+        <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-[#047857] " viewBox="0 0 48 48"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M24 42V26m17.942-15.993c-.776 13.024-9.13 17.236-15.946 17.896C24.896 28.009 24 27.104 24 26v-8.372c0-.233.04-.468.125-.684C27.117 9.199 34.283 8.155 40 8.02c1.105-.027 2.006.884 1.94 1.987M7.998 6.072c9.329.685 14.197 6.091 15.836 9.558c.115.242.166.508.166.776v7.504c0 1.14-.96 2.055-2.094 1.94C7.337 24.384 6.11 14.786 6.009 8C5.993 6.894 6.897 5.99 8 6.072"/></svg>
+        <span className="text-lg font-semibold text-[#047857]">reforesta</span>
       </Link>
 
       {/* Menu */}
@@ -40,11 +40,11 @@ export default function Navbar() {
           <Link
             key={link.name}
             href={link.href}
-            className={`font-medium text-sm transition-all 
+            className={`font-bold text-sm transition-all 
               ${
                 pathname === link.href
-                  ? "bg-green-700 text-white px-4 py-1.5 rounded-full"
-                  : "text-green-700 hover:text-green-800"
+                  ? "bg-[#047857] text-white px-4 py-1.5 rounded-full"
+                  : "text-[#047857] hover:text-green-800"
               }`}
           >
             {link.name}
@@ -56,13 +56,13 @@ export default function Navbar() {
       <div className="flex gap-3">
         <Link
           href="/daftar"
-          className="px-4 py-1.5 text-sm font-medium rounded-full border border-green-700 text-green-700 hover:bg-green-700 hover:text-white transition-all"
+          className="px-4 py-1.5 text-sm font-medium rounded-full border border-[#047857] text-[#047857] hover:bg-[#047857] hover:text-white transition-all"
         >
           Daftar
         </Link>
         <Link
           href="/login"
-          className="px-4 py-1.5 text-sm font-medium rounded-full border border-green-700 bg-green-700 text-white hover:bg-green-800 transition-all"
+          className="px-4 py-1.5 text-sm font-medium rounded-full border border-[#047857] bg-[#047857] text-white hover:bg-green-800 transition-all"
         >
           Masuk
         </Link>

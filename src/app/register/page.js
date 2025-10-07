@@ -31,13 +31,11 @@ export default function Register() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  // 🚀 REGISTER FUNCTION
   const handleRegister = async (e) => {
     e.preventDefault();
 
     const isSekolah = accountType === "Sekolah";
 
-    // 1️⃣ Register ke Supabase Auth
     const { data, error } = await supabase.auth.signUp({
       email: isSekolah ? form.email : form.email_komunitas,
       password: isSekolah ? form.password : form.password_komunitas,
@@ -51,7 +49,6 @@ export default function Register() {
     const user = data.user;
     if (!user) return;
 
-    // 2️⃣ Insert data ke tabel sesuai tipe akun
     if (isSekolah) {
       const { error: sekolahError } = await supabase.from("Sekolah").insert([
         {
@@ -93,7 +90,6 @@ export default function Register() {
     alert("✅ Register berhasil! Cek email untuk verifikasi akun kamu.");
   };
 
-  // 💄 Style dan helper class
   const getButtonClass = (type, currentType, base = "bg-green-600") =>
     currentType === type
       ? `${base} text-white shadow-md font-semibold focus:ring-green-300 focus:ring focus:ring-opacity-50`
@@ -109,7 +105,6 @@ export default function Register() {
     backgroundPosition: "center",
   };
 
-  // 👇 Field NUPTK / Jenis Kelamin dinamis
   const SecondaryInput = () =>
     accountType === "Sekolah" ? (
       <div>
@@ -163,7 +158,6 @@ export default function Register() {
     >
       <section className="bg-white dark:bg-gray-900 shadow-2xl rounded-2xl overflow-hidden w-full max-w-6xl">
         <div className="flex flex-col lg:flex-row">
-          {/* Kiri - panel gambar */}
           <div
             className="hidden lg:flex flex-col justify-center items-center p-8 lg:w-2/5 text-white text-center"
             style={imagePanelStyle}
