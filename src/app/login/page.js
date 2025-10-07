@@ -98,12 +98,12 @@ export default function Login() {
             >
               Password
             </label>
-            <a
-              href="#"
+            <Link
+              href="/lupaPassword"
               className="text-xs text-gray-500 dark:text-gray-300 hover:underline"
             >
               Lupa password?
-            </a>
+            </Link>
           </div>
 
           <input
