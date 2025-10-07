@@ -70,7 +70,7 @@ export default function Navbar() {
       {/* Buttons */}
       <div className="flex gap-3">
         <Link
-          href="/daftar"
+          href="/register"
           className="px-4 py-1.5 text-sm font-medium rounded-full border border-[#047857] text-[#047857] hover:bg-[#047857] hover:text-white transition-all"
         >
           Daftar

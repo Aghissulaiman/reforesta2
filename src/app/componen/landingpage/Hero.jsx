@@ -3,7 +3,7 @@ import Image from "next/image";
 export default function Hero() {
   return (
     <section className="w-full py-20 bg-white">
-      <div className="container mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
+      <div className="container mx-auto px-75 py-25 grid md:grid-cols-2 gap-12 items-center">
         {/* Bagian kiri */}
         <div className="flex flex-col items-start md:items-start space-y-6">
           {/* Logo */}
@@ -28,12 +28,12 @@ export default function Hero() {
         {/* Bagian kanan */}
         <div className="relative flex justify-center  md:justify-end">
           {/* Gambar utama */}
-          <div className="w-[380px] h-[260px] rounded-xl overflow-hidden shadow-lg">
+          <div className="w-[500px] h-[280px] rounded-xl overflow-hidden shadow-lg">
             <Image
               src="/LHero.png"
               alt="Menanam pohon"
-              width={380}
-              height={260}
+              width={500}
+              height={280}
               className="object-cover"
             />
           </div>

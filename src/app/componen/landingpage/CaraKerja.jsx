@@ -8,15 +8,15 @@ export default function CaraKerja() {
     },
     {
       nama: "Tunggu Disalurkan",
-      icon: "/Disalurkan.png",
+      icon: "/LSalurkan.png",
     },
     {
       nama: "Ditanam",
-      icon: "/Ditanam.png",
+      icon: "/LTanam.png",
     },
     {
       nama: "Dokumentasi",
-      icon: "/Dokumentasi.png",
+      icon: "/LDokumentasi.png",
     },
   ];
 
@@ -39,7 +39,7 @@ export default function CaraKerja() {
               className="flex flex-col items-center text-center relative bg-white z-10"
             >
               {/* Icon bulat */}
-              <div className="w-24 h-24 rounded-full bg-[#C8F3DC] flex items-center justify-center shadow-md">
+              <div className="w-24 h-24 rounded-full bg-[#10B981]/50 flex items-center justify-center shadow-md">
                 <Image
                   src={item.icon}
                   alt={item.nama}
