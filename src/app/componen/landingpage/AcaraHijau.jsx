@@ -34,7 +34,7 @@ export default function AcaraHijau() {
       {/* Background Images */}
       <div className="absolute inset-0">
         <Image
-          src="/World.png"
+          src="/peta dunia.png"
           alt="World Map"
           fill
           className="object-contain opacity-80"

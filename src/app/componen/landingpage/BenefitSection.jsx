@@ -20,9 +20,9 @@ export default function BenefitSection() {
   ];
 
   return (
-    <section className="relative bg-white py-16 overflow-hidden">
+    <section className="relative bg-white py-20 overflow-hidden">
       {/* Judul */}
-      <h2 className="text-2xl md:text-3xl font-bold text-center mb-10 text-black">
+      <h2 className="text-2xl md:text-3xl font-bold text-center mb-20 text-black">
         Benefit
       </h2>
 
@@ -58,10 +58,10 @@ export default function BenefitSection() {
         {benefits.map((item, index) => (
           <div
             key={index}
-            className="relative bg-gradient-to-b from-green-400 to-green-600 text-white rounded-xl shadow-lg w-full md:w-1/4 h-[200px] flex flex-col items-center justify-center text-center transition-transform hover:-translate-y-2"
+            className="bg-[#059669] text-white rounded-xl shadow-lg w-full md:w-1/4 h-[200px] flex flex-col items-center justify-center text-center transition-transform hover:-translate-y-2"
           >
             {/* Lingkaran ikon di atas kotak */}
-            <div className="absolute -top-16 bg-green-600 p-4 rounded-full shadow-md flex items-center justify-center">
+            <div className="absolute -top-16 bg-[#047857] p-4 rounded-full shadow-md flex items-center justify-center">
               {item.icon}
             </div>
 
