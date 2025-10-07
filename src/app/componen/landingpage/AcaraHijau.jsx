@@ -30,7 +30,7 @@ export default function AcaraHijau() {
   ];
 
   return (
-    <section className="relative py-20 bg-white">
+    <section className="relative py-40 bg-white">
       {/* Background Images */}
       <div className="absolute inset-0">
         <Image
@@ -41,7 +41,7 @@ export default function AcaraHijau() {
         />
        <div className="absolute bottom-0 left-0 w-full h-[300px] flex justify-start">
   <Image
-    src="/Ilustrasi.png"
+    src="/orangNanem.png"
     alt="Plant Illustration"
     fill
     className="object-contain object-left"
@@ -52,7 +52,7 @@ export default function AcaraHijau() {
       {/* Konten */}
       <div className="container mx-auto px-6 relative">
         {/* Judul */}
-        <h2 className="text-2xl md:text-3xl font-bold text-green-700 mb-6 text-center">
+        <h2 className="text-2xl md:text-3xl font-bold text-[#111827] mb-6 text-center">
           Acara Hijau
         </h2>
 
@@ -64,7 +64,7 @@ export default function AcaraHijau() {
                 key={i}
                 className={`w-56 rounded-xl px-4 py-3 shadow-md flex justify-between items-center ${
                   event.active
-                    ? "bg-green-500 text-white"
+                    ? "bg-[#059669] text-white"
                     : "bg-gray-300 text-gray-700"
                 }`}
               >
@@ -84,7 +84,7 @@ export default function AcaraHijau() {
                 key={i}
                 className={`w-56 rounded-xl px-4 py-3 shadow-md flex justify-between items-center ${
                   event.active
-                    ? "bg-green-500 text-white"
+                    ? "bg-[#059669] text-white"
                     : "bg-gray-300 text-gray-700"
                 }`}
               >
