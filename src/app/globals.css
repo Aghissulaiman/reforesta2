@@ -1,22 +1,19 @@
-
 @import "tailwindcss";
 
-
+/* Variabel warna utama */
 :root {
-  /* Gradasi hijau lembut seperti di desain */
-  --background: linear-gradient(135deg, #4CAF50, #039B09);
+  --background: #ffffff; /* putih polos */
   --foreground: #171717;
   --brandgreen: #4CAF50;
-  --hover:#1CA221;
+  --hover: #1CA221;
 }
 
 input::placeholder {
-  color: #9ca3af; /* abu-abu (Tailwind gray-400) */
+  color: #9ca3af;
 }
 
-/* Saat fokus berubah jadi hijau */
 input:focus::placeholder {
-  color: #4CAF50; /* brandgreen */
+  color: var(--brandgreen);
 }
 
 /* Tema utama */
@@ -27,21 +24,20 @@ input:focus::placeholder {
   --font-mono: var(--font-geist-mono);
 }
 
-/* Mode gelap (opsional) */
+/* Hapus efek mode gelap */
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: linear-gradient(135deg, #039B09, #4CAF50);
-    --foreground: #f0f0f0;
+    --background: #ffffff; /* tetap putih */
+    --foreground: #171717;
   }
 }
 
 /* Body styling */
 body {
   background: var(--background);
-  background-attachment: fixed; /* agar gradasinya tidak bergeser */
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
-  overflow-x: hidden; /* mencegah geser kanan kiri */
+  overflow-x: hidden;
   margin: 0;
   padding: 0;
   min-height: 100vh;

@@ -6,7 +6,7 @@ import Hero from "./componen/landingpage/Hero";
 import HubungiKami from "./componen/landingpage/HubungiKami";
 import Komunitas from "./componen/landingpage/Komunitas";
 import Navbar from "./componen/landingpage/Navbar";
-
+import CarouselRegion from "./componen/landingpage/CarouselRegion";
 export default function Home() {
   return (
     <div>
@@ -14,8 +14,9 @@ export default function Home() {
       <Hero />
       <Komunitas />
       <CaraKerja />
-      <AcaraHijau />
       <BenefitSection />
+      <CarouselRegion/>
+      <AcaraHijau />
       <HubungiKami />
       <Footer />
     </div>

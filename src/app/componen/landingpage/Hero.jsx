@@ -1,48 +1,68 @@
-// components/Hero.jsx
 import Image from "next/image";
 
 export default function Hero() {
   return (
-    <section className="py-16 w-full h-screen overflow-x-hidden"> 
-      <div className="container mx-auto px-6 grid md:grid-cols-2 gap-10 items-center">
-        <div className="px-60"> 
-          <div className="flex justify-center items-center">  
-          <svg xmlns="http://www.w3.org/2000/svg" className="w-24 h-24 fill-white" viewBox="0 0 24 24"><path d="M5.998 3a7 7 0 0 1 6.913 5.895A6.48 6.48 0 0 1 17.498 7h4.5v2.5a6.5 6.5 0 0 1-6.5 6.5h-2.5v5h-2v-8h-2a7 7 0 0 1-7-7V3zm14 6h-2.5a4.5 4.5 0 0 0-4.5 4.5v.5h2.5a4.5 4.5 0 0 0 4.5-4.5zm-14-4h-2v1a5 5 0 0 0 5 5h2v-1a5 5 0 0 0-5-5"/></svg>
+    <section className="w-full py-20 bg-white">
+      <div className="container mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
+        {/* Bagian kiri */}
+        <div className="flex flex-col items-start md:items-start space-y-6">
+          {/* Logo */}
+          <div className="flex items-center gap-2">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="w-16 h-16 text-green-700"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth="1.5"
+              stroke="currentColor"
+            >
+              <path d="M12 22v-8H9a7 7 0 0 1-7-7V3h2a7 7 0 0 1 7 7v1h2a6 6 0 0 1 6-6h4v2a6 6 0 0 1-6 6h-2v9h-2z" />
+            </svg>
+            <h1 className="text-4xl font-extrabold text-green-700 tracking-wide">
+              REFORESTACIA
+            </h1>
           </div>
-        <div className="text-white space-y-6">
-          <h1 className="text-4xl md:text-5xl font-bold">REFORESTACIA</h1>
-          <p className="text-sm md:text-base text-gray-100 leading-relaxed max-w-sm">
-            Cara paling sederhana Untuk Menyalurkan dana untuk penghijauan.
+
+          {/* Deskripsi */}
+          <p className="text-gray-600 text-base max-w-sm leading-relaxed">
+            Cara paling sederhana untuk menyalurkan dana untuk penghijauan.
           </p>
-          <button className="bg-white text-green-600 font-semibold px-6 py-2 rounded-full shadow-md hover:bg-green-100 transition">
+
+          {/* Tombol */}
+          <button className="px-6 py-2 border-2 border-green-700 text-green-700 font-medium rounded-full hover:bg-green-700 hover:text-white transition-all duration-300">
             Mulai Sekarang
           </button>
         </div>
-        </div>
 
-<div className="mr-75">
-        <div className="flex flex-col items-center relative">
-          <div className="relative w-120 rounded-xl overflow-hidden shadow-lg">
-          <img
-          src="LHero.png"
-          />
+        {/* Bagian kanan */}
+        <div className="relative flex justify-center md:justify-end">
+          {/* Gambar utama */}
+          <div className="w-[380px] h-[260px] rounded-xl overflow-hidden shadow-lg">
+            <Image
+              src="/LHero.png"
+              alt="Menanam pohon"
+              width={380}
+              height={260}
+              className="object-cover"
+            />
           </div>
 
-          <div className="absolute -bottom-8 flex gap-6">
-            <div className="bg-[#FFDD55] text-white px-6 py-4 rounded-xl shadow-md flex flex-col items-center">
+          {/* Kotak statistik */}
+          <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 flex gap-4">
+            {/* Komunitas */}
+            <div className="bg-green-700 text-white px-6 py-4 rounded-xl shadow-md flex flex-col items-center w-32">
               <span className="text-2xl mb-1">👥</span>
               <p className="text-lg font-bold leading-none">3</p>
               <p className="text-xs">Komunitas</p>
             </div>
 
             {/* Bibit Ditanam */}
-            <div className="bg-green-600 text-white px-6 py-4 rounded-xl shadow-md flex flex-col items-center">
+            <div className="bg-green-800 text-white px-6 py-4 rounded-xl shadow-md flex flex-col items-center w-32">
               <span className="text-2xl mb-1">🌱</span>
               <p className="text-lg font-bold leading-none">1000</p>
               <p className="text-xs">Bibit Ditanam</p>
             </div>
           </div>
-</div>
         </div>
       </div>
     </section>

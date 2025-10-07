@@ -1,89 +1,60 @@
-// components/CaraKerja.jsx
 import Image from "next/image";
 
 export default function CaraKerja() {
+  const langkah = [
+    {
+      nama: "Pilih Tanaman",
+      icon: "/LPilih.png",
+    },
+    {
+      nama: "Tunggu Disalurkan",
+      icon: "/Disalurkan.png",
+    },
+    {
+      nama: "Ditanam",
+      icon: "/Ditanam.png",
+    },
+    {
+      nama: "Dokumentasi",
+      icon: "/Dokumentasi.png",
+    },
+  ];
+
   return (
-    <section className="py-12 bg-white">
-      <div className="container mx-auto px-4 text-center">
-        <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 mb-12">
-          Gimana sih cara web kita bekerja ?
+    <section className="py-20 bg-white">
+      <div className="container mx-auto px-6 text-center">
+        {/* Judul */}
+        <h2 className="text-2xl md:text-3xl font-semibold text-black mb-16">
+          Bagaimana cara Website kami bekerja?
         </h2>
 
-        <div className="relative w-full max-w-3xl mx-auto aspect-square">
-          {/* Tengah */}
-          <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-            <p className="text-lg md:text-2xl font-extrabold text-gray-900 leading-tight">
-              Gimana sih <br /> cara web kita <br /> bekerja ?
-            </p>
-          </div>
+        {/* Wrapper langkah */}
+        <div className="relative flex flex-col md:flex-row items-center justify-center gap-12 md:gap-20">
+          {/* Garis horizontal */}
+          <div className="hidden md:block absolute top-1/2 left-0 right-0 h-[2px] bg-gray-300 translate-y-[-50%]"></div>
 
-          {/* Pilih Tanaman */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 flex flex-col items-center">
-            <div className="rounded-full bg-[#4CAF50] w-20 h-20 md:w-24 md:h-24 flex items-center justify-center shadow-lg">
-              <Image src="/LPilih.png" alt="Pilih Tanaman" width={40} height={56} />
-            </div>
-            <p className="mt-3 text-sm md:text-base font-medium text-gray-800">
-              Pilih Tanaman
-            </p>
-          </div>
+          {langkah.map((item, index) => (
+            <div
+              key={index}
+              className="flex flex-col items-center text-center relative bg-white z-10"
+            >
+              {/* Icon bulat */}
+              <div className="w-24 h-24 rounded-full bg-[#C8F3DC] flex items-center justify-center shadow-md">
+                <Image
+                  src={item.icon}
+                  alt={item.nama}
+                  width={50}
+                  height={50}
+                  className="object-contain"
+                />
+              </div>
 
-          {/* Disalurkan */}
-          <div className="absolute right-0 top-1/2 -translate-y-1/2 flex flex-col items-center">
-            <div className="rounded-full bg-[#4CAF50] w-20 h-20 md:w-24 md:h-24 flex items-center justify-center shadow-lg">
-              <Image src="/Disalurkan.png" alt="Disalurkan" width={40} height={56} />
+              {/* Teks */}
+              <p className="mt-4 text-sm md:text-base font-medium text-gray-800">
+                {item.nama}
+              </p>
             </div>
-            <p className="mt-3 text-sm md:text-base font-medium text-gray-800">
-              Disalurkan
-            </p>
-          </div>
-
-          {/* Ditanam */}
-          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 flex flex-col items-center">
-            <div className="rounded-full bg-[#4CAF50] w-20 h-20 md:w-24 md:h-24 flex items-center justify-center shadow-lg">
-              <Image src="/Ditanam.png" alt="Ditanam" width={40} height={56} />
-            </div>
-            <p className="mt-3 text-sm md:text-base font-medium text-gray-800">
-              Ditanam
-            </p>
-          </div>
-
-          {/* Dokumentasi */}
-          <div className="absolute left-0 top-1/2 -translate-y-1/2 flex flex-col items-center">
-            <div className="rounded-full bg-[#4CAF50] w-20 h-20 md:w-24 md:h-24 flex items-center justify-center shadow-lg">
-              <Image src="/Dokumentasi.png" alt="Dokumentasi" width={40} height={56} />
-            </div>
-            <p className="mt-3 text-sm md:text-base font-medium text-gray-800">
-              Dokumentasi
-            </p>
-          </div>
-          <Image
-            src="/curved-arrow 4.png"
-            alt="arrow"
-            width={100}
-            height={100}
-            className="absolute top-8 right-[15%] w-50 md:w-28 rotate-90"
-          />
-          <Image
-            src="/curved-arrow 4.png"
-            alt="arrow"
-            width={100}
-            height={100}
-            className="absolute bottom-[20%] right-15 w-20 md:w-28 rotate-180  "
-          />
-          <Image
-            src="/curved-arrow 4.png"
-            alt="arrow"
-            width={100}
-            height={100}
-            className="absolute bottom-20 left-[30%] w-20 md:w-28 rotate-240"
-          />
-          <Image
-            src="/curved-arrow 4.png"
-            alt="arrow"
-            width={100}
-            height={100}
-            className="absolute top-[30%] left-20 w-20 md:w-28 rotate-[320deg]"
-          />
+          ))}
         </div>
       </div>
     </section>

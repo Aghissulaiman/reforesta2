@@ -1,3 +1,4 @@
+import DetailPembayaran from "../componen/HomePage/DetailPembayaran";
 import NavbarAll from "../componen/HomePage/NavbarAll";
 import PilihLokasi from "../componen/HomePage/PilihLokasi";
 import PohonList from "../componen/HomePage/PohonList";
@@ -9,6 +10,7 @@ export default function tanam() {
         <div>
         <NavbarAll/>
         <TanamPohon/>
+        <DetailPembayaran/>
         <PilihLokasi/>
         <PohonList/>
         <Footer/>   
