@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* Variabel warna utama */
+/* 🌿 Variabel warna utama */
 :root {
   --background: #ffffff; /* putih polos */
   --foreground: #171717;
@@ -8,15 +8,15 @@
   --hover: #1CA221;
 }
 
+/* Placeholder input */
 input::placeholder {
   color: #9ca3af;
 }
-
 input:focus::placeholder {
   color: var(--brandgreen);
 }
 
-/* Tema utama */
+/* Tema utama Tailwind inline */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -24,21 +24,125 @@ input:focus::placeholder {
   --font-mono: var(--font-geist-mono);
 }
 
-/* Hapus efek mode gelap */
+/* Nonaktifkan mode gelap */
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #ffffff; /* tetap putih */
+    --background: #ffffff;
     --foreground: #171717;
   }
 }
 
-/* Body styling */
+/* Body styling umum */
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Poppins", Arial, Helvetica, sans-serif;
   overflow-x: hidden;
   margin: 0;
   padding: 0;
   min-height: 100vh;
+}
+
+/* 🌿 Tombol hijau default */
+button {
+  transition: all 0.2s ease;
+}
+button:hover {
+  opacity: 0.9;
+}
+
+/* 🌿 Card umum */
+.card {
+  background: #fff;
+  border-radius: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* 🌿 Warna hijau brand */
+.text-brand {
+  color: var(--brandgreen);
+}
+.bg-brand {
+  background-color: var(--brandgreen);
+}
+.border-brand {
+  border-color: var(--brandgreen);
+}
+
+/* 🌿 Hover hijau */
+.hover-brand:hover {
+  background-color: var(--hover);
+}
+
+/* ========================= */
+/* 📅 React Calendar Styling */
+/* ========================= */
+
+.custom-calendar {
+  border: none !important;
+  font-family: "Poppins", sans-serif;
+  width: 100%;
+  background-color: transparent !important;
+}
+
+.react-calendar__navigation {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.react-calendar__navigation button {
+  color: var(--brandgreen);
+  font-weight: 600;
+  font-size: 1rem;
+  background: none;
+  border-radius: 8px;
+  padding: 4px 8px;
+  transition: 0.2s;
+}
+
+.react-calendar__navigation button:hover {
+  background-color: #d1fae5;
+}
+
+.react-calendar__tile {
+  text-align: center;
+  padding: 10px 0;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.react-calendar__tile--now {
+  background: var(--brandgreen) !important;
+  color: white !important;
+  font-weight: bold;
+  border-radius: 8px;
+}
+
+.react-calendar__tile:hover {
+  background: #bbf7d0;
+  color: #065f46;
+}
+
+.react-calendar__month-view__weekdays {
+  text-align: center;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  color: #065f46;
+}
+
+/* ========================= */
+/* ✨ Responsif tambahan */
+/* ========================= */
+
+@media (max-width: 768px) {
+  .custom-calendar {
+    font-size: 0.9rem;
+  }
+
+  .react-calendar__tile {
+    padding: 8px 0;
+  }
 }
