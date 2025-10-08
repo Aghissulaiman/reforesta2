@@ -6,8 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import useAuthRedirect from "../../../hooks/useAuthRedirect";
 
-export default function Login() {
-  useAuthRedirect(); 
+export default function Login(){ 
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);

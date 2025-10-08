@@ -1,98 +1,60 @@
-// components/AcaraHijau.jsx
+"use client";
 import Image from "next/image";
 
 export default function AcaraHijau() {
   const events = [
-    {
-      title: "Acara Hijau Hutan Bogor",
-      status: "Sedang Berlangsung",
-      time: "07.00–10.00 WIB",
-      active: true,
-    },
-    {
-      title: "Acara Hijau Hutan Bogor",
-      status: "Sedang Berlangsung",
-      time: "07.00–10.00 WIB",
-      active: true,
-    },
-    {
-      title: "Acara Hijau Hutan Bogor",
-      status: "Belum Dimulai",
-      time: "07.00–10.00 WIB",
-      active: false,
-    },
-    {
-      title: "Acara Hijau Hutan Bogor",
-      status: "Belum Dimulai",
-      time: "07.00–10.00 WIB",
-      active: false,
-    },
+    { title: "Acara Hijau Hutan Bogor", status: "Sedang Berlangsung", time: "07.00–10.00 WIB", active: true },
+    { title: "Acara Hijau Hutan Bogor", status: "Sedang Berlangsung", time: "07.00–10.00 WIB", active: true },
+    { title: "Acara Hijau Hutan Bogor", status: "Belum Dimulai", time: "07.00–10.00 WIB", active: false },
+    { title: "Acara Hijau Hutan Bogor", status: "Belum Dimulai", time: "07.00–10.00 WIB", active: false },
   ];
 
   return (
-    <section className="relative py-40 bg-white">
-      {/* Background Images */}
-      <div className="absolute inset-0">
+    <section className="relative py-32 md:py-40 overflow-hidden bg-white">
+      {/* 🌍 Background Peta Dunia */}
+      <div className="absolute inset-0 flex justify-center items-start pt-10">
         <Image
-          src="/peta dunia.png"
+          src="/World.png"
           alt="World Map"
-          fill
-          className="object-contain opacity-80"
+          width={1000}
+          height={600}
+          className="opacity-70 object-contain pointer-events-none select-none"
         />
-       <div className="absolute bottom-0 left-0 w-full h-[300px] flex justify-start">
-  <Image
-    src="/orangNanem.png"
-    alt="Plant Illustration"
-    fill
-    className="object-contain object-left"
-  />
-</div>
       </div>
 
-      {/* Konten */}
-      <div className="container mx-auto px-6 relative">
+      {/* 🧍‍♀️ Ilustrasi Orang Nanem */}
+      <div className="absolute bottom-0 left-0 w-[600px] max-w-[80%]">
+        <Image
+          src="/orangNanem.png"
+          alt="Ilustrasi Menanam"
+          width={800}
+          height={500}
+          className="object-contain pointer-events-none select-none"
+        />
+      </div>
+
+      {/* 🌱 Konten */}
+      <div className="relative z-10 container mx-auto px-6 md:px-12">
         {/* Judul */}
-        <h2 className="text-2xl md:text-3xl font-bold text-[#111827] mb-6 text-center">
+        <h2 className="text-3xl md:text-4xl font-bold text-center text-[#111827] mb-12">
           Acara Hijau
         </h2>
 
-        {/* Event Cards align kanan */}
-        <div className="flex flex-col items-end gap-4 mb-10 pr-10">
-          <div className="flex gap-4 justify-end w-full">
-            {events.slice(0, 2).map((event, i) => (
+        {/* Grid Event Cards */}
+        <div className="flex flex-col items-end gap-6 pr-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            {events.map((event, i) => (
               <div
                 key={i}
-                className={`w-56 rounded-xl px-4 py-3 shadow-md flex justify-between items-center ${
-                  event.active
-                    ? "bg-[#059669] text-white"
-                    : "bg-gray-300 text-gray-700"
+                className={`w-64 md:w-72 rounded-2xl px-5 py-4 shadow-md flex justify-between items-center ${
+                  event.active ? "bg-[#059669] text-white" : "bg-[#B7E4C7] text-[#064E3B]"
                 }`}
               >
                 <div>
-                  <p className="font-semibold text-sm">{event.title}</p>
-                  <p className="text-xs">{event.status}</p>
+                  <p className="font-semibold text-sm leading-tight">{event.title}</p>
+                  <p className="text-xs opacity-90">{event.status}</p>
                 </div>
-                <div className="bg-white text-green-700 px-2 py-1 rounded-md text-xs font-semibold">
-                  {event.time}
-                </div>
-              </div>
-            ))}
-          </div>
-          <div className="flex gap-4 justify-end w-full">
-            {events.slice(2).map((event, i) => (
-              <div
-                key={i}
-                className={`w-56 rounded-xl px-4 py-3 shadow-md flex justify-between items-center ${
-                  event.active
-                    ? "bg-[#059669] text-white"
-                    : "bg-gray-300 text-gray-700"
-                }`}
-              >
-                <div>
-                  <p className="font-semibold text-sm">{event.title}</p>
-                  <p className="text-xs">{event.status}</p>
-                </div>
-                <div className="bg-white text-green-700 px-2 py-1 rounded-md text-xs font-semibold">
+                <div className="bg-white text-[#059669] px-2 py-1 rounded-md text-[10px] font-semibold whitespace-nowrap">
                   {event.time}
                 </div>
               </div>
@@ -100,9 +62,9 @@ export default function AcaraHijau() {
           </div>
         </div>
 
-        {/* Button align kanan */}
-        <div className="flex justify-end pr-10">
-          <button className="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 rounded-full shadow-lg transition">
+        {/* Button kanan bawah */}
+        <div className="flex justify-end mt-10 pr-4">
+          <button className="bg-[#059669] hover:bg-[#047857] text-white font-semibold px-6 py-2 rounded-full shadow-md transition">
             Selengkapnya
           </button>
         </div>
@@ -110,4 +72,3 @@ export default function AcaraHijau() {
     </section>
   );
 }
-    

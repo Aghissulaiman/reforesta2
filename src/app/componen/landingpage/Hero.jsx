@@ -29,12 +29,13 @@ export default function Hero() {
         <div className="relative flex justify-center  md:justify-end">
           {/* Gambar utama */}
           <div className="w-[500px] h-[280px] rounded-xl overflow-hidden shadow-lg">
-            <Image
-              src="/LHero.png"
-              alt="Menanam pohon"
-              width={500}
-              height={280}
-              className="object-cover"
+           <video
+              src="/heroVideo.mp4" // ganti file kamu
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="w-full h-full object-cover"
             />
           </div>
 

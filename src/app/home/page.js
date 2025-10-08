@@ -11,7 +11,7 @@ import Komunitas from "../componen/landingpage/Komunitas";
 import useAuthRedirect from "../../../hooks/useAuthRedirect";
 
 export default function home(){
-    useAuthRedirect(); 
+    useAuthRedirect() 
     return(
         
         <div>
