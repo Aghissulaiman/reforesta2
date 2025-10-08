@@ -1,39 +1,52 @@
 "use client";
 
+
 import Image from "next/image";
 
 export default function Hero() {
+
   return (
-    <section className="w-full bg-white py-20">
-      <div className="max-w-6xl mx-auto px-6 md:px-12 flex flex-col md:flex-row items-center justify-between gap-12">
+    <section className="w-full bg-white mt-7 py-20">
+      <div className="max-w-6xl mx-auto px-6 md:px-12 flex flex-col md:flex-row items-center justify-between gap-10">
         
         {/* === BAGIAN KIRI === */}
-        <div className="flex flex-col items-center md:items-start text-center md:text-left space-y-5">
-          
-          {/* Logo + Judul */}
-          <div className="flex flex-col items-center md:items-start">
-            <Image
-              src="/logo.png"
-              alt="Logo Reforestacia"
-              width={80}
-              height={80}
-              className="mb-2 select-none"
-            />
-            <h1 className="text-4xl font-extrabold text-[#059669] tracking-wide">
-              REFORESTACIA
-            </h1>
+        <div className="flex flex-col justify-center md:w-1/2 h-full md:h-[500px] text-center md:text-left">
+          <div className="flex flex-col items-center md:items-start justify-center space-y-5">
+            
+            {/* Logo + Judul */}
+            <div className="flex flex-col items-center md:items-start justify-center">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-24 h-24 text-[#047857] mx-auto md:mx-0 items-center
+                 object-contain"
+                viewBox="0 0 48 48"
+              >
+                <path
+                  fill="none"
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="4"
+                  d="M24 42V26m17.942-15.993c-.776 13.024-9.13 17.236-15.946 17.896C24.896 28.009 24 27.104 24 26v-8.372c0-.233.04-.468.125-.684C27.117 9.199 34.283 8.155 40 8.02c1.105-.027 2.006.884 1.94 1.987M7.998 6.072c9.329.685 14.197 6.091 15.836 9.558c.115.242.166.508.166.776v7.504c0 1.14-.96 2.055-2.094 1.94C7.337 24.384 6.11 14.786 6.009 8C5.993 6.894 6.897 5.99 8 6.072"
+                />
+              </svg>
+              <h1 className="text-4xl font-extrabold text-[#059669] tracking-wide">
+                REFORESTACIA
+              </h1>
+            </div>
+
+            {/* Deskripsi */}
+            <p className="text-gray-600 text-lg max-w-sm leading-relaxed mx-auto md:mx-0">
+              Cara paling sederhana untuk menyalurkan dana untuk penghijauan.
+            </p>
+
+            {/* Tombol */}
+            <button className="px-8 py-2 border-2 border-[#059669] text-[#059669] font-semibold rounded-full hover:bg-[#059669] hover:text-white transition-all duration-300 shadow-sm hover:shadow-md">
+              Mulai Sekarang
+            </button>
           </div>
-
-          {/* Deskripsi */}
-          <p className="text-gray-600 text-lg max-w-sm leading-relaxed">
-            Cara paling sederhana untuk menyalurkan dana untuk penghijauan.
-          </p>
-
-          {/* Tombol */}
-          <button className="px-8 py-2 border-2 border-[#059669] text-[#059669] font-semibold rounded-full hover:bg-[#059669] hover:text-white transition-all duration-300 shadow-sm hover:shadow-md">
-            Mulai Sekarang
-          </button>
         </div>
+
 
         {/* === BAGIAN KANAN === */}
         <div className="flex flex-col items-center md:items-end relative">
@@ -50,7 +63,7 @@ export default function Hero() {
           </div>
 
           {/* Kotak Statistik */}
-          <div className="flex gap-4 mt-[-35px]">
+          <div className="flex gap-4 mr-60 mt-[-35px]">
             
             {/* Komunitas */}
             <div className="bg-[#059669] text-white px-5 py-3 rounded-xl shadow-md flex flex-col items-center min-w-[120px]">

@@ -21,8 +21,9 @@ export default function BenefitSection() {
     },
   ];
 
+
   return (
-    <section className="relative bg-gradient-to-b from-white via-green-50 to-white py-24 overflow-hidden">
+    <section  className="relative bg-gradient-to-b from-white via-green-50 to-white py-24 overflow-hidden">
       {/* Judul Section */}
       <div className="text-center mb-16">
         <h2 className="text-3xl md:text-4xl font-extrabold text-[#065f46]">

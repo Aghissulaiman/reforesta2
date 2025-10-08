@@ -1,5 +1,6 @@
 "use client";
 
+
 import { useState } from "react";
 import Image from "next/image";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
@@ -27,6 +28,7 @@ export default function CarouselRegion() {
     if (diff === lokasi.length - 1 || diff === -1) return "left";
     return "hidden";
   };
+
 
   return (
     <section className="py-16 bg-white text-center">
@@ -126,6 +128,7 @@ export default function CarouselRegion() {
           ></div>
         ))}
       </div>
+      
     </section>
   );
 }

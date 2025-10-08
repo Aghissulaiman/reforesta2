@@ -1,4 +1,9 @@
+"use client";
+
 import Image from "next/image";
+import { useEffect } from "react";
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 export default function Komunitas() {
   const komunitas = [
@@ -19,8 +24,11 @@ export default function Komunitas() {
     },
   ];
 
+
   return (
-    <section className="relative py-24 bg-gradient-to-b from-white to-[#F9FAFB] overflow-hidden">
+    <section
+      className="relative py-14 bg-gradient-to-b from-white to-[#F9FAFB] overflow-hidden"
+    >
       {/* Background Wave lembut */}
       <div className="absolute inset-0">
         <svg
@@ -38,7 +46,11 @@ export default function Komunitas() {
 
       <div className="relative z-10 max-w-6xl mx-auto px-6 text-center">
         {/* Judul */}
-        <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-16">
+        <h2
+          data-aos="fade-up"
+          data-aos-delay="100"
+          className="text-3xl md:text-4xl font-bold text-gray-900 mb-16"
+        >
           Kami Bekerja Sama Dengan Komunitas Terkenal
         </h2>
 
@@ -47,6 +59,8 @@ export default function Komunitas() {
           {komunitas.map((item, index) => (
             <div
               key={index}
+              data-aos="zoom-in"
+              data-aos-delay={index * 200} // efek muncul berurutan
               className="group flex flex-col items-center transition-transform duration-500 hover:scale-[1.08]"
             >
               {/* Logo */}
