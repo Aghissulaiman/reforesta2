@@ -60,12 +60,12 @@ export default function Home() {
     <div className="bg-green-50 min-h-screen">
       <NavbarAll />
       <SekarangSection />
-      <DukungOleh />
       <Komunitas />
       {user.role === "komunitas" && user.subRole === "penanam" && (
-        <LanggananSection />
-      )}
+          <LanggananSection />
+        )}
       <AcaraHijau />
+        <DukungOleh />
       <Footer />
     </div>
   );
