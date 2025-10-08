@@ -8,8 +8,8 @@ export default function langganan(){
     return(
         <div>
             <NavbarAll/>
-            <LanggananSection2/>
             <KenapaLangganan/>
+            <LanggananSection2/>
             <Footer/>
         </div>
     )

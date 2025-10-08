@@ -1,4 +1,3 @@
-// components/BenefitSection.jsx
 "use client";
 
 import { ThumbsUp, Laptop, Newspaper } from "lucide-react";
@@ -6,71 +5,80 @@ import { ThumbsUp, Laptop, Newspaper } from "lucide-react";
 export default function BenefitSection() {
   const benefits = [
     {
-      icon: <ThumbsUp className="w-7 h-7 text-white" />,
-      text: "Semua catatan kontribusi terekam rapi",
+      icon: <ThumbsUp className="w-8 h-8 text-green-600" />,
+      title: "Transparan & Akurat",
+      text: "Semua kontribusi kamu tercatat otomatis dan dapat dipantau kapan pun.",
     },
     {
-      icon: <Laptop className="w-7 h-7 text-white" />,
-      text: "Antar muka yang intuitif untuk semua pengguna",
+      icon: <Laptop className="w-8 h-8 text-green-600" />,
+      title: "Mudah Digunakan",
+      text: "Tampilan sederhana, cepat dipahami bahkan untuk pengguna baru.",
     },
     {
-      icon: <Newspaper className="w-7 h-7 text-white" />,
-      text: "Menampilkan informasi kegiatan penghijauan",
+      icon: <Newspaper className="w-8 h-8 text-green-600" />,
+      title: "Info Penghijauan Terupdate",
+      text: "Kegiatan penanaman terbaru selalu diperbarui secara real-time.",
     },
   ];
 
   return (
-    <section className="relative bg-white py-20 overflow-hidden">
-      {/* Judul */}
-      <h2 className="text-2xl md:text-3xl font-bold text-center mb-20 text-black">
-        Benefit
-      </h2>
+    <section className="relative bg-gradient-to-b from-white via-green-50 to-white py-24 overflow-hidden">
+      {/* Judul Section */}
+      <div className="text-center mb-16">
+        <h2 className="text-3xl md:text-4xl font-extrabold text-[#065f46]">
+          Kenapa Harus <span className="text-[#059669]">Reforestacia?</span>
+        </h2>
+        <p className="text-gray-600 mt-3 text-base md:text-lg max-w-2xl mx-auto">
+          Kami percaya penghijauan bisa dimulai dari langkah kecil.  
+          Berikut keuntungan yang kamu dapatkan bersama kami.
+        </p>
+      </div>
 
-      {/* Background garis hijau */}
-      <div className="absolute inset-0 flex justify-center">
+      {/* Konten Benefit */}
+      <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 px-8 md:px-16">
+        {benefits.map((item, index) => (
+          <div
+            key={index}
+            className="group bg-white border border-green-100 hover:border-green-400 shadow-md hover:shadow-xl rounded-2xl p-8 flex flex-col items-center text-center transition-all duration-300 hover:-translate-y-2"
+          >
+            {/* Icon */}
+            <div className="bg-green-100 group-hover:bg-green-200 transition-colors duration-300 rounded-full p-4 mb-4 shadow-sm">
+              {item.icon}
+            </div>
+
+            {/* Title */}
+            <h3 className="text-xl font-semibold text-gray-800 mb-2">
+              {item.title}
+            </h3>
+
+            {/* Text */}
+            <p className="text-gray-600 text-sm leading-relaxed">
+              {item.text}
+            </p>
+          </div>
+        ))}
+      </div>
+
+      {/* Background Decorative Element */}
+      <div className="absolute inset-0 -z-10 flex justify-center">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 1200 400"
           preserveAspectRatio="none"
-          className="w-full h-full opacity-40 text-green-500"
+          className="w-full h-full opacity-20 text-green-300"
           fill="none"
         >
           <path
             d="M0,200 C300,100 900,300 1200,200"
             stroke="currentColor"
-            strokeWidth="2"
+            strokeWidth="3"
           />
           <path
-            d="M0,250 C300,150 900,350 1200,250"
-            stroke="currentColor"
-            strokeWidth="2"
-          />
-          <path
-            d="M0,300 C300,200 900,400 1200,300"
+            d="M0,260 C300,160 900,360 1200,260"
             stroke="currentColor"
             strokeWidth="2"
           />
         </svg>
-      </div>
-
-      {/* Konten Benefit */}
-      <div className="relative z-10 flex flex-col md:flex-row justify-center items-start gap-6 px-6 md:px-12">
-        {benefits.map((item, index) => (
-          <div
-            key={index}
-            className="bg-[#059669] text-white rounded-xl shadow-lg w-full md:w-1/4 h-[200px] flex flex-col items-center justify-center text-center transition-transform hover:-translate-y-2"
-          >
-            {/* Lingkaran ikon di atas kotak */}
-            <div className="absolute -top-16 bg-[#047857] p-4 rounded-full shadow-md flex items-center justify-center">
-              {item.icon}
-            </div>
-
-            {/* Teks */}
-            <p className="text-base md:text-lg font-medium px-4 leading-snug mt-4">
-              {item.text}
-            </p>
-          </div>
-        ))}
       </div>
     </section>
   );

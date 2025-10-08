@@ -20,10 +20,10 @@ export default function NavbarAll() {
   ];
 
   const profileItems = [
-    { name: "Profile", path: "/profile" },
+    { name: "Profile", path: "/home/profile" },
     { name: "Riwayat", path: "/riwayat" },
     { name: "Setting", path: "/setting" },
-    { name: "Logout", path: "/logout" },
+    { name: "Logout", path: "/" },
   ];
 
   // Klik di luar dropdown otomatis menutup
