@@ -1,11 +1,10 @@
 "use client";
 
 import { supabase } from "../../../lib/supabaseClient";
+import Link from "next/link";
 import React, { useState } from "react";
 
 export default function Register() {
-  // ❌ Hapus useAuthRedirect();
-
   const [accountType, setAccountType] = useState(""); // Komunitas / Sekolah
   const [gender, setGender] = useState("");
   const [userRole, setUserRole] = useState(""); // Donatur / Penanam
@@ -19,8 +18,6 @@ export default function Register() {
     jenis_kelamin: "",
     jenis_akun: "",
     instansi: "",
-
-    // Sekolah
     nama: "",
     email: "",
     password: "",
@@ -89,17 +86,16 @@ export default function Register() {
       }
     }
 
-    // ✅ Alert saja, tidak langsung ke Home
-    alert("✅ Register berhasil! Silakan confirmasi email anda.");
+    alert("✅ Register berhasil! Silakan konfirmasi email Anda.");
   };
 
-  const getButtonClass = (type, currentType, base = "bg-green-600") =>
+  const getButtonClass = (type, currentType, base = "bg-[#059669]") =>
     currentType === type
-      ? `${base} text-white shadow-md font-semibold focus:ring-green-300 focus:ring focus:ring-opacity-50`
-      : "text-green-600 border border-green-600 bg-white hover:bg-green-50 font-medium dark:text-gray-400 dark:border-gray-500 hover:dark:bg-gray-800";
+      ? `${base} text-white shadow-md font-semibold focus:ring-[#059669] focus:ring focus:ring-opacity-50`
+      : "text-[#059669] border border-[#059669] bg-white hover:bg-green-50 font-medium hover:shadow-sm";
 
   const backgroundStyle = {
-    background: "linear-gradient(135deg, #4CAF50, #039B09)",
+    background: "#ffffff",
   };
 
   const imagePanelStyle = {
@@ -111,7 +107,7 @@ export default function Register() {
   const SecondaryInput = () =>
     accountType === "Sekolah" ? (
       <div>
-        <label className="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-200">
+        <label className="block mb-1 text-sm font-medium text-gray-700">
           NUPTK
         </label>
         <input
@@ -120,13 +116,13 @@ export default function Register() {
           value={form.nuptk}
           onChange={handleChange}
           placeholder="Masukkan NUPTK"
-          className="block w-full px-4 py-2 text-black placeholder-gray-400 border border-[#4CAF50] rounded-lg focus:border-[#4CAF50] focus:ring-0 focus:outline-none hover:border-2 transition-all duration-200"
+          className="block w-full px-4 py-2 text-black border border-[#059669] rounded-lg focus:border-[#059669] focus:ring-0 hover:border-2 transition-all duration-200"
           required
         />
       </div>
     ) : (
       <div>
-        <label className="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-700">
+        <label className="block mb-1 text-sm font-medium text-gray-700">
           Jenis Kelamin
         </label>
         <div className="flex space-x-2">
@@ -159,38 +155,79 @@ export default function Register() {
       className="flex justify-center items-center min-h-screen py-10 px-4 sm:px-8 font-sans -mt-8"
       style={backgroundStyle}
     >
-      <section className="bg-white dark:bg-gray-900 shadow-2xl rounded-2xl overflow-hidden w-full max-w-6xl">
+      <section className="bg-white shadow-2xl rounded-2xl overflow-hidden w-full max-w-6xl">
         <div className="flex flex-col lg:flex-row">
+          {/* KIRI */}
           <div
-            className="hidden lg:flex flex-col justify-center items-center p-8 lg:w-2/5 text-white text-center"
+            className="hidden lg:flex flex-col justify-center items-center p-8 lg:w-2/5 text-white text-center relative"
             style={imagePanelStyle}
           >
-            <img src="/logo.png" alt="Logo" className="w-40 h-40 object-contain" />
-            <h1 className="text-2xl font-bold mt-3">
-              Buat Akun Anda Sekarang
-            </h1>
-            <p className="mt-1 text-sm font-light text-gray-200">
-              Mari bantu kami menjadikan bumi hijau kembali.
-            </p>
-            <div className="mt-8">
-              <h2 className="text-sm font-medium">
-                Sudah punya <span className="font-bold">Akun?</span>
-              </h2>
-              <button className="mt-3 w-32 h-10 px-6 py-2 bg-white text-[#4CAF50] font-medium transition-colors duration-300 transform border rounded-lg hover:bg-gray-50 dark:hover:bg-[#1CA221]">
-                Masuk
-              </button>
+            <div className="absolute inset-0 bg-black/40 rounded-2xl"></div>
+
+            <div className="relative z-10 flex flex-col items-center">
+              {/* SVG LOGO */}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-24 h-24 text-[#047857]"
+                viewBox="0 0 48 48"
+              >
+                <path
+                  fill="none"
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="4"
+                  d="M24 42V26m17.942-15.993c-.776 13.024-9.13 17.236-15.946 17.896C24.896 28.009 24 27.104 24 26v-8.372c0-.233.04-.468.125-.684C27.117 9.199 34.283 8.155 40 8.02c1.105-.027 2.006.884 1.94 1.987M7.998 6.072c9.329.685 14.197 6.091 15.836 9.558c.115.242.166.508.166.776v7.504c0 1.14-.96 2.055-2.094 1.94C7.337 24.384 6.11 14.786 6.009 8C5.993 6.894 6.897 5.99 8 6.072"
+                />
+              </svg>
+
+              <h1 className="text-2xl font-bold mt-3">
+                Buat Akun Anda Sekarang
+              </h1>
+              <p className="mt-1 text-sm font-light text-gray-200">
+                Mari bantu kami menjadikan bumi hijau kembali.
+              </p>
+
+              <div className="mt-8">
+                <h2 className="text-sm font-medium">
+                  Sudah punya <span className="font-bold">Akun?</span>
+                </h2>
+                <Link
+                  href="/login"
+                  className="inline-block mt-3 w-50 h-10 px-6 py-2 bg-white text-[#059669] font-medium transition-colors duration-300 transform border rounded-lg hover:bg-gray-50 dark:hover:bg-[#059669]"
+                >
+                  Masuk
+                </Link>
+              </div>
             </div>
           </div>
 
-          {/* Kanan - form */}
+          {/* KANAN */}
           <div className="flex items-center bg-white justify-center w-full py-8 px-6 lg:px-8 lg:w-3/5">
             <div className="w-full">
-              <img src="/logo.png" alt="Logo" className="w-30 h-30 object-contain -mt-5" />
-              <div className="mt-0 mb-4">
+              {/* SVG Logo di Tengah */}
+              <div className="flex justify-center mb-2 -mt-4">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="w-20 h-20 text-[#047857]"
+                  viewBox="0 0 48 48"
+                >
+                  <path
+                    fill="none"
+                    stroke="currentColor"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="4"
+                    d="M24 42V26m17.942-15.993c-.776 13.024-9.13 17.236-15.946 17.896C24.896 28.009 24 27.104 24 26v-8.372c0-.233.04-.468.125-.684C27.117 9.199 34.283 8.155 40 8.02c1.105-.027 2.006.884 1.94 1.987M7.998 6.072c9.329.685 14.197 6.091 15.836 9.558c.115.242.166.508.166.776v7.504c0 1.14-.96 2.055-2.094 1.94C7.337 24.384 6.11 14.786 6.009 8C5.993 6.894 6.897 5.99 8 6.072"
+                  />
+                </svg>
+              </div>
+
+              <div className="mt-0 mb-4 text-center">
                 <h1 className="text-sm font-medium text-gray-700 mb-2">
                   Pilih Jenis Akun
                 </h1>
-                <div className="flex space-x-3">
+                <div className="flex space-x-3 justify-center">
                   <button
                     type="button"
                     onClick={() => setAccountType("Komunitas")}
@@ -229,8 +266,10 @@ export default function Register() {
                     name={accountType === "Komunitas" ? "pic" : "nama"}
                     value={accountType === "Komunitas" ? form.pic : form.nama}
                     onChange={handleChange}
-                    placeholder={`Masukkan ${accountType === "Komunitas" ? "Nama PIC" : "Nama"}`}
-                    className="block w-full px-4 py-2 text-black border border-[#4CAF50] rounded-lg focus:border-[#4CAF50] focus:ring-0 hover:border-2 transition-all"
+                    placeholder={`Masukkan ${
+                      accountType === "Komunitas" ? "Nama PIC" : "Nama"
+                    }`}
+                    className="block w-full px-4 py-2 text-black border border-[#059669] rounded-lg focus:border-[#059669] focus:ring-0 hover:border-2 transition-all"
                     required
                   />
                 </div>
@@ -238,59 +277,101 @@ export default function Register() {
                 {/* Nama Komunitas / Sekolah */}
                 <div>
                   <label className="block mb-1 text-sm font-medium text-gray-700">
-                    {accountType === "Komunitas" ? "Nama Komunitas" : "Nama Sekolah"}
+                    {accountType === "Komunitas"
+                      ? "Nama Komunitas"
+                      : "Nama Sekolah"}
                   </label>
                   <input
                     type="text"
-                    name={accountType === "Komunitas" ? "nama_komunitas" : "nama_sekolah"}
-                    value={accountType === "Komunitas" ? form.nama_komunitas : form.nama_sekolah}
+                    name={
+                      accountType === "Komunitas"
+                        ? "nama_komunitas"
+                        : "nama_sekolah"
+                    }
+                    value={
+                      accountType === "Komunitas"
+                        ? form.nama_komunitas
+                        : form.nama_sekolah
+                    }
                     onChange={handleChange}
                     placeholder={`Masukkan ${
-                      accountType === "Komunitas" ? "Nama Komunitas" : "Nama Sekolah"
+                      accountType === "Komunitas"
+                        ? "Nama Komunitas"
+                        : "Nama Sekolah"
                     }`}
-                    className="block w-full px-4 py-2 text-black border border-[#4CAF50] rounded-lg focus:border-[#4CAF50] focus:ring-0 hover:border-2 transition-all"
+                    className="block w-full px-4 py-2 text-black border border-[#059669] rounded-lg focus:border-[#059669] focus:ring-0 hover:border-2 transition-all"
                     required
                   />
                 </div>
 
                 {/* Email */}
                 <div>
-                  <label className="block mb-1 text-sm font-medium text-gray-700">Email</label>
+                  <label className="block mb-1 text-sm font-medium text-gray-700">
+                    Email
+                  </label>
                   <input
                     type="email"
-                    name={accountType === "Komunitas" ? "email_komunitas" : "email"}
-                    value={accountType === "Komunitas" ? form.email_komunitas : form.email}
+                    name={
+                      accountType === "Komunitas"
+                        ? "email_komunitas"
+                        : "email"
+                    }
+                    value={
+                      accountType === "Komunitas"
+                        ? form.email_komunitas
+                        : form.email
+                    }
                     onChange={handleChange}
                     placeholder="Masukkan Email"
-                    className="block w-full px-4 py-2 text-black border border-[#4CAF50] rounded-lg focus:border-[#4CAF50] focus:ring-0 hover:border-2 transition-all"
+                    className="block w-full px-4 py-2 text-black border border-[#059669] rounded-lg focus:border-[#059669] focus:ring-0 hover:border-2 transition-all"
                     required
                   />
                 </div>
 
                 {/* Password */}
                 <div>
-                  <label className="block mb-1 text-sm font-medium text-gray-700">Password</label>
+                  <label className="block mb-1 text-sm font-medium text-gray-700">
+                    Password
+                  </label>
                   <input
                     type="password"
-                    name={accountType === "Komunitas" ? "password_komunitas" : "password"}
-                    value={accountType === "Komunitas" ? form.password_komunitas : form.password}
+                    name={
+                      accountType === "Komunitas"
+                        ? "password_komunitas"
+                        : "password"
+                    }
+                    value={
+                      accountType === "Komunitas"
+                        ? form.password_komunitas
+                        : form.password
+                    }
                     onChange={handleChange}
                     placeholder="Masukkan Password"
-                    className="block w-full px-4 py-2 text-black border border-[#4CAF50] rounded-lg focus:border-[#4CAF50] focus:ring-0 hover:border-2 transition-all"
+                    className="block w-full px-4 py-2 text-black border border-[#059669] rounded-lg focus:border-[#059669] focus:ring-0 hover:border-2 transition-all"
                     required
                   />
                 </div>
 
                 {/* No. Telepon */}
                 <div>
-                  <label className="block mb-1 text-sm font-medium text-gray-700">No. Telepon</label>
+                  <label className="block mb-1 text-sm font-medium text-gray-700">
+                    No. Telepon
+                  </label>
                   <input
                     type="tel"
-                    name={accountType === "Komunitas" ? "no_telepon_komunitas" : "no_telepon"}
-                    value={accountType === "Komunitas" ? form.no_telepon_komunitas : form.no_telepon}
+                    name={
+                      accountType === "Komunitas"
+                        ? "no_telepon_komunitas"
+                        : "no_telepon"
+                    }
+                    value={
+                      accountType === "Komunitas"
+                        ? form.no_telepon_komunitas
+                        : form.no_telepon
+                    }
                     onChange={handleChange}
                     placeholder="Masukkan No. Telepon"
-                    className="block w-full px-4 py-2 text-black border border-[#4CAF50] rounded-lg focus:border-[#4CAF50] focus:ring-0 hover:border-2 transition-all"
+                    className="block w-full px-4 py-2 text-black border border-[#059669] rounded-lg focus:border-[#059669] focus:ring-0 hover:border-2 transition-all"
                     required
                   />
                 </div>
@@ -333,7 +414,7 @@ export default function Register() {
                 <div className="md:col-span-2 mt-6">
                   <button
                     type="submit"
-                    className="flex items-center justify-center w-full px-6 py-3 text-lg font-semibold text-white capitalize transition-colors duration-300 transform bg-green-600 rounded-xl hover:bg-green-700 focus:outline-none focus:ring focus:ring-green-300 shadow-lg hover:shadow-xl"
+                    className="flex items-center justify-center w-full px-6 py-3 text-lg font-semibold text-white capitalize transition-colors duration-300 transform bg-[#059669] rounded-xl hover:bg-[#037f58] focus:outline-none focus:ring focus:ring-green-300 shadow-lg hover:shadow-xl"
                   >
                     Daftar
                   </button>

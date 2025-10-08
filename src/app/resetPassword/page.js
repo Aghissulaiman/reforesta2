@@ -33,7 +33,7 @@ export default function ResetPassword() {
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-50">
       <div className="bg-white shadow-lg rounded-lg p-8 w-full max-w-md">
-        <h2 className="text-2xl font-semibold text-center text-[#4CAF50] mb-4">
+        <h2 className="text-2xl font-semibold text-center text-[#047857] mb-4">
           Atur Ulang Password
         </h2>
 
@@ -43,17 +43,17 @@ export default function ResetPassword() {
             placeholder="Masukkan password baru"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-4 py-2 border border-[#4CAF50] rounded-lg focus:ring-0 focus:border-[#4CAF50] outline-none"
+            className="w-full px-4 py-2 border border-[#047857] rounded-lg focus:ring-0 focus:border-[#047857] outline-none"
             required
           />
 
           <button
             type="submit"
             disabled={loading}
-            className={`w-full bg-[#4CAF50] text-white py-2 rounded-lg transition-all duration-300 ${
+            className={`w-full bg-[#047857] text-white py-2 rounded-lg transition-all duration-300 ${
               loading
                 ? "opacity-60 cursor-not-allowed"
-                : "hover:bg-[#69cd6d]"
+                : "hover:bg-[#047857]"
             }`}
           >
             {loading ? "Menyimpan..." : "Simpan Password Baru"}
