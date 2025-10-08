@@ -17,9 +17,6 @@ export default function tanam() {
         <div>
         <NavbarAll/>
         <TanamPohon/>
-        {/* <DetailPembayaran/>
-        <PilihLokasi/>
-        <PohonList/> */}
         <TanamPohonPage/>
         <Footer/>   
         </div>

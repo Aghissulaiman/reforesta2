@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-export default function Login() {
+export default function login() {
   const router = useRouter();
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
@@ -12,6 +12,43 @@ export default function Login() {
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  // Fungsi untuk mencari role di database
+  const fetchUserRole = async (email) => {
+    // 1. Cek di tabel Komunitas
+    const { data: komunitasData, error: komError } = await supabase
+      .from("Komunitas")
+      .select("jenis_akun")
+      .eq("email_komunitas", email)
+      .single();
+
+    if (komunitasData) {
+      // Ditemukan di Komunitas. Role adalah Donatur atau Penanam.
+      const role = komunitasData.jenis_akun?.toLowerCase();
+      if (role === "donatur" || role === "penanam") {
+        return { role: role };
+      }
+      console.error("Role Komunitas tidak valid:", komunitasData.jenis_akun);
+      throw new Error("Role Komunitas tidak valid.");
+    }
+
+    // 2. Cek di tabel Sekolah
+    const { data: sekolahData, error: sekError } = await supabase
+      .from("Sekolah")
+      .select("nama_sekolah")
+      .eq("email", email)
+      .single();
+
+    if (sekolahData) {
+      // Ditemukan di Sekolah. Kita tetapkan role-nya sebagai "sekolah"
+      // Anda perlu menyesuaikan home.js jika ini role baru.
+      return { role: "sekolah" };
+    }
+
+    // Jika tidak ditemukan di kedua tabel, ini adalah masalah data
+    console.warn("User authenticated but missing from Komunitas/Sekolah tables:", email);
+    throw new Error("Data pengguna tidak ditemukan di database.");
   };
 
   const handleLogin = async (e) => {
@@ -25,26 +62,40 @@ export default function Login() {
 
     setLoading(true);
     try {
-      const { data: userData, error: userError } = await supabase
-        .from("Komunitas")
-        .select("email_komunitas, password_komunitas, jenis_akun")
-        .eq("email_komunitas", form.email)
-        .single();
+      // 1. Otentikasi melalui Supabase Auth
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+        email: form.email,
+        password: form.password,
+      });
 
-      if (userError || !userData) throw new Error("Email tidak ditemukan");
-      if (userData.password_komunitas !== form.password)
-        throw new Error("Password salah");
+      if (authError) {
+        // Pesan error Supabase untuk kredensial yang salah
+        if (authError.message.includes("Invalid login credentials")) {
+             throw new Error("Email atau Password salah.");
+        }
+        throw new Error(authError.message);
+      }
+      
+      const userEmail = authData.user.email;
+      
+      // 2. Ambil data role dari database
+      const { role } = await fetchUserRole(userEmail);
 
+      // 3. Simpan data user (dengan role yang benar) ke localStorage
       const user = {
-        email: userData.email_komunitas,
-        role: "komunitas",
-        subRole: userData.jenis_akun?.toLowerCase() || "penanam",
+        email: userEmail,
+        // *** FIX UTAMA: ROLE UTAMA DIISI DENGAN ROLE SUB-AKUN ***
+        role: role, 
       };
+
+      // Pastikan Anda mengubah logika di home.js untuk menangani role "sekolah" 
+      // jika sekolah memiliki tampilan dashboard yang berbeda dari "penanam".
       localStorage.setItem("user", JSON.stringify(user));
 
       router.push("/home");
+
     } catch (err) {
-      setError(err.message || "Login gagal, periksa kembali data Anda!");
+      setError(err.message || "Login gagal, silakan coba lagi.");
     } finally {
       setLoading(false);
     }
@@ -100,6 +151,7 @@ export default function Login() {
             className="block w-full px-4 py-2 text-black placeholder-gray-400 border border-[#059669] rounded-lg focus:border-[#037f58] focus:ring-0 focus:outline-none hover:border-2 transition-all duration-200"
             type="email"
             placeholder="Masukkan email"
+            required
           />
         </div>
 
@@ -128,6 +180,7 @@ export default function Login() {
             className="block w-full px-4 py-2 text-black placeholder-gray-400 border border-[#059669] rounded-lg focus:border-[#007e56] focus:ring-0 focus:outline-none hover:border-2 transition-all duration-200"
             type="password"
             placeholder="Masukkan password"
+            required
           />
         </div>
 

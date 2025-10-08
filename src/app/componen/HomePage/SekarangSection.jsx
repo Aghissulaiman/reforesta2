@@ -18,7 +18,7 @@ export default function SekarangSection() {
             {/* Judul: Lebih fokus, warna yang lebih cerah */}
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-gray-800 leading-snug">
               Hijaukan Bumi,{" "}
-              <span className="text-green-600">
+              <span className="text-[#047857]">
                 Mulai Sekarang
               </span>
               <span className="text-green-500">
@@ -36,7 +36,7 @@ export default function SekarangSection() {
             <div className="pt-2">
               <Link
                 href="/tanam"
-                className="inline-block bg-green-500 text-white px-8 py-3 rounded-lg font-semibold text-base md:text-lg 
+                className="inline-block bg-[#047857] text-white px-8 py-3 rounded-lg font-semibold text-base md:text-lg 
                            shadow-md shadow-green-200 
                            transition-all duration-300 
                            hover:bg-green-600 hover:shadow-lg hover:shadow-green-300

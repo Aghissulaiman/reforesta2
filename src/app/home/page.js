@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import NavbarAll from "../componen/HomePage/NavbarAll";
+import NavbarDonatur from "../componen/HomePage/NavbarDonatur";
 import SekarangSection from "../componen/HomePage/SekarangSection";
 import DukungOleh from "../componen/HomePage/DukungOleh";
 import LanggananSection from "../componen/HomePage/LanggananSection";
@@ -14,34 +15,32 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem("user");
-      if (stored) {
+    const stored = localStorage.getItem("user");
+    if (stored) {
+      try {
         const parsed = JSON.parse(stored);
-
-        // ✅ Validasi minimal: pastikan email ada
-        if (parsed.email) {
+        // Pastikan role "sekolah" juga ditangani di navbar jika perlu
+        if (parsed.email && (parsed.role === "penanam" || parsed.role === "donatur" || parsed.role === "sekolah")) {
           setUser(parsed);
         }
+      } catch (err) {
+        console.error("Gagal memuat user:", err);
       }
-    } catch (err) {
-      console.error("Gagal memuat user:", err);
-    } finally {
-      setLoading(false);
     }
+    setLoading(false);
   }, []);
 
+  // Loading
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center h-screen bg-white">
         <div className="w-12 h-12 border-4 border-green-500 border-t-transparent rounded-full animate-spin"></div>
-        <p className="text-gray-600 mt-4 animate-pulse">
-          Memuat data pengguna...
-        </p>
+        <p className="text-gray-600 mt-4 animate-pulse">Memuat data pengguna...</p>
       </div>
     );
   }
 
+  // Belum login
   if (!user) {
     return (
       <div className="flex flex-col items-center justify-center h-screen bg-white text-center">
@@ -58,14 +57,21 @@ export default function Home() {
 
   return (
     <div className="bg-green-50 min-h-screen">
-      <NavbarAll />
+      {/* Navbar sesuai role */}
+      {/* Asumsi: Role "penanam" dan "sekolah" menggunakan NavbarAll */}
+      {(user.role === "penanam" || user.role === "sekolah") && <NavbarAll user={user} />}
+      {user.role === "donatur" && <NavbarDonatur user={user} />}
+
       <SekarangSection />
       <Komunitas />
-      {user.role === "komunitas" && user.subRole === "penanam" && (
-          <LanggananSection />
-        )}
+
+      {/* FIX: LanggananSection hanya muncul jika role adalah "penanam" */}
+      {user.role === "penanam" && (
+        <LanggananSection />
+      )}
+
       <AcaraHijau />
-        <DukungOleh />
+      <DukungOleh />
       <Footer />
     </div>
   );

@@ -7,7 +7,7 @@ import { User, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useRef, useEffect } from "react";
 
-export default function NavbarAll({ user }) {
+export default function NavbarDonatur({ user }) {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -16,7 +16,6 @@ export default function NavbarAll({ user }) {
     { name: "Beranda", path: "/home" },
     { name: "Tanam", path: "/tanam" },
     { name: "Acara", path: "/acara" },
-    { name: "Langganan", path: "/langganan" },
   ];
 
   const profileItems = [
