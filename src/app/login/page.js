@@ -7,6 +7,7 @@ import Link from "next/link";
 import useAuthRedirect from "../../../hooks/useAuthRedirect";
 
 export default function Login(){ 
+  useAuthRedirect();
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);

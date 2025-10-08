@@ -10,10 +10,9 @@ import Footer from "../componen/landingpage/Footer";
 import Komunitas from "../componen/landingpage/Komunitas";
 import useAuthRedirect from "../../../hooks/useAuthRedirect";
 
-export default function home(){
-    useAuthRedirect() 
+export default function home(){ 
+    useAuthRedirect();
     return(
-        
         <div>
             <NavbarAll/>
             <SekarangSection/>
