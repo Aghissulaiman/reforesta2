@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { FaChevronLeft, FaChevronRight, FaTrash } from "react-icons/fa";
 import usePohon from "../../../../hooks/pohon";
 import useDaerah from "../../../../hooks/daerah";
 
@@ -13,10 +13,10 @@ export default function TanamPohonPage() {
 
   const [index, setIndex] = useState(0);
   const [lokasiTerpilih, setLokasiTerpilih] = useState(null);
-  const [bibitTerpilih, setBibitTerpilih] = useState(null);
-  const [lokasiAktif, setLokasiAktif] = useState(false); // new state
+  const [bibitTerpilih, setBibitTerpilih] = useState([]);
+  const [lokasiAktif, setLokasiAktif] = useState(false);
 
-  // === Navigasi Carousel Lokasi ===
+  // Navigasi Carousel
   const nextSlide = () => {
     const newIndex = (index + 1) % daerah.length;
     setIndex(newIndex);
@@ -39,13 +39,35 @@ export default function TanamPohonPage() {
     return "hidden";
   };
 
+  const toggleBibit = (item) => {
+    const exists = bibitTerpilih.find((b) => b.nama === item.nama);
+    if (exists) {
+      setBibitTerpilih(bibitTerpilih.filter((b) => b.nama !== item.nama));
+    } else {
+      setBibitTerpilih([...bibitTerpilih, { ...item, jumlah: 1 }]);
+    }
+  };
+
+  const updateJumlah = (nama, jumlah) => {
+    setBibitTerpilih(
+      bibitTerpilih.map((b) =>
+        b.nama === nama ? { ...b, jumlah: Math.max(1, jumlah) } : b
+      )
+    );
+  };
+
+  const totalHarga = bibitTerpilih.reduce(
+    (acc, b) => acc + b.harga * b.jumlah,
+    0
+  );
+
   return (
-    <section className="w-full px-6 py-10 flex flex-col lg:flex-row gap-10 relative">
-      {/* === Bagian Kiri: Pilih Lokasi & Bibit === */}
+    <section className="w-full px-6 py-10 flex flex-col lg:flex-row gap-10">
+      {/* Bagian Kiri */}
       <div className="flex-1 space-y-12">
-        {/* Lokasi */}
+        {/* Carousel Lokasi */}
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-3">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">
             Pilih Lokasi Penanaman
           </h2>
           {loadingDaerah ? (
@@ -53,17 +75,15 @@ export default function TanamPohonPage() {
           ) : errorDaerah ? (
             <p className="text-red-500">Error: {errorDaerah}</p>
           ) : (
-            <div className="flex items-center justify-center">
-              {/* Tombol kiri */}
+            <div className="flex items-center justify-center relative">
               <button
                 onClick={prevSlide}
-                className="bg-green-600 text-white p-3 rounded-full hover:bg-green-700 transition z-10 shadow-md mr-3"
+                className="absolute left-0 z-20 bg-green-600 text-white p-3 rounded-full shadow-md hover:bg-green-700 transition"
               >
-                <FaChevronLeft size={18} />
+                <FaChevronLeft />
               </button>
 
-              {/* Carousel */}
-              <div className="relative w-[650px] h-[250px] flex items-center justify-center overflow-hidden">
+              <div className="relative w-full max-w-[700px] h-[260px] flex items-center justify-center overflow-hidden">
                 {daerah.map((item, i) => {
                   const pos = getPosition(i);
                   let x = 0,
@@ -72,16 +92,16 @@ export default function TanamPohonPage() {
                     opacity = 1;
 
                   if (pos === "left") {
-                    x = -220;
+                    x = -240;
                     scale = 0.85;
-                    opacity = 0.6;
+                    opacity = 0.5;
                   } else if (pos === "right") {
-                    x = 220;
+                    x = 240;
                     scale = 0.85;
-                    opacity = 0.6;
+                    opacity = 0.5;
                   } else if (pos === "center") {
                     x = 0;
-                    scale = 1.05;
+                    scale = 1;
                     zIndex = 10;
                     opacity = 1;
                   } else {
@@ -98,7 +118,7 @@ export default function TanamPohonPage() {
                       className="absolute"
                       style={{ zIndex }}
                     >
-                      <div className="relative w-[260px] h-[230px] rounded-xl overflow-hidden shadow-lg">
+                      <div className="relative w-[260px] h-[240px] rounded-xl overflow-hidden shadow-lg">
                         <Image
                           src={item.gambar}
                           alt={item.daerah}
@@ -107,23 +127,15 @@ export default function TanamPohonPage() {
                         />
                         <div
                           className={`absolute inset-0 ${
-                            pos === "center" ? "bg-black/30" : "bg-black/70"
+                            pos === "center"
+                              ? "bg-black/20"
+                              : "bg-black/60"
                           } transition-all duration-500`}
                         />
                         <h3
-                          className={`absolute inset-0 flex items-center justify-center text-white font-semibold text-lg transition-opacity duration-500 ${
-                            lokasiAktif
-                              ? pos === "center"
-                                ? "opacity-100"
-                                : "opacity-0"
-                              : "opacity-100"
-                          }`}
+                          className={`absolute inset-0 flex items-center justify-center text-white font-semibold text-lg transition-opacity duration-500`}
                         >
-                          {lokasiAktif
-                            ? pos === "center"
-                              ? item.daerah
-                              : ""
-                            : "Pilih Lokasi"}
+                          {pos === "center" ? item.daerah : ""}
                         </h3>
                       </div>
                     </motion.div>
@@ -131,104 +143,160 @@ export default function TanamPohonPage() {
                 })}
               </div>
 
-              {/* Tombol kanan */}
               <button
                 onClick={nextSlide}
-                className="bg-green-600 text-white p-3 rounded-full hover:bg-green-700 transition z-10 shadow-md ml-3"
+                className="absolute right-0 z-20 bg-green-600 text-white p-3 rounded-full shadow-md hover:bg-green-700 transition"
               >
-                <FaChevronRight size={18} />
+                <FaChevronRight />
               </button>
             </div>
           )}
         </div>
 
-        {/* Bibit */}
+        {/* Pilih Bibit */}
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-3">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">
             Pilih Bibit Pohon
           </h2>
-          <p className="text-gray-600 text-sm mb-4">
-            Pilih bibit pohon yang ingin kamu tanam 🌱
-          </p>
-          {loadingPohon ? (
-            <p className="text-gray-500">Memuat data pohon...</p>
-          ) : errorPohon ? (
-            <p className="text-red-500">Error: {errorPohon}</p>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
-              {pohon.map((item, i) => (
-                <div
-                  key={i}
-                  className={`bg-white rounded-xl overflow-hidden border-2 ${
-                    bibitTerpilih?.nama === item.nama
-                      ? "border-green-600"
-                      : "border-gray-200"
-                  } shadow-sm hover:shadow-md transition`}
-                >
-                  <div className="relative w-full h-[200px]">
-                    <Image
-                      src={item.gambar || "/placeholder.png"}
-                      alt={item.nama}
-                      fill
-                      className="object-cover"
-                    />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+            {loadingPohon ? (
+              <p className="text-gray-500">Memuat data pohon...</p>
+            ) : errorPohon ? (
+              <p className="text-red-500">Error: {errorPohon}</p>
+            ) : (
+              pohon.map((item, i) => {
+                const isSelected = bibitTerpilih.some(
+                  (b) => b.nama === item.nama
+                );
+                return (
+                  <div
+                    key={i}
+                    className={`bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition border-2 ${
+                      isSelected ? "border-green-500" : "border-gray-200"
+                    }`}
+                  >
+                    <div className="relative w-full h-[200px]">
+                      <Image
+                        src={item.gambar || "/placeholder.png"}
+                        alt={item.nama}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                    <div className="p-4 flex flex-col items-center bg-green-700 text-white">
+                      <h3 className="font-semibold text-base">{item.nama}</h3>
+                      <p className="text-xs mt-1">
+                        Rp {item.harga.toLocaleString("id-ID")} / bibit
+                      </p>
+                      <button
+                        onClick={() => toggleBibit(item)}
+                        className={`mt-3 px-4 py-1.5 rounded-full text-xs font-semibold transition ${
+                          isSelected
+                            ? "bg-white text-green-700 hover:bg-gray-100"
+                            : "bg-white text-green-700 hover:bg-green-100"
+                        }`}
+                      >
+                        {isSelected ? "Batal Pilih" : "Pilih Bibit"}
+                      </button>
+                    </div>
                   </div>
-                  <div className="bg-green-700 text-white text-center py-4">
-                    <h3 className="font-semibold text-base">{item.nama}</h3>
-                    <p className="text-xs mt-1">
-                      Harga: Rp {item.harga.toLocaleString("id-ID")}
-                    </p>
-                    <button
-                      onClick={() => setBibitTerpilih(item)}
-                      className="mt-3 bg-white text-green-700 text-xs font-semibold px-4 py-1.5 rounded-full hover:bg-green-100 transition"
-                    >
-                      Pilih Tanaman
-                    </button>
-                  </div>
+                );
+              })
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Bagian Kanan: Detail Pembayaran */}
+     <div className="w-full lg:w-[360px]">
+  <div className="sticky top-24 bg-white rounded-2xl shadow-xl p-6 space-y-4">
+    <h3 className="text-xl font-semibold text-gray-800 mb-2">Detail Penanaman</h3>
+    
+    {/* Lokasi */}
+    <div className="flex justify-between items-center text-gray-700">
+      <span className="font-medium">Lokasi</span>
+      <span className="text-green-600 font-semibold">
+        {lokasiTerpilih?.daerah || "-"}
+      </span>
+    </div>
+
+    {/* Bibit Terpilih */}
+    <div className="mt-4">
+      <h4 className="text-gray-800 font-medium mb-2">Bibit Terpilih</h4>
+      {bibitTerpilih.length === 0 ? (
+        <p className="text-gray-400 text-sm">Belum ada bibit dipilih</p>
+      ) : (
+        <div className="space-y-3 max-h-64 overflow-y-auto">
+          {bibitTerpilih.map((b, i) => (
+            <div
+              key={i}
+              className="flex items-center justify-between bg-gray-50 p-3 rounded-xl shadow-sm hover:shadow-md transition"
+            >
+              <div className="flex items-center space-x-3">
+                <div className="w-12 h-12 relative rounded-lg overflow-hidden border border-gray-200">
+                  <Image
+                    src={b.gambar || "/placeholder.png"}
+                    alt={b.nama}
+                    fill
+                    className="object-cover"
+                  />
                 </div>
-              ))}
+                <div className="flex flex-col">
+                  <span className="font-medium text-gray-800">{b.nama}</span>
+                  <span className="text-gray-500 text-sm">
+                    Rp {b.harga.toLocaleString("id-ID")} / bibit
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <input
+                  type="number"
+                  min={1}
+                  value={b.jumlah}
+                  onChange={(e) =>
+                    updateJumlah(b.nama, parseInt(e.target.value))
+                  }
+                  className="w-14 text-center text-sm border rounded-lg p-1"
+                />
+                <button
+                  onClick={() =>
+                    setBibitTerpilih(
+                      bibitTerpilih.filter((item) => item.nama !== b.nama)
+                    )
+                  }
+                  className="text-red-500 hover:text-red-600 transition"
+                >
+                  <FaTrash />
+                </button>
+              </div>
             </div>
-          )}
+          ))}
         </div>
-      </div>
+      )}
+    </div>
 
-      {/* === Bagian Kanan: Detail Pembayaran (Sticky) === */}
-      <div className="w-full lg:w-[300px]">
-        <div className="sticky top-24 bg-white border border-gray-200 shadow-md rounded-xl p-6 h-fit">
-          <p className="text-black text-base font-medium flex justify-between">
-            <span>Lokasi</span>
-            <span>{lokasiTerpilih?.daerah || "-"}</span>
-          </p>
-          <p className="text-black text-base font-medium flex justify-between mt-2">
-            <span>Jenis Bibit</span>
-            <span>{bibitTerpilih?.nama || "-"}</span>
-          </p>
-          <p className="text-black text-base font-medium flex justify-between mt-2">
-            <span>Jumlah Bibit</span>
-            <span>1</span>
-          </p>
-          <p className="text-black text-base font-medium flex justify-between mt-2">
-            <span>Total</span>
-            <span>
-              Rp{" "}
-              {bibitTerpilih
-                ? bibitTerpilih.harga.toLocaleString("id-ID")
-                : "0"}
-            </span>
-          </p>
+    {/* Total */}
+    <div className="flex justify-between items-center mt-4 pt-2 border-t border-gray-200">
+      <span className="text-gray-800 font-semibold text-lg">Total</span>
+      <span className="text-green-600 font-bold text-lg">
+        Rp {totalHarga.toLocaleString("id-ID")}
+      </span>
+    </div>
 
-          <button
-            disabled={!bibitTerpilih || !lokasiTerpilih}
-            className={`mt-6 w-full py-2 rounded-lg font-semibold transition ${
-              !bibitTerpilih || !lokasiTerpilih
-                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                : "bg-green-600 text-white hover:bg-green-700"
-            }`}
-          >
-            Bayar
-          </button>
-        </div>
-      </div>
+    {/* Button Bayar */}
+<button
+  disabled={!lokasiTerpilih || bibitTerpilih.length === 0}
+  className={`w-full py-3 rounded-xl font-semibold transition text-white text-lg ${
+    !lokasiTerpilih || bibitTerpilih.length === 0
+      ? "bg-gray-300 cursor-not-allowed"
+      : "bg-green-600 hover:bg-green-700"
+  }`}
+>
+  Bayar
+</button>
+  </div>
+</div>
     </section>
   );
 }
