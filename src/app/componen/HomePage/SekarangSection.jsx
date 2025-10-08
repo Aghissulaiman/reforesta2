@@ -6,35 +6,40 @@ import Link from "next/link";
 
 export default function SekarangSection() {
   return (
-    <section className="flex flex-col md:flex-row items-center justify-between max-w-5xl mx-auto px-6 py-16 gap-10">
-      
-      {/* Teks kiri */}
-      <div className="flex-1 text-center md:text-left">
-        <h2 className="text-2xl md:text-3xl font-bold text-white mb-4 leading-snug">
-          Kami membantu anda untuk <br />
-          ikut serta dalam kegiatan penghijauan
+    <section
+      className="min-h-screen flex flex-col md:flex-row items-center justify-center max-w-6xl mx-auto px-6 py-16 gap-10"
+    >
+      {/* Bagian kiri - teks */}
+      <div className="flex-1 text-center md:text-left space-y-6">
+        <h2 className="text-4xl md:text-5xl font-extrabold text-green-700 leading-snug">
+          Hijaukan Bumi,<br />
+          Mulai Sekarang 🌱
         </h2>
-        <p className="text-white mb-6 text-base leading-relaxed">
-          Cara paling sederhana bagi warga negara dan perusahaan untuk menanam pohon 
-          di seluruh dunia dan mengimbangi emisi CO2 mereka.
+
+        <p className="text-gray-600 max-w-md mx-auto md:mx-0 text-lg leading-relaxed">
+          Kami membantu Anda ikut serta dalam gerakan penghijauan dengan cara
+          sederhana: menanam pohon dan menjaga lingkungan sekitar.
         </p>
 
-        <Link
-          href="/tanam"
-          className="border-2 border-white bg-white text-green-600 font-semibold px-8 py-2 rounded-full shadow-sm transition hover:shadow-[0_0_15px_3px_rgba(255,255,255,0.8)]"
-        >
-          Tanam
-        </Link>
+        <div className="mt-6">
+          <Link
+            href="/tanam"
+            className="inline-block bg-green-600 text-white px-10 py-3 rounded-full font-semibold text-lg 
+                       hover:bg-green-700 transition-transform transform hover:scale-105 shadow-md"
+          >
+            Tanam Sekarang
+          </Link>
+        </div>
       </div>
 
-      {/* Gambar kanan */}
+      {/* Bagian kanan - gambar */}
       <div className="flex-1 flex justify-center">
         <Image
           src="/Tanaman1.png"
           alt="Kegiatan penghijauan"
-          width={400}
-          height={260}
-          className="rounded-xl object-cover shadow-lg"
+          width={430}
+          height={320}
+          className="rounded-2xl object-cover shadow-lg hover:scale-105 transition-transform duration-500"
         />
       </div>
     </section>
