@@ -1,124 +1,147 @@
 "use client";
+import { useEffect, useState } from "react";
+import { supabase } from "../../../../lib/supabaseClient";
 
-import Image from "next/image";
-import { useState } from "react";
-import { motion } from "framer-motion";
-import { FaPhoneAlt, FaMapMarkerAlt, FaEnvelope, FaInstagram, FaTwitter, FaLinkedin } from "react-icons/fa";
+export default function ProfilePage() {
+  const [userData, setUserData] = useState(null);
+  const [accountType, setAccountType] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-export default function ProfileCard() {
-  const [user, setUser] = useState({
-    avatar: "/avatar-placeholder.png",
-    name: "Aghis Sulaiman",
-    username: "@aghis_s",
-    email: "aghis@example.com",
-    phone: "0812-XXXX-XXXX",
-    address: "Jakarta, Indonesia",
-    dob: "12 Mei 2009",
-    gender: "Laki-laki",
-    bio: "Mahasiswa SMK yang suka desain, UI/UX, dan belajar teknologi modern.",
-    hobbies: ["Desain", "UI/UX", "Investasi", "Coding", "Traveling"],
-    social: {
-      instagram: "aghis_s",
-      twitter: "aghis_s",
-      linkedin: "aghis-sulaiman",
-    },
-    stats: {
-      posts: 120,
-      followers: 450,
-      following: 180,
-    },
-    online: true,
-  });
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
 
-  const handleEdit = () => {
-    const newName = prompt("Ubah nama:", user.name);
-    if (newName) setUser({ ...user, name: newName });
+        // Cek apakah user ada di tabel Komunitas
+        let { data: komunitas } = await supabase
+          .from("Komunitas")
+          .select("*")
+          .eq("id", user.id)
+          .single();
+
+        if (komunitas) {
+          setUserData(komunitas);
+          setAccountType("Komunitas");
+          setLoading(false);
+          return;
+        }
+
+        // Kalau tidak ada di Komunitas, cek tabel Sekolah
+        let { data: sekolah } = await supabase
+          .from("Sekolah")
+          .select("*")
+          .eq("no", user.id)
+          .single();
+
+        if (sekolah) {
+          setUserData(sekolah);
+          setAccountType("Sekolah");
+        }
+
+      } catch (error) {
+        console.error("Error fetching profile:", error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, []);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    window.location.href = "/";
   };
 
-  return (
-    <motion.div
-      className="max-w-xl mx-auto mt-10"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-    >
-      {/* Header */}
-      <div className="bg-gradient-to-r from-green-500 to-green-600 text-white text-center py-4 rounded-t-3xl font-bold text-2xl shadow-md">
-        Profile Anda
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <p className="text-gray-600">Memuat data...</p>
       </div>
+    );
+  }
 
-      {/* Card */}
-      <motion.div
-        className="bg-white rounded-b-3xl shadow-2xl p-6 space-y-6 relative overflow-hidden"
-        whileHover={{ scale: 1.02 }}
-        transition={{ type: "spring", stiffness: 300 }}
-      >
-        {/* Avatar + Basic Info */}
-        <div className="flex items-center gap-5">
-          <div className="w-28 h-28 rounded-full overflow-hidden border-4 border-green-500 hover:scale-105 transition-transform duration-300 relative">
-            <Image
-              src={user.avatar}
-              alt="Avatar"
-              width={112}
-              height={112}
-              className="object-cover"
-            />
-            {user.online && (
-              <span className="absolute bottom-1 right-1 w-4 h-4 bg-green-400 border-2 border-white rounded-full animate-pulse"></span>
-            )}
-          </div>
-          <div className="flex-1">
-            <h2 className="text-2xl font-bold text-gray-800">{user.name}</h2>
-            <p className="text-gray-500">{user.username}</p>
-            <p className="flex items-center text-gray-500 gap-2 mt-1">
-              <FaEnvelope /> {user.email}
-            </p>
+  if (!userData) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <p className="text-gray-600">Data profil tidak ditemukan.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex justify-center items-center min-h-screen bg-gray-50 p-4">
+      <div className="bg-white shadow-lg rounded-2xl w-full max-w-md p-6 border border-gray-200">
+        {/* Foto Profil */}
+        <div className="flex items-center space-x-4 mb-6">
+          <div className="w-20 h-20 bg-gray-300 rounded-full"></div>
+          <div>
+            <h2 className="text-lg font-semibold text-gray-800">
+              {accountType === "Komunitas" ? userData.nama_komunitas : userData.nama}
+            </h2>
+            <p className="text-gray-500 text-sm">{userData.email || userData.email_komunitas}</p>
+            <p className="text-xs text-gray-400 mt-1">{accountType}</p>
           </div>
         </div>
 
-        {/* Bio */}
-        <div>
-          <h3 className="font-semibold text-gray-700 mb-1">Tentang Saya</h3>
-          <p className="text-gray-600">{user.bio}</p>
+        {/* Data Profil */}
+        <div className="grid grid-cols-2 gap-3 text-sm">
+          {accountType === "Komunitas" ? (
+            <>
+              <div>
+                <p className="text-gray-500">PIC</p>
+                <p className="font-medium">{userData.pic}</p>
+              </div>
+              <div>
+                <p className="text-gray-500">Jenis Akun</p>
+                <p className="font-medium">{userData.jenis_akun}</p>
+              </div>
+              <div>
+                <p className="text-gray-500">Jenis Kelamin</p>
+                <p className="font-medium">{userData.jenis_kelamin}</p>
+              </div>
+              <div>
+                <p className="text-gray-500">No Telepon</p>
+                <p className="font-medium">{userData.no_telepon_komunitas}</p>
+              </div>
+              <div className="col-span-2">
+                <p className="text-gray-500">Instansi</p>
+                <p className="font-medium">{userData.instansi}</p>
+              </div>
+            </>
+          ) : (
+            <>
+              <div>
+                <p className="text-gray-500">Nama Sekolah</p>
+                <p className="font-medium">{userData.nama_sekolah}</p>
+              </div>
+              <div>
+                <p className="text-gray-500">NUPTK</p>
+                <p className="font-medium">{userData.nuptk}</p>
+              </div>
+              <div>
+                <p className="text-gray-500">No Telepon</p>
+                <p className="font-medium">{userData.no_telepon}</p>
+              </div>
+              <div>
+                <p className="text-gray-500">Email</p>
+                <p className="font-medium">{userData.email}</p>
+              </div>
+            </>
+          )}
         </div>
 
-        {/* Info Detail */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-gray-700">
-          <div className="flex items-center gap-2">
-            <FaPhoneAlt className="text-green-500" /> {user.phone}
-          </div>
-          <div className="flex items-center gap-2">
-            <FaMapMarkerAlt className="text-green-500" /> {user.address}
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="font-medium">Tanggal Lahir:</span> {user.dob}
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="font-medium">Gender:</span> {user.gender}
-          </div>
-        </div>
-
-
-        {/* Buttons */}
-        <div className="flex gap-4 mt-4">
+        {/* Tombol Logout */}
+        <div className="mt-6">
           <button
-            onClick={handleEdit}
-            className="flex-1 bg-green-500 text-white py-2 rounded-lg font-semibold hover:bg-green-600 transition-all shadow-md hover:shadow-lg"
-          >
-            Edit Profile
-          </button>
-          <button
-            onClick={() => alert("Logout berhasil!")}
-            className="flex-1 bg-gray-200 text-gray-700 py-2 rounded-lg font-semibold hover:bg-gray-300 transition-all shadow-md hover:shadow-lg"
+            onClick={handleLogout}
+            className="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition"
           >
             Logout
           </button>
         </div>
-
-        {/* Background Accent */}
-        <div className="absolute -top-12 -right-12 w-36 h-36 bg-green-200 rounded-full opacity-20 pointer-events-none"></div>
-        <div className="absolute -bottom-12 -left-12 w-36 h-36 bg-green-300 rounded-full opacity-20 pointer-events-none"></div>
-      </motion.div>
-    </motion.div>
+      </div>
+    </div>
   );
 }

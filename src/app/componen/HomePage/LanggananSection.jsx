@@ -1,92 +1,128 @@
 "use client";
 
-import { Star, Home, Users } from "lucide-react";
+import { Star, Home, Users, CheckCircle } from "lucide-react";
 import Link from "next/link";
 
 export default function LanggananSection() {
   const plans = [
     {
-      icon: <Star className="w-8 h-8 text-white mb-3" />,
-      title: "Gratis Trial",
+      icon: <Star className="w-6 h-6 text-green-500" />, // Ikon lebih kecil
+      title: "Trial", // Judul lebih ringkas
       desc: "Coba layanan kami selama 3 bulan",
       price: "GRATIS",
       per: "/ 3 BULAN",
+      buttonText: "Coba Gratis",
+      features: [
+        "Akses terbatas",
+        "Dukungan komunitas",
+        "Contoh proyek",
+      ],
+      isPopular: false,
     },
     {
-      icon: <Home className="w-8 h-8 text-white mb-3" />,
+      icon: <Home className="w-6 h-6 text-white" />,
       title: "Standard",
-      desc: "1 Bulan",
+      desc: "Ideal untuk penggunaan pribadi",
       price: "RP 150.000",
-      per: "/ 1 BULAN",
+      per: "/ BULAN",
+      buttonText: "Pilih Standard",
+      features: [
+        "Semua fitur Trial",
+        "Akses penuh fitur",
+        "Dukungan 24/7",
+        "Analitik bulanan",
+      ],
+      isPopular: true,
     },
     {
-      icon: <Users className="w-8 h-8 text-white mb-3" />,
-      title: "3 Bulan",
-      desc: "Coba layanan kami selama 3 bulan",
+      icon: <Users className="w-6 h-6 text-green-500" />,
+      title: "Premium",
+      desc: "Paket hemat 3 bulan",
       price: "RP 400.000",
       per: "/ 3 BULAN",
+      buttonText: "Pilih Premium",
+      features: [
+        "Semua fitur Standard",
+        "Akses fitur Premium",
+        "Konsultasi khusus",
+      ],
+      isPopular: false,
     },
   ];
 
+  // Style untuk kartu dasar: Padding p-6 (dari p-8), width w-[280px] (dari w-[320px])
+  const baseCardStyle = "bg-white p-6 rounded-xl shadow-lg border border-gray-100 w-full md:w-[280px] transition-all duration-300 ease-in-out hover:shadow-xl hover:translate-y-[-4px]";
+  
+  // Style untuk kartu populer: Padding p-7 (dari p-8), width w-[300px] (dari w-[340px])
+  const popularCardStyle = "bg-green-700 text-white p-7 rounded-xl shadow-2xl w-full md:w-[300px] transform scale-[1.03] z-10 transition-all duration-300 ease-in-out hover:scale-[1.05]";
+  
+  // Style tombol tetap proporsional
+  const baseButtonStyle = "block w-full text-center px-5 py-2.5 text-sm rounded-lg font-semibold border-2 transition-all duration-300";
+  const popularButtonStyle = "bg-white text-green-700 border-white hover:bg-gray-100";
+  const regularButtonStyle = "bg-green-600 text-white border-green-600 hover:bg-green-700";
+
+
   return (
-    <section className="relative py-16 text-center bg-white overflow-hidden">
-      {/* SVG Garis Background */}
-      <svg
-        className="absolute inset-0 w-full h-full"
-        xmlns="http://www.w3.org/2000/svg"
-        preserveAspectRatio="none"
-        viewBox="0 0 1440 320"
-      >
-        <path
-          fill="none"
-          stroke="#22c55e"
-          strokeWidth="1.5"
-          d="M0,160 C240,240 480,80 720,160 C960,240 1200,80 1440,160"
-        ></path>
-        <path
-          fill="none"
-          stroke="#22c55e"
-          strokeWidth="1.5"
-          opacity="0.6"
-          d="M0,200 C240,280 480,120 720,200 C960,280 1200,120 1440,200"
-        ></path>
-        <path
-          fill="none"
-          stroke="#16a34a"
-          strokeWidth="1"
-          opacity="0.4"
-          d="M0,120 C240,200 480,40 720,120 C960,200 1200,40 1440,120"
-        ></path>
-      </svg>
+    <section className="relative py-16 bg-gray-50 overflow-hidden"> {/* Padding Vertikal dikurangi */}
 
-      {/* Judul */}
-      <h2 className="text-2xl font-bold text-green-700 mb-10 relative z-10">
-        Langganan
-      </h2>
+      <div className="max-w-6xl mx-auto px-4 relative z-10"> {/* Max-width dikurangi */}
+        {/* Judul yang lebih kecil dan ringkas */}
+        <div className="text-center mb-12"> {/* Margin dikurangi */}
+          <h2 className="text-3xl lg:text-4xl font-extrabold text-gray-900 mt-2">
+            Paket Langganan
+          </h2>
+          <p className="mt-3 text-base text-gray-600 max-w-xl mx-auto"> {/* Teks dan max-width dikurangi */}
+            Mulai tingkatkan pengalaman Anda dengan penawaran terbaik kami.
+          </p>
+        </div>
 
-      {/* Kartu Paket */}
-      <div className="relative z-10 flex flex-col md:flex-row justify-center gap-8 px-6">
-        {plans.map((plan, index) => (
-          <div
-            key={index}
-            className="bg-gradient-to-b from-[#059669] to-[#047857] text-white p-8 rounded-2xl shadow-md border border-white w-full md:w-[250px] transition-transform hover:scale-105 duration-300"
-          >
-            <div className="flex flex-col items-center">
-              {plan.icon}
-              <h3 className="text-lg font-semibold mb-2">{plan.title}</h3>
-              <p className="text-sm mb-4">{plan.desc}</p>
-              <h4 className="text-2xl font-bold mb-1">{plan.price}</h4>
-              <p className="text-xs mb-6 opacity-90">{plan.per}</p>
+        {/* Kartu Paket */}
+        <div className="flex flex-col lg:flex-row justify-center items-center lg:items-stretch gap-6"> {/* Jarak antar kartu dikurangi */}
+          {plans.map((plan, index) => (
+            <div
+              key={index}
+              className={plan.isPopular ? popularCardStyle : baseCardStyle}
+            >
+              <div className="text-center relative">
+                {/* Badge populer */}
+                {plan.isPopular && (
+                  <div className="absolute top-0 right-0 -mt-6 -mr-6 bg-green-500 text-white text-xs font-bold px-2 py-0.5 rounded-bl-lg">
+                    POPULER
+                  </div>
+                )}
+                
+                <div className={`flex justify-center mb-3 ${plan.isPopular ? 'text-white' : 'text-green-600'}`}>
+                  {plan.icon}
+                </div>
+                
+                <h3 className={`text-xl font-bold mb-1 ${plan.isPopular ? 'text-white' : 'text-gray-900'}`}>{plan.title}</h3> {/* Ukuran Judul Paket dikurangi */}
+                <p className={`text-xs mb-5 ${plan.isPopular ? 'text-green-200' : 'text-gray-500'}`}>{plan.desc}</p> {/* Ukuran Deskripsi dikurangi */}
+
+                <div className="mb-6 border-t border-b border-opacity-20 border-current py-3"> {/* Padding vertikal dikurangi */}
+                  <h4 className={`text-3xl font-extrabold ${plan.isPopular ? 'text-white' : 'text-gray-900'}`}>{plan.price}</h4> {/* Ukuran Harga dikurangi */}
+                  <p className={`text-sm font-medium ${plan.isPopular ? 'text-green-300' : 'text-gray-500'}`}>{plan.per}</p>
+                </div>
+              </div>
+              
+              {/* Daftar Fitur */}
+              <ul className={`text-left mb-6 space-y-2 text-sm ${plan.isPopular ? 'text-green-100' : 'text-gray-700'}`}> {/* Font dan spacing dikurangi */}
+                {plan.features.map((feature, i) => (
+                  <li key={i} className="flex items-start">
+                    <CheckCircle className={`w-3.5 h-3.5 mt-1 mr-2.5 shrink-0 ${plan.isPopular ? 'text-green-300' : 'text-green-500'}`} /> {/* Ukuran ikon fitur dikurangi */}
+                    {feature}
+                  </li>
+                ))}
+              </ul>
 
               <Link
                 href="/langganan"
-                className="px-5 py-2 rounded-full bg-white text-green-700 font-semibold border-2 border-white shadow-sm transition hover:shadow-green-300"
+                className={`${baseButtonStyle} ${plan.isPopular ? popularButtonStyle : regularButtonStyle}`}
               >
-                Langganan Sekarang
+                {plan.buttonText}
               </Link>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </section>
   );

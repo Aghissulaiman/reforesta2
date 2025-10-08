@@ -72,7 +72,7 @@ export default function Login() {
           />
         </div>
 
-        <p className="mt-3 text-xl text-center text-[#4CAF50] font-semibold">
+        <p className="mt-3 text-xl text-center text-[#059669] font-semibold">
           Selamat Datang Kembali!
         </p>
 
@@ -97,7 +97,7 @@ export default function Login() {
             name="email"
             value={form.email}
             onChange={handleChange}
-            className="block w-full px-4 py-2 text-black placeholder-gray-400 border border-[#4CAF50] rounded-lg focus:border-[#4CAF50] focus:ring-0 focus:outline-none hover:border-2 transition-all duration-200"
+            className="block w-full px-4 py-2 text-black placeholder-gray-400 border border-[#059669] rounded-lg focus:border-[#037f58] focus:ring-0 focus:outline-none hover:border-2 transition-all duration-200"
             type="email"
             placeholder="Masukkan email"
           />
@@ -125,7 +125,7 @@ export default function Login() {
             name="password"
             value={form.password}
             onChange={handleChange}
-            className="block w-full px-4 py-2 text-black placeholder-gray-400 border border-[#4CAF50] rounded-lg focus:border-[#4CAF50] focus:ring-0 focus:outline-none hover:border-2 transition-all duration-200"
+            className="block w-full px-4 py-2 text-black placeholder-gray-400 border border-[#059669] rounded-lg focus:border-[#007e56] focus:ring-0 focus:outline-none hover:border-2 transition-all duration-200"
             type="password"
             placeholder="Masukkan password"
           />
@@ -136,7 +136,7 @@ export default function Login() {
           <button
             onClick={handleLogin}
             disabled={loading}
-            className="w-full px-6 py-3 text-sm font-medium tracking-wide text-white capitalize transition-colors duration-300 transform bg-[#4CAF50] rounded-lg hover:bg-[#69cd6d] focus:outline-none focus:ring focus:ring-gray-300 focus:ring-opacity-50 disabled:opacity-50"
+            className="w-full px-6 py-3 text-sm font-medium tracking-wide text-white capitalize transition-colors duration-300 transform bg-[#059669] rounded-lg hover:bg-[#059669] focus:outline-none focus:ring focus:ring-gray-300 focus:ring-opacity-50 disabled:opacity-50"
           >
             {loading ? "Memproses..." : "Masuk"}
           </button>
@@ -184,11 +184,11 @@ export default function Login() {
           </p>
           <p className="mt-4 text-sm">
             Belum punya{" "}
-            <span className="text-[#4CAF50] font-semibold">akun?</span>
+            <span className="text-[#059669] font-semibold">akun?</span>
           </p>
           <Link
             href="/register"
-            className="inline-block mt-3 w-50 h-10 px-6 py-2 bg-white text-[#4CAF50] font-medium transition-colors duration-300 transform border rounded-lg dark:border-[#4CAF50] dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#1CA221]"
+            className="inline-block mt-3 w-50 h-10 px-6 py-2 bg-white text-[#4CAF50] font-medium transition-colors duration-300 transform border rounded-lg dark:border-[#059669] dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#1CA221]"
           >
             Daftar
           </Link>
