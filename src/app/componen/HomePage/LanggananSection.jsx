@@ -69,7 +69,7 @@ export default function LanggananSection() {
         {plans.map((plan, index) => (
           <div
             key={index}
-            className="bg-gradient-to-b from-green-400 to-green-700 text-white p-8 rounded-2xl shadow-md border border-white w-full md:w-[250px] transition-transform hover:scale-105 duration-300"
+            className="bg-gradient-to-b from-[#059669] to-[#047857] text-white p-8 rounded-2xl shadow-md border border-white w-full md:w-[250px] transition-transform hover:scale-105 duration-300"
           >
             <div className="flex flex-col items-center">
               {plan.icon}

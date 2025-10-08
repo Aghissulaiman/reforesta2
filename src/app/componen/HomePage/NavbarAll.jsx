@@ -69,7 +69,7 @@ export default function NavbarAll() {
                       stiffness: 400,
                       damping: 30,
                     }}
-                    className="absolute inset-0 bg-green-600 rounded-full z-0"
+                    className="absolute inset-0 bg-[#047857] px-8 py-4 rounded-full z-0"
                   />
                 )}
                 <Link

@@ -31,7 +31,7 @@ export default function CaraKerja() {
         {/* Wrapper langkah */}
         <div className="relative flex flex-col md:flex-row items-center justify-center gap-12 md:gap-20">
           {/* Garis horizontal */}
-          <div className="hidden md:block absolute top-1/2 left-0 right-0 h-[2px] bg-gray-300 translate-y-[-50%]"></div>
+          <div className="hidden md:block absolute top-1/2 left-0 right-0 h-[2px] w-full bg-gray-300 translate-y-[-50%]"></div>
 
           {langkah.map((item, index) => (
             <div

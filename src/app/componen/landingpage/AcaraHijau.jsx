@@ -14,20 +14,20 @@ export default function AcaraHijau() {
       {/* 🌍 Background Peta Dunia */}
       <div className="absolute inset-0 flex justify-center items-start pt-10">
         <Image
-          src="/World.png"
+          src="/peta dunia.png"
           alt="World Map"
           width={1000}
-          height={600}
+          height={800}
           className="opacity-70 object-contain pointer-events-none select-none"
         />
       </div>
 
       {/* 🧍‍♀️ Ilustrasi Orang Nanem */}
-      <div className="absolute bottom-0 left-0 w-[600px] max-w-[80%]">
+      <div className="absolute -bottom-8 left-0 w-[900px] max-w-[80%]">
         <Image
           src="/orangNanem.png"
           alt="Ilustrasi Menanam"
-          width={800}
+          width={900}
           height={500}
           className="object-contain pointer-events-none select-none"
         />

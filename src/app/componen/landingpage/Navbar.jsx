@@ -77,7 +77,7 @@ export default function Navbar() {
         </Link>
         <Link
           href="/login"
-          className="px-4 py-1.5 text-sm font-medium rounded-full border border-[#047857] bg-[#047857] text-white hover:bg-green-800 transition-all"
+          className="px-4 py-1.5 text-sm font-medium rounded-full border border-[#047857] text-[#047857] hover:bg-[#047857] hover:text-white transition-all"
         >
           Masuk
         </Link>
