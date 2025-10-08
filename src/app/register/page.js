@@ -2,11 +2,10 @@
 
 import { supabase } from "../../../lib/supabaseClient";
 import React, { useState } from "react";
-import useAuthRedirect from "../../../hooks/useAuthRedirect";
-
 
 export default function Register() {
-  useAuthRedirect();
+  // ❌ Hapus useAuthRedirect();
+
   const [accountType, setAccountType] = useState(""); // Komunitas / Sekolah
   const [gender, setGender] = useState("");
   const [userRole, setUserRole] = useState(""); // Donatur / Penanam
@@ -90,7 +89,8 @@ export default function Register() {
       }
     }
 
-    alert("✅ Register berhasil! Cek email untuk verifikasi akun kamu.");
+    // ✅ Alert saja, tidak langsung ke Home
+    alert("✅ Register berhasil! Silakan confirmasi email anda.");
   };
 
   const getButtonClass = (type, currentType, base = "bg-green-600") =>
@@ -227,9 +227,7 @@ export default function Register() {
                   <input
                     type="text"
                     name={accountType === "Komunitas" ? "pic" : "nama"}
-                    value={
-                      accountType === "Komunitas" ? form.pic : form.nama
-                    }
+                    value={accountType === "Komunitas" ? form.pic : form.nama}
                     onChange={handleChange}
                     placeholder={`Masukkan ${accountType === "Komunitas" ? "Nama PIC" : "Nama"}`}
                     className="block w-full px-4 py-2 text-black border border-[#4CAF50] rounded-lg focus:border-[#4CAF50] focus:ring-0 hover:border-2 transition-all"
@@ -244,21 +242,11 @@ export default function Register() {
                   </label>
                   <input
                     type="text"
-                    name={
-                      accountType === "Komunitas"
-                        ? "nama_komunitas"
-                        : "nama_sekolah"
-                    }
-                    value={
-                      accountType === "Komunitas"
-                        ? form.nama_komunitas
-                        : form.nama_sekolah
-                    }
+                    name={accountType === "Komunitas" ? "nama_komunitas" : "nama_sekolah"}
+                    value={accountType === "Komunitas" ? form.nama_komunitas : form.nama_sekolah}
                     onChange={handleChange}
                     placeholder={`Masukkan ${
-                      accountType === "Komunitas"
-                        ? "Nama Komunitas"
-                        : "Nama Sekolah"
+                      accountType === "Komunitas" ? "Nama Komunitas" : "Nama Sekolah"
                     }`}
                     className="block w-full px-4 py-2 text-black border border-[#4CAF50] rounded-lg focus:border-[#4CAF50] focus:ring-0 hover:border-2 transition-all"
                     required
@@ -267,17 +255,11 @@ export default function Register() {
 
                 {/* Email */}
                 <div>
-                  <label className="block mb-1 text-sm font-medium text-gray-700">
-                    Email
-                  </label>
+                  <label className="block mb-1 text-sm font-medium text-gray-700">Email</label>
                   <input
                     type="email"
                     name={accountType === "Komunitas" ? "email_komunitas" : "email"}
-                    value={
-                      accountType === "Komunitas"
-                        ? form.email_komunitas
-                        : form.email
-                    }
+                    value={accountType === "Komunitas" ? form.email_komunitas : form.email}
                     onChange={handleChange}
                     placeholder="Masukkan Email"
                     className="block w-full px-4 py-2 text-black border border-[#4CAF50] rounded-lg focus:border-[#4CAF50] focus:ring-0 hover:border-2 transition-all"
@@ -287,17 +269,11 @@ export default function Register() {
 
                 {/* Password */}
                 <div>
-                  <label className="block mb-1 text-sm font-medium text-gray-700">
-                    Password
-                  </label>
+                  <label className="block mb-1 text-sm font-medium text-gray-700">Password</label>
                   <input
                     type="password"
                     name={accountType === "Komunitas" ? "password_komunitas" : "password"}
-                    value={
-                      accountType === "Komunitas"
-                        ? form.password_komunitas
-                        : form.password
-                    }
+                    value={accountType === "Komunitas" ? form.password_komunitas : form.password}
                     onChange={handleChange}
                     placeholder="Masukkan Password"
                     className="block w-full px-4 py-2 text-black border border-[#4CAF50] rounded-lg focus:border-[#4CAF50] focus:ring-0 hover:border-2 transition-all"
@@ -307,17 +283,11 @@ export default function Register() {
 
                 {/* No. Telepon */}
                 <div>
-                  <label className="block mb-1 text-sm font-medium text-gray-700">
-                    No. Telepon
-                  </label>
+                  <label className="block mb-1 text-sm font-medium text-gray-700">No. Telepon</label>
                   <input
                     type="tel"
                     name={accountType === "Komunitas" ? "no_telepon_komunitas" : "no_telepon"}
-                    value={
-                      accountType === "Komunitas"
-                        ? form.no_telepon_komunitas
-                        : form.no_telepon
-                    }
+                    value={accountType === "Komunitas" ? form.no_telepon_komunitas : form.no_telepon}
                     onChange={handleChange}
                     placeholder="Masukkan No. Telepon"
                     className="block w-full px-4 py-2 text-black border border-[#4CAF50] rounded-lg focus:border-[#4CAF50] focus:ring-0 hover:border-2 transition-all"

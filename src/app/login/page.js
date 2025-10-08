@@ -1,5 +1,4 @@
 "use client";
-
 import { supabase } from "../../../lib/supabaseClient";
 import { useState } from "react";
 import Image from "next/image";
@@ -12,12 +11,10 @@ export default function Login() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // 🔹 Update input
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  // 🔹 Fungsi login Supabase (tanpa reload, langsung redirect)
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
@@ -28,27 +25,34 @@ export default function Login() {
     }
 
     setLoading(true);
-
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: form.email,
-        password: form.password,
-      });
+      // 🔹 Cek user di tabel Komunitas
+      const { data: userData, error: userError } = await supabase
+        .from("Komunitas")
+        .select("email_komunitas, password_komunitas, jenis_akun")
+        .eq("email_komunitas", form.email)
+        .single();
 
-      if (error) throw error;
+      if (userError || !userData) {
+        throw new Error("Email tidak ditemukan");
+      }
 
-      // ✅ Simpan user ke localStorage biar bisa diakses nanti
-      const userData = {
-        email: data.user.email,
+      // 🔹 Cocokkan password manual (kalau belum pakai hash)
+      if (userData.password_komunitas !== form.password) {
+        throw new Error("Password salah");
+      }
+
+      // 🔹 Simpan user ke localStorage
+      const user = {
+        email: userData.email_komunitas,
         role: "komunitas",
-        subRole: "penanam",
+        subRole: userData.jenis_akun?.toLowerCase() || "penanam",
       };
-      localStorage.setItem("user", JSON.stringify(userData));
+      localStorage.setItem("user", JSON.stringify(user));
 
-      // ✅ Redirect tanpa reload
       router.push("/home");
     } catch (err) {
-      setError("Email atau password salah, coba lagi!");
+      setError(err.message || "Login gagal, periksa kembali data Anda!");
     } finally {
       setLoading(false);
     }
@@ -138,7 +142,7 @@ export default function Login() {
           </button>
         </div>
 
-        {/* Pesan error dari Supabase */}
+        {/* Pesan error */}
         {error && (
           <p className="mt-3 text-sm text-center text-red-500 font-medium">
             {error}
@@ -158,7 +162,7 @@ export default function Login() {
         </div>
       </div>
 
-      {/* Bagian kanan (gambar + teks) */}
+      {/* Bagian kanan */}
       <div
         className="relative hidden bg-cover lg:flex lg:w-1/2 items-center justify-center rounded-tr-lg rounded-br-lg"
         style={{

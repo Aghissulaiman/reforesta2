@@ -1,18 +1,31 @@
 "use client";
-import { useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
+import { useEffect } from "react";
+import { supabase } from "../lib/supabaseClient";
 
-export default function useAuthRedirect() {
+export default function useAuthRedirect(protect = true) {
   const router = useRouter();
   const pathname = usePathname();
 
   useEffect(() => {
-    const userData = localStorage.getItem("user");
-    const user = userData ? JSON.parse(userData) : null;
+    const checkUser = async () => {
+      const { data } = await supabase.auth.getSession();
+      const session = data.session;
+      console.log("🔍 Session:", session);
 
-    // Jika belum login dan bukan di halaman login → arahkan
-    if (!user && pathname !== "/login") {
-      router.push("/login");
-    }
-  }, [router, pathname]);
+      if (protect) {
+        // Untuk halaman yang butuh login
+        if (!session) {
+          router.push("/login");
+        }
+      } else {
+        // Untuk halaman login/register
+        if (session) {
+          router.push("/home");
+        }
+      }
+    };
+
+    checkUser();
+  }, [router, pathname, protect]);
 }

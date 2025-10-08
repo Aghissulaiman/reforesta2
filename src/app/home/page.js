@@ -8,21 +8,21 @@ import LanggananSection from "../componen/HomePage/LanggananSection";
 import Komunitas from "../componen/landingpage/Komunitas";
 import AcaraHijau from "../componen/landingpage/AcaraHijau";
 import Footer from "../componen/landingpage/Footer";
-import useAuthRedirect from "../../../hooks/useAuthRedirect";
 
 export default function Home() {
-  useAuthRedirect();
-
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // 🧠 Ambil data user dari localStorage
   useEffect(() => {
     try {
       const stored = localStorage.getItem("user");
       if (stored) {
         const parsed = JSON.parse(stored);
-        setUser(parsed);
+
+        // ✅ Validasi minimal: pastikan email ada
+        if (parsed.email) {
+          setUser(parsed);
+        }
       }
     } catch (err) {
       console.error("Gagal memuat user:", err);
@@ -31,7 +31,6 @@ export default function Home() {
     }
   }, []);
 
-  // 🌀 Tampilan loading (lebih cepat dan smooth)
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center h-screen bg-white">
@@ -43,7 +42,6 @@ export default function Home() {
     );
   }
 
-  // ❌ Kalau belum login
   if (!user) {
     return (
       <div className="flex flex-col items-center justify-center h-screen bg-white text-center">
@@ -58,7 +56,6 @@ export default function Home() {
     );
   }
 
-  // ✅ Kalau sudah login
   return (
     <div className="bg-green-50 min-h-screen">
       <NavbarAll />
