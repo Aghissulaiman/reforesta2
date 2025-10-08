@@ -1,9 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect } from "react";
-import AOS from "aos";
-import "aos/dist/aos.css";
+
 
 export default function Komunitas() {
   const komunitas = [
@@ -47,8 +45,6 @@ export default function Komunitas() {
       <div className="relative z-10 max-w-6xl mx-auto px-6 text-center">
         {/* Judul */}
         <h2
-          data-aos="fade-up"
-          data-aos-delay="100"
           className="text-3xl md:text-4xl font-bold text-gray-900 mb-16"
         >
           Kami Bekerja Sama Dengan Komunitas Terkenal
