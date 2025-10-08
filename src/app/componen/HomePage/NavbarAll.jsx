@@ -22,7 +22,7 @@ export default function NavbarAll() {
   const profileItems = [
     { name: "Profile", path: "/home/profile" },
     { name: "Riwayat", path: "/riwayat" },
-    { name: "Setting", path: "/setting" },
+    { name: "Setting", path: "/home/setting" },
     { name: "Logout", path: "/" },
   ];
 
