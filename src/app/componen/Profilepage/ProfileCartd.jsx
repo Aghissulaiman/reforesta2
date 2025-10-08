@@ -98,49 +98,6 @@ export default function ProfileCard() {
           </div>
         </div>
 
-        {/* Hobbies */}
-        <div>
-          <h3 className="font-semibold text-gray-700 mb-2">Hobi</h3>
-          <div className="flex flex-wrap gap-2">
-            {user.hobbies.map((hobby, idx) => (
-              <span
-                key={idx}
-                className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm"
-              >
-                {hobby}
-              </span>
-            ))}
-          </div>
-        </div>
-
-        {/* Social Media */}
-        <div className="flex items-center gap-4 text-gray-600">
-          <a href={`https://instagram.com/${user.social.instagram}`} target="_blank" className="hover:text-pink-500 transition">
-            <FaInstagram size={20} />
-          </a>
-          <a href={`https://twitter.com/${user.social.twitter}`} target="_blank" className="hover:text-blue-400 transition">
-            <FaTwitter size={20} />
-          </a>
-          <a href={`https://linkedin.com/in/${user.social.linkedin}`} target="_blank" className="hover:text-blue-700 transition">
-            <FaLinkedin size={20} />
-          </a>
-        </div>
-
-        {/* Stats */}
-        <div className="flex justify-around bg-gray-50 p-3 rounded-lg text-gray-700 font-medium">
-          <div className="text-center">
-            <div className="text-lg font-bold">{user.stats.posts}</div>
-            <div className="text-sm text-gray-500">Posts</div>
-          </div>
-          <div className="text-center">
-            <div className="text-lg font-bold">{user.stats.followers}</div>
-            <div className="text-sm text-gray-500">Followers</div>
-          </div>
-          <div className="text-center">
-            <div className="text-lg font-bold">{user.stats.following}</div>
-            <div className="text-sm text-gray-500">Following</div>
-          </div>
-        </div>
 
         {/* Buttons */}
         <div className="flex gap-4 mt-4">

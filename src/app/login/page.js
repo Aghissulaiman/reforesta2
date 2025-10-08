@@ -6,17 +6,15 @@ import Image from "next/image";
 import Link from "next/link";
 import useAuthRedirect from "../../../hooks/useAuthRedirect";
 
-export default function Login(){ 
+export default function Login() {
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // 🔹 Update state setiap input berubah
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  // 🔹 Fungsi utama login Supabase
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
@@ -37,6 +35,18 @@ export default function Login(){
       setError(error.message);
     } else {
       console.log("Login sukses:", data.user);
+
+      // ⬇️ Simpan data role ke localStorage
+      // Sementara masih manual (bisa diubah ke data dari DB nanti)
+      const userData = {
+        email: form.email,
+        role: "komunitas", // bisa juga "sekolah"
+        subRole: "penerima", // ubah ke "donatur" kalau login donatur
+      };
+
+      localStorage.setItem("user", JSON.stringify(userData));
+
+      // Redirect ke home
       window.location.href = "/home";
     }
 
@@ -127,7 +137,7 @@ export default function Login(){
           </button>
         </div>
 
-        {/* Pesan error dari Supabase */}
+        {/* Pesan error */}
         {error && (
           <p className="mt-3 text-sm text-center text-red-500 font-medium">
             {error}
@@ -164,9 +174,7 @@ export default function Login(){
           <p className="mt-4 font-semibold text-lg">
             Selamat datang kembali, Penjaga Bumi
           </p>
-          <p className="text-sm mt-1">
-            Kita butuh kamu lagi. Bumi gak bisa nunggu.
-          </p>
+          <p className="text-sm mt-1">Kita butuh kamu lagi. Bumi gak bisa nunggu.</p>
           <p className="mt-4 text-sm">
             Belum punya{" "}
             <span className="text-[#4CAF50] font-semibold">akun?</span>
