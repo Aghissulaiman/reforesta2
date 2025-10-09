@@ -8,30 +8,28 @@ import { useSession, useSupabaseClient } from "@supabase/auth-helpers-react";
 export default function HistoryPembayaran() {
   const session = useSession();
   const supabase = useSupabaseClient();
-  const [user, setUser] = useState(null);
   const [riwayat, setRiwayat] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (session?.user) {
-      setUser(session.user);
+    if (session?.user?.id) {
       ambilData(session.user.id);
     }
   }, [session]);
 
-  const ambilData = async (userId) => {
-    try {
-      setLoading(true);
-      const res = await fetch(`/api/transaksi?user_id=${userId}`);
-      if (!res.ok) throw new Error("Gagal mengambil data transaksi");
-      const data = await res.json();
-      setRiwayat(data || []);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
+ const ambilData = async () => {
+  try {
+    setLoading(true);
+    const res = await fetch("/api/transaksi/user");
+    if (!res.ok) throw new Error("Gagal ambil data transaksi");
+    const data = await res.json();
+    setRiwayat(data || []);
+  } catch (err) {
+    console.error("Gagal ambil data transaksi:", err.message);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const getStatusIcon = (status) => {
     switch (status) {
@@ -91,7 +89,7 @@ export default function HistoryPembayaran() {
             >
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3">
                 <div className="flex items-center gap-3">
-                  {getStatusIcon(trx.transaction_status)}
+                  {getStatusIcon(trx.status)}
                   <h3 className="text-lg font-semibold text-gray-800">
                     {trx.order_id}
                   </h3>
@@ -111,7 +109,7 @@ export default function HistoryPembayaran() {
                 </p>
                 <p>
                   <span className="font-medium">Total: </span>Rp{" "}
-                  {trx.gross_amount.toLocaleString("id-ID")}
+                  {trx.total_harga?.toLocaleString("id-ID")}
                 </p>
               </div>
 
@@ -132,14 +130,14 @@ export default function HistoryPembayaran() {
               <div className="mt-4 flex justify-end">
                 <span
                   className={`px-3 py-1.5 rounded-full text-sm font-semibold ${
-                    trx.transaction_status === "success"
+                    trx.status === "success"
                       ? "bg-green-100 text-green-700"
-                      : trx.transaction_status === "pending"
+                      : trx.status === "pending"
                       ? "bg-yellow-100 text-yellow-700"
                       : "bg-red-100 text-red-700"
                   }`}
                 >
-                  {trx.transaction_status.toUpperCase()}
+                  {trx.status.toUpperCase()}
                 </span>
               </div>
             </motion.div>
