@@ -1,7 +1,8 @@
 "use client";
-import { supabase } from "../../../lib/supabaseClient";
+
 import { useState } from "react";
-import Image from "next/image";
+// Diubah dari "@/lib/supabaseClient" ke path relatif yang lebih andal untuk mengatasi Module Not Found
+import { supabase } from "../../../lib/supabaseClient";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -15,6 +16,42 @@ export default function Login() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  /**
+   * Fungsi untuk mencari role pengguna di database setelah otentikasi berhasil.
+   * Prioritas: Komunitas (Penanam/Donatur) -> Sekolah.
+   * @param {string} userEmail - Email pengguna yang sudah terotentikasi.
+   * @returns {Promise<{role: 'penanam' | 'donatur' | 'sekolah'}>}
+   */
+  const fetchUserRole = async (userEmail) => {
+    // 1. Cek di tabel Komunitas (Penanam atau Donatur)
+    const { data: komunitasData } = await supabase
+      .from("Komunitas")
+      .select("jenis_akun")
+      .eq("email_komunitas", userEmail)
+      .single();
+
+    if (komunitasData) {
+      const role = komunitasData.jenis_akun?.toLowerCase();
+      // Role disetel ke 'penanam' atau 'donatur'
+      return { role: role === "donatur" ? "donatur" : "penanam" };
+    }
+
+    // 2. Cek di tabel Sekolah
+    const { data: sekolahData } = await supabase
+      .from("Sekolah")
+      .select("nama_sekolah")
+      .eq("email_sekolah", userEmail)
+      .single();
+
+    if (sekolahData) {
+      // Role disetel ke 'sekolah'
+      return { role: "sekolah" };
+    }
+
+    // Jika tidak ditemukan di manapun, dianggap penanam (default atau error)
+    throw new Error("Role pengguna tidak ditemukan di database.");
+  };
+
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
@@ -26,30 +63,40 @@ export default function Login() {
 
     setLoading(true);
     try {
-      // 🔹 Ambil data komunitas dari Supabase
-      const { data: userData, error: userError } = await supabase
-        .from("Komunitas")
-        .select("email_komunitas, password_komunitas, jenis_akun")
-        .eq("email_komunitas", form.email)
-        .single();
+      // 🔹 Lakukan Otentikasi Supabase yang Aman
+      const { data, error: authError } = await supabase.auth.signInWithPassword({
+        email: form.email,
+        password: form.password,
+      });
 
-      if (userError || !userData) throw new Error("Email tidak ditemukan");
-
-      if (userData.password_komunitas !== form.password) {
-        throw new Error("Password salah");
+      if (authError) {
+        // Supabase error codes
+        if (authError.message.includes('Invalid login credentials')) {
+             throw new Error("Email atau password yang Anda masukkan salah.");
+        }
+        throw authError; 
       }
 
+      const sessionUser = data.user;
+      if (!sessionUser) {
+        throw new Error("Otentikasi berhasil, tetapi user data tidak ditemukan.");
+      }
+
+      // 🔹 Ambil Role Pengguna dari Database
+      const userRole = await fetchUserRole(sessionUser.email);
+      
       // 🔹 Simpan data user di localStorage
       const user = {
-        email: userData.email_komunitas,
-        role: "komunitas",
-        subRole: userData.jenis_akun?.toLowerCase() || "penanam",
+        email: sessionUser.email,
+        role: userRole.role, // 'penanam', 'donatur', atau 'sekolah'
       };
       localStorage.setItem("user", JSON.stringify(user));
 
-      // 🔹 Arahkan ke halaman sesuai role
+      // 🔹 Arahkan ke halaman home
       router.push("/home");
+      
     } catch (err) {
+      console.error(err);
       setError(err.message || "Login gagal, periksa kembali data Anda!");
     } finally {
       setLoading(false);
@@ -179,17 +226,10 @@ export default function Login() {
           <div className="relative z-10 text-center text-white flex flex-col items-center justify-center p-6">
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className="w-24 h-24 text-[#059669] mb-4"
+              className="w-24 h-24 text-white mb-4 opacity-70"
               viewBox="0 0 48 48"
             >
-              <path
-                fill="none"
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="4"
-                d="M24 42V26m17.942-15.993c-.776 13.024-9.13 17.236-15.946 17.896C24.896 28.009 24 27.104 24 26v-8.372c0-.233.04-.468.125-.684C27.117 9.199 34.283 8.155 40 8.02c1.105-.027 2.006.884 1.94 1.987M7.998 6.072c9.329.685 14.197 6.091 15.836 9.558c.115.242.166.508.166.776v7.504c0 1.14-.96 2.055-2.094 1.94C7.337 24.384 6.11 14.786 6.009 8C5.993 6.894 6.897 5.99 8 6.072"
-              />
+                <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M24 42V26m17.942-15.993c-.776 13.024-9.13 17.236-15.946 17.896C24.896 28.009 24 27.104 24 26v-8.372c0-.233.04-.468.125-.684C27.117 9.199 34.283 8.155 40 8.02c1.105-.027 2.006.884 1.94 1.987M7.998 6.072c9.329.685 14.197 6.091 15.836 9.558c.115.242.166.508.166.776v7.504c0 1.14-.96 2.055-2.094 1.94C7.337 24.384 6.11 14.786 6.009 8C5.993 6.894 6.897 5.99 8 6.072" />
             </svg>
             <p className="mt-2 font-semibold text-lg">
               Selamat datang kembali, Penjaga Bumi
