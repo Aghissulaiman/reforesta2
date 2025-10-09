@@ -48,6 +48,15 @@ export default function Register() {
     const user = data.user;
     if (!user) return;
 
+    // Setelah user berhasil dibuat di auth
+await supabase.from("user").insert([
+  {
+    id: user.id,
+    role: accountType === "Sekolah" ? "sekolah" : userRole.toLowerCase(), // donatur / penanam
+  },
+]);
+
+
     if (isSekolah) {
       const { error: sekolahError } = await supabase.from("Sekolah").insert([
         {

@@ -5,6 +5,8 @@ import { supabase } from "../../../../lib/supabaseClient";
 export default function ProfilePage() {
   const [userData, setUserData] = useState(null);
   const [accountType, setAccountType] = useState(null);
+  const [aboutMe, setAboutMe] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -13,7 +15,6 @@ export default function ProfilePage() {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 
-        // Cek apakah user ada di tabel Komunitas
         let { data: komunitas } = await supabase
           .from("Komunitas")
           .select("*")
@@ -27,7 +28,6 @@ export default function ProfilePage() {
           return;
         }
 
-        // Kalau tidak ada di Komunitas, cek tabel Sekolah
         let { data: sekolah } = await supabase
           .from("Sekolah")
           .select("*")
@@ -38,16 +38,24 @@ export default function ProfilePage() {
           setUserData(sekolah);
           setAccountType("Sekolah");
         }
-
-      } catch (error) {
-        console.error("Error fetching profile:", error.message);
+      } catch (err) {
+        console.error(err);
       } finally {
         setLoading(false);
       }
     };
-
     fetchProfile();
   }, []);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("aboutMe");
+    if (saved) setAboutMe(saved);
+  }, []);
+
+  const handleSaveAboutMe = () => {
+    localStorage.setItem("aboutMe", aboutMe);
+    setIsEditing(false);
+  };
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -71,72 +79,116 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-50 p-4">
-      <div className="bg-white shadow-lg rounded-2xl w-full max-w-md p-6 border border-gray-200">
-        {/* Foto Profil */}
-        <div className="flex items-center space-x-4 mb-6">
-          <div className="w-20 h-20 bg-gray-300 rounded-full"></div>
-          <div>
-            <h2 className="text-lg font-semibold text-gray-800">
-              {accountType === "Komunitas" ? userData.nama_komunitas : userData.nama}
+    <div className="min-h-screen bg-gray-50 flex justify-center items-center p-6">
+      <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-3xl">
+        {/* 🔹 Header Profil */}
+        <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
+          {/* Foto */}
+          <div className="w-28 h-28 rounded-full bg-gray-200 flex-shrink-0"></div>
+
+          {/* Detail */}
+          <div className="flex-1 text-center md:text-left">
+            {/* Role dengan border */}
+            <p className="inline-block border border-green-500 text-green-600 px-3 py-1 rounded-full text-sm font-medium mb-2">
+              {accountType}
+            </p>
+
+            <h2 className="text-2xl font-bold text-gray-800 mt-1">
+              {accountType === "Komunitas"
+                ? userData.nama_komunitas
+                : userData.nama_sekolah}
             </h2>
-            <p className="text-gray-500 text-sm">{userData.email || userData.email_komunitas}</p>
-            <p className="text-xs text-gray-400 mt-1">{accountType}</p>
+
+            <p className="text-gray-500 mt-1">
+              {userData.pic || "PIC tidak tersedia"}
+            </p>
+
+            <p className="text-gray-400 text-sm mt-1">
+              {userData.nama_komunitas || "Tidak ada komunitas"}
+            </p>
           </div>
         </div>
 
-        {/* Data Profil */}
-        <div className="grid grid-cols-2 gap-3 text-sm">
-          {accountType === "Komunitas" ? (
-            <>
-              <div>
-                <p className="text-gray-500">PIC</p>
-                <p className="font-medium">{userData.pic}</p>
-              </div>
-              <div>
-                <p className="text-gray-500">Jenis Akun</p>
-                <p className="font-medium">{userData.jenis_akun}</p>
-              </div>
-              <div>
-                <p className="text-gray-500">Jenis Kelamin</p>
-                <p className="font-medium">{userData.jenis_kelamin}</p>
-              </div>
-              <div>
-                <p className="text-gray-500">No Telepon</p>
-                <p className="font-medium">{userData.no_telepon_komunitas}</p>
-              </div>
-              <div className="col-span-2">
-                <p className="text-gray-500">Instansi</p>
-                <p className="font-medium">{userData.instansi}</p>
-              </div>
-            </>
+        {/* 🔹 Info Akun */}
+        <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div>
+            <label className="block text-gray-500 text-sm mb-1">Email</label>
+            <input
+              readOnly
+              value={userData.email || userData.email_komunitas || ""}
+              className="w-full bg-gray-100 rounded-lg px-3 py-2 text-gray-700"
+            />
+          </div>
+
+          <div>
+            <label className="block text-gray-500 text-sm mb-1">Password</label>
+            <input
+              type="password"
+              value="********"
+              readOnly
+              className="w-full bg-gray-100 rounded-lg px-3 py-2 text-gray-700"
+            />
+          </div>
+
+          <div>
+            <label className="block text-gray-500 text-sm mb-1">No Telepon</label>
+            <input
+              readOnly
+              value={userData.no_telepon || userData.no_telepon_komunitas || ""}
+              className="w-full bg-gray-100 rounded-lg px-3 py-2 text-gray-700"
+            />
+          </div>
+
+          <div>
+            <label className="block text-gray-500 text-sm mb-1">Jenis Kelamin</label>
+            <input
+              readOnly
+              value={userData.jenis_kelamin || "Tidak diketahui"}
+              className="w-full bg-gray-100 rounded-lg px-3 py-2 text-gray-700"
+            />
+          </div>
+        </div>
+
+        {/* 🔹 About Me */}
+        <div className="mt-10 text-center">
+          <div className="flex justify-between items-center mb-3">
+            <h3 className="text-lg font-semibold text-gray-800">About Me</h3>
+            {!isEditing ? (
+              <button
+                onClick={() => setIsEditing(true)}
+                className="text-sm bg-green-100 text-green-700 px-3 py-1 rounded-lg hover:bg-green-200 transition"
+              >
+                Edit
+              </button>
+            ) : (
+              <button
+                onClick={handleSaveAboutMe}
+                className="text-sm bg-green-600 text-white px-3 py-1 rounded-lg hover:bg-green-700 transition"
+              >
+                Save
+              </button>
+            )}
+          </div>
+
+          {!isEditing ? (
+            <div className="w-full bg-gray-100 rounded-lg p-3 text-gray-700 min-h-[120px] text-left">
+              {aboutMe || "Belum ada deskripsi."}
+            </div>
           ) : (
-            <>
-              <div>
-                <p className="text-gray-500">Nama Sekolah</p>
-                <p className="font-medium">{userData.nama_sekolah}</p>
-              </div>
-              <div>
-                <p className="text-gray-500">NUPTK</p>
-                <p className="font-medium">{userData.nuptk}</p>
-              </div>
-              <div>
-                <p className="text-gray-500">No Telepon</p>
-                <p className="font-medium">{userData.no_telepon}</p>
-              </div>
-              <div>
-                <p className="text-gray-500">Email</p>
-                <p className="font-medium">{userData.email}</p>
-              </div>
-            </>
+            <textarea
+              value={aboutMe}
+              onChange={(e) => setAboutMe(e.target.value)}
+              placeholder="Tulis sesuatu tentang dirimu..."
+              className="w-full h-32 p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 resize-none"
+            />
           )}
         </div>
 
-        {/* Tombol Logout */}
-        <div className="mt-6">
+        {/* 🔹 Logout */}
+        <div className="mt-8 flex justify-center">
           <button
             onClick={handleLogout}
-            className="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition"
+            className="bg-green-600 text-white px-8 py-2 rounded-xl hover:bg-green-700 transition"
           >
             Logout
           </button>
