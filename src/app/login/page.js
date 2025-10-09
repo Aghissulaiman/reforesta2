@@ -101,7 +101,7 @@ export default function login() {
         </div>
 
         <p className="mt-3 text-xl text-center text-[#059669] font-semibold">
-          Selamat Datang Kembali!
+          Selamat Datang Kembalii!
         </p>
 
         <form onSubmit={handleLogin}>
