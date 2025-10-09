@@ -89,6 +89,7 @@ export default function Register() {
     alert("✅ Register berhasil! Silakan konfirmasi email Anda.");
   };
 
+  // ✅ Perbaikan di sini (backtick sudah benar)
   const getButtonClass = (type, currentType, base = "bg-[#059669]") =>
     currentType === type
       ? `${base} text-white shadow-md font-semibold focus:ring-[#059669] focus:ring focus:ring-opacity-50`
