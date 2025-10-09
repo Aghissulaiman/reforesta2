@@ -55,41 +55,47 @@ export default function login() {
     throw new Error("Data pengguna tidak ditemukan di database.");
   };
 
-  const handleLogin = async (e) => {
-  e.preventDefault();
-  setError("");
-  setLoading(true);
+  const [isPaying, setIsPaying] = useState(false);
+
+const handleBayar = async () => {
+  if (isPaying) return; // biar gak double
+  setIsPaying(true);
 
   try {
-    const { email, password } = form;
-    if (!email || !password) {
-      setError("Email dan password wajib diisi!");
-      return;
-    }
+    // ... generate token seperti biasa
+    const res = await fetch("/api/payments", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(orderDetails),
+    });
 
-    const { data: authData, error: authError } =
-      await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+    const data = await res.json();
+    const token = data.token;
 
-    if (authError) {
-      if (authError.message.includes("Invalid login credentials")) {
-        throw new Error("Email atau Password salah.");
-      }
-      throw new Error(authError.message);
-    }
+    if (!token) throw new Error("Token tidak ditemukan");
 
-    const userEmail = authData.user.email;
-
-    const { role } = await fetchUserRole(userEmail);
-
-    console.log("✅ Login sukses:", userEmail, "Role:", role);
-    router.push("/home");
-  } catch (err) {
-    setError(err.message || "Gagal masuk! Coba lagi nanti.");
-  } finally {
-    setLoading(false);
+    // ✅ panggil Snap hanya sekali
+    window.snap.pay(token, {
+      onSuccess: (result) => {
+        console.log("✅ Pembayaran sukses:", result);
+        alert("Pembayaran berhasil!");
+      },
+      onPending: (result) => {
+        console.log("🕓 Menunggu pembayaran:", result);
+        alert("Menunggu pembayaran diselesaikan.");
+      },
+      onError: (result) => {
+        console.error("❌ Pembayaran gagal:", result);
+        alert("Pembayaran gagal.");
+      },
+      onClose: () => {
+        console.log("Popup ditutup tanpa menyelesaikan pembayaran.");
+        setIsPaying(false); // aktifin lagi tombol
+      },
+    });
+  } catch (error) {
+    alert(error.message);
+    setIsPaying(false);
   }
 };
 
