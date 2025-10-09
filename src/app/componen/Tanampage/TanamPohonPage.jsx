@@ -1,34 +1,44 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { FaChevronLeft, FaChevronRight, FaTrash } from "react-icons/fa";
 import usePohon from "../../../../hooks/pohon";
 import useDaerah from "../../../../hooks/daerah";
+import { useSupabaseClient, useSession } from "@supabase/auth-helpers-react";
 
 export default function TanamPohonPage() {
   const { pohon, loading: loadingPohon, error: errorPohon } = usePohon();
   const { daerah, loading: loadingDaerah, error: errorDaerah } = useDaerah();
-
   const [index, setIndex] = useState(0);
   const [lokasiTerpilih, setLokasiTerpilih] = useState(null);
   const [bibitTerpilih, setBibitTerpilih] = useState([]);
-  const [lokasiAktif, setLokasiAktif] = useState(false);
+  const supabase = useSupabaseClient();  // ambil client Supabase
+const session = useSession();          // ambil session user aktif
+  const [user, setUser] = useState(null);
 
-  // Navigasi Carousel
+  useEffect(() => {
+  if (session?.user) {
+    setUser(session.user);
+    console.log("✅ User aktif:", session.user.email);
+  } else {
+    console.warn("❌ Tidak ada session user");
+  }
+}, [session]);
+
+
+  // 🔹 Navigasi Carousel
   const nextSlide = () => {
     const newIndex = (index + 1) % daerah.length;
     setIndex(newIndex);
     setLokasiTerpilih(daerah[newIndex]);
-    setLokasiAktif(true);
   };
 
   const prevSlide = () => {
     const newIndex = (index - 1 + daerah.length) % daerah.length;
     setIndex(newIndex);
     setLokasiTerpilih(daerah[newIndex]);
-    setLokasiAktif(true);
   };
 
   const getPosition = (i) => {
@@ -39,6 +49,7 @@ export default function TanamPohonPage() {
     return "hidden";
   };
 
+  // 🔹 Pilih & update bibit
   const toggleBibit = (item) => {
     const exists = bibitTerpilih.find((b) => b.nama === item.nama);
     if (exists) {
@@ -60,6 +71,107 @@ export default function TanamPohonPage() {
     (acc, b) => acc + b.harga * b.jumlah,
     0
   );
+// Setelah Refactoring (Fokus ke Validasi dan Struktur Data)
+
+const handleBayar = async () => {
+  try {
+    // 🧩 1️⃣ Validasi User & Input
+    if (!user) {
+      alert("Anda harus login untuk melanjutkan pembayaran.");
+      return;
+    }
+
+    if (!lokasiTerpilih || bibitTerpilih.length === 0) {
+      alert("Pilih lokasi dan minimal satu bibit terlebih dahulu.");
+      return;
+    }
+
+    // 🧾 2️⃣ Buat data transaksi awal
+    const orderDetails = {
+      order_id: `ORDER-${Date.now()}`,
+      gross_amount: totalHarga,
+      transaction_status: "pending",
+      payment_type: "midtrans",
+      transaction_time: new Date().toISOString(),
+      user_id: user.id,
+      lokasi: lokasiTerpilih.daerah,
+      bibit: bibitTerpilih.map((b) => ({
+        nama: b.nama,
+        harga: b.harga,
+        jumlah: b.jumlah,
+      })),
+    };
+
+    // 💾 3️⃣ Simpan transaksi ke database
+    const resTransaksi = await fetch("/api/transaksi", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(orderDetails),
+    });
+
+    if (!resTransaksi.ok) {
+      const err = await resTransaksi.json();
+      throw new Error(`Gagal menyimpan transaksi: ${err.message}`);
+    }
+
+    // 💳 4️⃣ Minta Snap Token dari backend
+    const resSnap = await fetch("/api/payments", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session?.access_token}`,
+      },
+      body: JSON.stringify(orderDetails),
+    });
+
+    if (!resSnap.ok) {
+      const err = await resSnap.json();
+      throw new Error(`Gagal mendapatkan token Midtrans: ${err.message}`);
+    }
+
+    const { token } = await resSnap.json();
+    if (!token) throw new Error("Token pembayaran tidak ditemukan.");
+
+    // 💥 5️⃣ Jalankan Snap Popup
+    if (typeof window.snap === "undefined") {
+      alert("Midtrans Snap belum dimuat. Coba refresh halaman.");
+      return;
+    }
+
+    window.snap.pay(token, {
+      onSuccess: async (result) => {
+        await updateStatus(orderDetails.order_id, "success", result);
+        alert("✅ Pembayaran berhasil!");
+      },
+      onPending: async (result) => {
+        await updateStatus(orderDetails.order_id, "pending", result);
+        alert("🕐 Menunggu pembayaran diselesaikan.");
+      },
+      onError: async (result) => {
+        await updateStatus(orderDetails.order_id, "failed", result);
+        alert("❌ Pembayaran gagal.");
+      },
+      onClose: () => console.log("❎ Popup ditutup tanpa menyelesaikan pembayaran."),
+    });
+  } catch (err) {
+    console.error("💣 handleBayar error:", err);
+    alert(err.message || "Terjadi kesalahan saat memproses pembayaran.");
+  }
+};
+
+// 🔧 Helper function untuk update status transaksi
+async function updateStatus(order_id, status, result) {
+  try {
+    await fetch("/api/transaksi", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ order_id, status, result }),
+    });
+  } catch (err) {
+    console.error("Gagal update status transaksi:", err);
+  }
+}
+
 
   return (
     <section className="w-full px-6 py-10 flex flex-col lg:flex-row gap-10">
@@ -276,7 +388,7 @@ export default function TanamPohonPage() {
       )}
     </div>
 
-    {/* Total */}
+       {/* Total */}
     <div className="flex justify-between items-center mt-4 pt-2 border-t border-gray-200">
       <span className="text-gray-800 font-semibold text-lg">Total</span>
       <span className="text-green-600 font-bold text-lg">
@@ -284,17 +396,18 @@ export default function TanamPohonPage() {
       </span>
     </div>
 
-    {/* Button Bayar */}
-<button
-  disabled={!lokasiTerpilih || bibitTerpilih.length === 0}
-  className={`w-full py-3 rounded-xl font-semibold transition text-white text-lg ${
-    !lokasiTerpilih || bibitTerpilih.length === 0
-      ? "bg-gray-300 cursor-not-allowed"
-      : "bg-green-600 hover:bg-green-700"
-  }`}
->
-  Bayar
-</button>
+    {/* Tombol Bayar */}
+    <button
+      onClick={handleBayar}
+      disabled={!lokasiTerpilih || bibitTerpilih.length === 0}
+      className={`w-full py-3 rounded-xl font-semibold transition text-white text-lg ${
+        !lokasiTerpilih || bibitTerpilih.length === 0
+          ? "bg-gray-300 cursor-not-allowed"
+          : "bg-green-600 hover:bg-green-700"
+      }`}
+    >
+      Bayar
+    </button>
   </div>
 </div>
     </section>

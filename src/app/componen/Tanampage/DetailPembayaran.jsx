@@ -5,6 +5,10 @@ export default function DetailPembayaran({ lokasiTerpilih }) {
   const [isFixed, setIsFixed] = useState(false);
   const [lastScroll, setLastScroll] = useState(0);
 
+  const [nama, setNama] = useState("");
+  const [email, setEmail] = useState("");
+  const [jumlah, setJumlah] = useState(1);
+
   useEffect(() => {
     const handleScroll = () => {
       const currentScroll = window.scrollY;

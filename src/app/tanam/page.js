@@ -1,24 +1,23 @@
 "use client";
-
-
-import DetailPembayaran from "../componen/Tanampage/DetailPembayaran";
 import NavbarAll from "../componen/HomePage/NavbarAll";
-import PilihLokasi from "../componen/Tanampage/PilihLokasi";
-import PohonList from "../componen/Tanampage/PohonList";
 import TanamPohon from "../componen/Tanampage/TanamPohon";
-import Footer from "../componen/landingpage/Footer";
-import useAuthRedirect from "../../../hooks/useAuthRedirect";
 import TanamPohonPage from "../componen/Tanampage/TanamPohonPage";
+import Footer from "../componen/landingpage/Footer";
 
+import { useSession, useSupabaseClient } from "@supabase/auth-helpers-react";
 
-export default function tanam() {
-    useAuthRedirect(); 
-    return(
-        <div>
-        <NavbarAll/>
-        <TanamPohon/>
-        <TanamPohonPage/>
-        <Footer/>   
-        </div>
-    )
+export default function TanamPage() {
+  const session = useSession();
+  const user = session?.user;
+
+  return (
+    <div className="min-h-screen flex flex-col">
+      <NavbarAll />
+      <main className="flex-grow">
+        <TanamPohon />
+        <TanamPohonPage user={user} />
+      </main>
+      <Footer />
+    </div>
+  );
 }
