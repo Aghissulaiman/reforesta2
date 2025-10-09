@@ -15,7 +15,7 @@ export default function KenapaLangganan() {
       icon: <Users className="text-[#059669]" size={28} />,
       judul: "Gabung Komunitas Peduli Alam",
       deskripsi:
-        "Bergabung dengan ribuan relawan yang punya semangat sama: menjaga bumi tetap hijau 🌱.",
+        "Bergabung dengan ribuan relawan yang punya semangat sama: menjaga bumi tetap hijau.",
     },
     {
       icon: <Award className="text-[#059669]" size={28} />,
@@ -31,6 +31,13 @@ export default function KenapaLangganan() {
     },
   ];
 
+  const handleScroll = () => {
+    const section = document.getElementById("langganan-section");
+    if (section) {
+      section.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
   return (
     <section className="bg-[#F8FCFA] py-20 px-6">
       <motion.div
@@ -40,7 +47,7 @@ export default function KenapaLangganan() {
         className="text-center mb-12"
       >
         <h2 className="text-3xl font-bold text-gray-900">
-          Kenapa Harus Berlangganan? 🌿
+          Kenapa Harus Berlangganan?
         </h2>
         <p className="text-gray-600 mt-2 max-w-2xl mx-auto">
           Langganan bukan cuma soal fitur — tapi tentang kontribusi nyata kamu
@@ -55,7 +62,7 @@ export default function KenapaLangganan() {
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: i * 0.1 }}
-            className="bg-white border border-gray-200 rounded-2xl p-6 text-center shadow-sm hover:shadow-md transition"
+            className="bg-white rounded-2xl p-6 text-center shadow-sm hover:shadow-lg transition"
           >
             <div className="flex justify-center mb-4">{item.icon}</div>
             <h3 className="text-lg font-semibold text-gray-800 mb-2">
@@ -72,7 +79,10 @@ export default function KenapaLangganan() {
         transition={{ duration: 0.4, delay: 0.3 }}
         className="text-center mt-12"
       >
-        <button className="px-8 py-3 bg-[#059669] hover:bg-[#047857] text-white font-medium rounded-xl shadow-md transition">
+        <button
+          onClick={handleScroll}
+          className="px-8 py-3 bg-[#059669] hover:bg-[#047857] text-white font-semibold rounded-xl shadow-md transition-transform hover:scale-105"
+        >
           Mulai Langganan Sekarang
         </button>
       </motion.div>
