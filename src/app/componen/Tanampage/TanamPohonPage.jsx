@@ -6,29 +6,68 @@ import { motion } from "framer-motion";
 import { FaChevronLeft, FaChevronRight, FaTrash } from "react-icons/fa";
 import usePohon from "../../../../hooks/pohon";
 import useDaerah from "../../../../hooks/daerah";
-import { useSupabaseClient, useSession } from "@supabase/auth-helpers-react";
+import { supabase } from "../../../../lib/supabaseClient";
 
 export default function TanamPohonPage() {
   const { pohon, loading: loadingPohon, error: errorPohon } = usePohon();
   const { daerah, loading: loadingDaerah, error: errorDaerah } = useDaerah();
+
   const [index, setIndex] = useState(0);
   const [lokasiTerpilih, setLokasiTerpilih] = useState(null);
   const [bibitTerpilih, setBibitTerpilih] = useState([]);
-  const supabase = useSupabaseClient();  // ambil client Supabase
-const session = useSession();          // ambil session user aktif
   const [user, setUser] = useState(null);
+  const [loadingUser, setLoadingUser] = useState(true);
 
+  // ✅ Muat script Midtrans Snap
   useEffect(() => {
-  if (session?.user) {
-    setUser(session.user);
-    console.log("✅ User aktif:", session.user.email);
-  } else {
-    console.warn("❌ Tidak ada session user");
+    if (typeof window.snap === "undefined") {
+      const script = document.createElement("script");
+      script.src = "https://app.sandbox.midtrans.com/snap/snap.js";
+      script.setAttribute("data-client-key", process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY);
+      document.body.appendChild(script);
+    }
+  }, []);
+
+  // ✅ Ambil user langsung dari Supabase
+  useEffect(() => {
+    const getUser = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        setUser(user);
+      } catch (err) {
+        console.error("Gagal ambil user:", err);
+      } finally {
+        setLoadingUser(false);
+      }
+    };
+    getUser();
+  }, []);
+
+  if (loadingUser) {
+    return (
+      <div className="w-full flex justify-center items-center py-20">
+        <p className="text-gray-500">Memuat data pengguna...</p>
+      </div>
+    );
   }
-}, [session]);
 
+  if (!user) {
+    return (
+      <div className="w-full flex flex-col justify-center items-center py-20 space-y-4">
+        <p className="text-lg font-semibold text-gray-700">
+          Anda harus login terlebih dahulu untuk menanam pohon 🌱
+        </p>
+        <a
+          href="/auth/login"
+          className="px-6 py-3 bg-green-600 text-white font-semibold rounded-xl hover:bg-green-700 transition"
+        >
+          Login Sekarang
+        </a>
+      </div>
+    );
+  }
 
-  // 🔹 Navigasi Carousel
+  // 🔹 Carousel kontrol
   const nextSlide = () => {
     const newIndex = (index + 1) % daerah.length;
     setIndex(newIndex);
@@ -71,125 +110,105 @@ const session = useSession();          // ambil session user aktif
     (acc, b) => acc + b.harga * b.jumlah,
     0
   );
-// Setelah Refactoring (Fokus ke Validasi dan Struktur Data)
 
-const handleBayar = async () => {
-  try {
+  // 🔹 Fungsi pembayaran Midtrans
+  const handleBayar = async () => {
+    try {
+      if (!lokasiTerpilih) return alert("Pilih lokasi penanaman terlebih dahulu.");
+      if (!bibitTerpilih.length) return alert("Pilih minimal satu bibit pohon.");
+      if (!user) return alert("Silakan login terlebih dahulu.");
 
-     const activeUser = session?.user;
-    
-    // 1. VALIDASI
-    // Validasi ini memastikan activeUser ada.
-    if (!activeUser) { 
-        alert("Anda harus login untuk melanjutkan pembayaran.");
-        return;
-    }
-    if (!lokasiTerpilih || bibitTerpilih.length === 0) {
-        alert("Pilih lokasi dan minimal satu bibit.");
-        return;
-    }
-
-    // 2. SIAPKAN PAYLOAD MIDTRANS
-    const orderDetails = {
-        gross_amount: totalHarga,
+      const orderDetails = {
         order_id: `ORDER-${Date.now()}`,
-        // 🚨 FIX: Gunakan activeUser (yang sudah divalidasi tidak NULL)
-        user_id: activeUser.id, 
-        items: bibitTerpilih.map(b => ({
-            // ...
+        gross_amount: totalHarga,
+        user_id: user.id,
+        items: bibitTerpilih.map((item) => ({
+          id: item.id,
+          name: item.nama,
+          price: item.harga,
+          quantity: item.jumlah,
         })),
         metadata: {
-            lokasi_tanam: lokasiTerpilih.daerah,
-            // 🚨 FIX: Gunakan activeUser
-            user_email: activeUser.email, 
+          lokasi_tanam: lokasiTerpilih.daerah,
+          user_email: user.email,
         },
-        customer_details: {
-            // 🚨 FIX: Gunakan activeUser
-            email: activeUser.email, 
-            // Tambahkan first_name, last_name, phone jika Anda menyimpannya
-        }
-    };
+        customer_details: { email: user.email },
+      };
 
-    // 💾 3️⃣ Simpan transaksi ke database
-    const resTransaksi = await fetch("/api/transaksi", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(orderDetails),
-    });
+      const response = await fetch("/api/payments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(orderDetails),
+      });
 
-    if (!resTransaksi.ok) {
-      const err = await resTransaksi.json();
-      throw new Error(`Gagal menyimpan transaksi: ${err.message}`);
+      const data = await response.json();
+
+      if (!response.ok || !data.token) {
+        console.error("Payment API error:", data);
+        alert(`Gagal memproses transaksi. ${data.message || "Server error"}`);
+        return;
+      }
+
+      if (typeof window.snap === "undefined") {
+        alert("Midtrans Snap belum dimuat. Coba refresh halaman.");
+        return;
+      }
+
+      window.snap.pay(data.token, {
+        onSuccess: (result) => {
+          alert("✅ Pembayaran berhasil!");
+          updateStatus(orderDetails.order_id, "success", result);
+        },
+        onPending: (result) => {
+          alert("⏳ Pembayaran sedang diproses.");
+          updateStatus(orderDetails.order_id, "pending", result);
+        },
+        onError: (result) => {
+          alert("❌ Pembayaran gagal.");
+          updateStatus(orderDetails.order_id, "failure", result);
+        },
+        onClose: () => console.log("Pop-up Midtrans ditutup."),
+      });
+    } catch (err) {
+      console.error("Error saat handleBayar:", err);
+      alert("Terjadi kesalahan tak terduga saat memproses pembayaran.");
     }
+  };
 
-    // 💳 4️⃣ Minta Snap Token dari backend
-    const resSnap = await fetch("/api/payments", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${session?.access_token}`,
-      },
-      body: JSON.stringify(orderDetails),
-    });
-
-    if (!resSnap.ok) {
-      const err = await resSnap.json();
-      throw new Error(`Gagal mendapatkan token Midtrans: ${err.message}`);
-    }
-
-    const { token } = await resSnap.json();
-    if (!token) throw new Error("Token pembayaran tidak ditemukan.");
-
-    // 💥 5️⃣ Jalankan Snap Popup
-    if (typeof window.snap === "undefined") {
-      alert("Midtrans Snap belum dimuat. Coba refresh halaman.");
-      return;
-    }
-
-    window.snap.pay(token, {
-      onSuccess: async (result) => {
-        await updateStatus(orderDetails.order_id, "success", result);
-        alert("✅ Pembayaran berhasil!");
-      },
-      onPending: async (result) => {
-        await updateStatus(orderDetails.order_id, "pending", result);
-        alert("🕐 Menunggu pembayaran diselesaikan.");
-      },
-      onError: async (result) => {
-        await updateStatus(orderDetails.order_id, "failed", result);
-        alert("❌ Pembayaran gagal.");
-      },
-      onClose: () => console.log("❎ Popup ditutup tanpa menyelesaikan pembayaran."),
-    });
-  } catch (err) {
-    console.error("💣 handleBayar error:", err);
-    alert(err.message || "Terjadi kesalahan saat memproses pembayaran.");
-  }
-};
-
-// 🔧 Helper function untuk update status transaksi
-async function updateStatus(order_id, status, result) {
+  async function updateStatus(order_id, status, result) {
   try {
-    await fetch("/api/transaksi", {
-      method: "PUT",
+    const res = await fetch("/api/transaksi", {
+      method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ order_id, status, result }),
+      body: JSON.stringify({
+        order_id,
+        status,
+        total: result.gross_amount,
+        nama: user.email, // atau ambil dari profil user
+        email: user.email,
+        tanggal: new Date().toISOString(),
+      }),
     });
+
+    const data = await res.json();
+    if (!res.ok) {
+      console.error("Gagal simpan transaksi:", data.message);
+    } else {
+      console.log("✅ Transaksi berhasil disimpan:", data);
+    }
   } catch (err) {
-    console.error("Gagal update status transaksi:", err);
+    console.error("❌ Gagal menyimpan transaksi:", err);
   }
 }
 
-
+  // 🔹 Render halaman utama
   return (
     <section className="w-full px-6 py-10 flex flex-col lg:flex-row gap-10">
-      {/* Bagian Kiri */}
+      {/* BAGIAN KIRI */}
       <div className="flex-1 space-y-12">
         {/* Carousel Lokasi */}
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">
-            Pilih Lokasi Penanaman
-          </h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Pilih Lokasi Penanaman</h2>
           {loadingDaerah ? (
             <p className="text-gray-500">Memuat data lokasi...</p>
           ) : errorDaerah ? (
@@ -206,29 +225,11 @@ async function updateStatus(order_id, status, result) {
               <div className="relative w-full max-w-[700px] h-[260px] flex items-center justify-center overflow-hidden">
                 {daerah.map((item, i) => {
                   const pos = getPosition(i);
-                  let x = 0,
-                    scale = 1,
-                    zIndex = 1,
-                    opacity = 1;
-
-                  if (pos === "left") {
-                    x = -240;
-                    scale = 0.85;
-                    opacity = 0.5;
-                  } else if (pos === "right") {
-                    x = 240;
-                    scale = 0.85;
-                    opacity = 0.5;
-                  } else if (pos === "center") {
-                    x = 0;
-                    scale = 1;
-                    zIndex = 10;
-                    opacity = 1;
-                  } else {
-                    x = 800;
-                    opacity = 0;
-                    scale = 0.5;
-                  }
+                  let x = 0, scale = 1, zIndex = 1, opacity = 1;
+                  if (pos === "left") { x = -240; scale = 0.85; opacity = 0.5; }
+                  else if (pos === "right") { x = 240; scale = 0.85; opacity = 0.5; }
+                  else if (pos === "center") { zIndex = 10; opacity = 1; }
+                  else { opacity = 0; scale = 0.5; }
 
                   return (
                     <motion.div
@@ -239,22 +240,9 @@ async function updateStatus(order_id, status, result) {
                       style={{ zIndex }}
                     >
                       <div className="relative w-[260px] h-[240px] rounded-xl overflow-hidden shadow-lg">
-                        <Image
-                          src={item.gambar}
-                          alt={item.daerah}
-                          fill
-                          className="object-cover"
-                        />
-                        <div
-                          className={`absolute inset-0 ${
-                            pos === "center"
-                              ? "bg-black/20"
-                              : "bg-black/60"
-                          } transition-all duration-500`}
-                        />
-                        <h3
-                          className={`absolute inset-0 flex items-center justify-center text-white font-semibold text-lg transition-opacity duration-500`}
-                        >
+                        <Image src={item.gambar} alt={item.daerah} fill className="object-cover" />
+                        <div className={`absolute inset-0 ${pos === "center" ? "bg-black/20" : "bg-black/60"}`} />
+                        <h3 className="absolute inset-0 flex items-center justify-center text-white font-semibold text-lg">
                           {pos === "center" ? item.daerah : ""}
                         </h3>
                       </div>
@@ -275,48 +263,33 @@ async function updateStatus(order_id, status, result) {
 
         {/* Pilih Bibit */}
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">
-            Pilih Bibit Pohon
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Pilih Bibit Pohon</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {loadingPohon ? (
               <p className="text-gray-500">Memuat data pohon...</p>
             ) : errorPohon ? (
               <p className="text-red-500">Error: {errorPohon}</p>
             ) : (
               pohon.map((item, i) => {
-                const isSelected = bibitTerpilih.some(
-                  (b) => b.nama === item.nama
-                );
+                const selected = bibitTerpilih.some((b) => b.nama === item.nama);
                 return (
                   <div
                     key={i}
-                    className={`bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition border-2 ${
-                      isSelected ? "border-green-500" : "border-gray-200"
+                    className={`bg-white rounded-xl shadow-lg border-2 overflow-hidden ${
+                      selected ? "border-green-500" : "border-gray-200"
                     }`}
                   >
                     <div className="relative w-full h-[200px]">
-                      <Image
-                        src={item.gambar || "/placeholder.png"}
-                        alt={item.nama}
-                        fill
-                        className="object-cover"
-                      />
+                      <Image src={item.gambar || "/placeholder.png"} alt={item.nama} fill className="object-cover" />
                     </div>
-                    <div className="p-4 flex flex-col items-center bg-green-700 text-white">
-                      <h3 className="font-semibold text-base">{item.nama}</h3>
-                      <p className="text-xs mt-1">
-                        Rp {item.harga.toLocaleString("id-ID")} / bibit
-                      </p>
+                    <div className="p-4 text-center bg-green-700 text-white">
+                      <h3 className="font-semibold">{item.nama}</h3>
+                      <p className="text-sm mt-1">Rp {item.harga.toLocaleString("id-ID")} / bibit</p>
                       <button
                         onClick={() => toggleBibit(item)}
-                        className={`mt-3 px-4 py-1.5 rounded-full text-xs font-semibold transition ${
-                          isSelected
-                            ? "bg-white text-green-700 hover:bg-gray-100"
-                            : "bg-white text-green-700 hover:bg-green-100"
-                        }`}
+                        className={`mt-3 px-4 py-1.5 rounded-full text-xs font-semibold bg-white text-green-700 hover:bg-gray-100`}
                       >
-                        {isSelected ? "Batal Pilih" : "Pilih Bibit"}
+                        {selected ? "Batal Pilih" : "Pilih Bibit"}
                       </button>
                     </div>
                   </div>
@@ -327,97 +300,78 @@ async function updateStatus(order_id, status, result) {
         </div>
       </div>
 
-      {/* Bagian Kanan: Detail Pembayaran */}
-     <div className="w-full lg:w-[360px]">
-  <div className="sticky top-24 bg-white rounded-2xl shadow-xl p-6 space-y-4">
-    <h3 className="text-xl font-semibold text-gray-800 mb-2">Detail Penanaman</h3>
-    
-    {/* Lokasi */}
-    <div className="flex justify-between items-center text-gray-700">
-      <span className="font-medium">Lokasi</span>
-      <span className="text-green-600 font-semibold">
-        {lokasiTerpilih?.daerah || "-"}
-      </span>
-    </div>
+      {/* BAGIAN KANAN */}
+      <div className="w-full lg:w-[360px]">
+        <div className="sticky top-24 bg-white rounded-2xl shadow-xl p-6 space-y-4">
+          <h3 className="text-xl font-semibold text-gray-800 mb-2">Detail Penanaman</h3>
+          <div className="flex justify-between items-center text-gray-700">
+            <span className="font-medium">Lokasi</span>
+            <span className="text-green-600 font-semibold">{lokasiTerpilih?.daerah || "-"}</span>
+          </div>
 
-    {/* Bibit Terpilih */}
-    <div className="mt-4">
-      <h4 className="text-gray-800 font-medium mb-2">Bibit Terpilih</h4>
-      {bibitTerpilih.length === 0 ? (
-        <p className="text-gray-400 text-sm">Belum ada bibit dipilih</p>
-      ) : (
-        <div className="space-y-3 max-h-64 overflow-y-auto">
-          {bibitTerpilih.map((b, i) => (
-            <div
-              key={i}
-              className="flex items-center justify-between bg-gray-50 p-3 rounded-xl shadow-sm hover:shadow-md transition"
-            >
-              <div className="flex items-center space-x-3">
-                <div className="w-12 h-12 relative rounded-lg overflow-hidden border border-gray-200">
-                  <Image
-                    src={b.gambar || "/placeholder.png"}
-                    alt={b.nama}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-                <div className="flex flex-col">
-                  <span className="font-medium text-gray-800">{b.nama}</span>
-                  <span className="text-gray-500 text-sm">
-                    Rp {b.harga.toLocaleString("id-ID")} / bibit
-                  </span>
-                </div>
-              </div>
+          <div className="mt-4">
+            <h4 className="text-gray-800 font-medium mb-2">Bibit Terpilih</h4>
+            {bibitTerpilih.length === 0 ? (
+              <p className="text-gray-400 text-sm">Belum ada bibit dipilih</p>
+            ) : (
+              <div className="space-y-3 max-h-64 overflow-y-auto">
+                {bibitTerpilih.map((b, i) => (
+                  <div key={i} className="flex items-center justify-between bg-gray-50 p-3 rounded-xl shadow-sm">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-12 h-12 relative rounded-lg overflow-hidden border border-gray-200">
+                        <Image src={b.gambar || "/placeholder.png"} alt={b.nama} fill className="object-cover" />
+                      </div>
+                      <div>
+                        <span className="font-medium text-gray-800">{b.nama}</span>
+                        <p className="text-gray-500 text-sm">
+                          Rp {b.harga.toLocaleString("id-ID")} / bibit
+                        </p>
+                      </div>
+                    </div>
 
-              <div className="flex items-center space-x-2">
-                <input
-                  type="number"
-                  min={1}
-                  value={b.jumlah}
-                  onChange={(e) =>
-                    updateJumlah(b.nama, parseInt(e.target.value))
-                  }
-                  className="w-14 text-center text-sm border rounded-lg p-1"
-                />
-                <button
-                  onClick={() =>
-                    setBibitTerpilih(
-                      bibitTerpilih.filter((item) => item.nama !== b.nama)
-                    )
-                  }
-                  className="text-red-500 hover:text-red-600 transition"
-                >
-                  <FaTrash />
-                </button>
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="number"
+                        min={1}
+                        value={b.jumlah}
+                        onChange={(e) => updateJumlah(b.nama, parseInt(e.target.value))}
+                        className="w-14 text-center text-sm border rounded-lg p-1"
+                      />
+                      <button
+                        onClick={() =>
+                          setBibitTerpilih(bibitTerpilih.filter((item) => item.nama !== b.nama))
+                        }
+                        className="text-red-500 hover:text-red-600"
+                      >
+                        <FaTrash />
+                      </button>
+                    </div>
+                  </div>
+                ))}
               </div>
-            </div>
-          ))}
+            )}
+          </div>
+
+          <div className="flex justify-between items-center mt-4 pt-2 border-t border-gray-200">
+            <span className="text-gray-800 font-semibold text-lg">Total</span>
+            <span className="text-green-600 font-bold text-lg">
+              Rp {totalHarga.toLocaleString("id-ID")}
+            </span>
+          </div>
+
+          <button
+            onClick={handleBayar}
+            disabled={!lokasiTerpilih || bibitTerpilih.length === 0}
+            className={`w-full py-3 rounded-xl font-semibold text-lg text-white ${
+              !lokasiTerpilih || bibitTerpilih.length === 0
+                ? "bg-gray-300 cursor-not-allowed"
+                : "bg-green-600 hover:bg-green-700"
+            }`}
+          >
+            Bayar
+          </button>
         </div>
-      )}
-    </div>
-
-       {/* Total */}
-    <div className="flex justify-between items-center mt-4 pt-2 border-t border-gray-200">
-      <span className="text-gray-800 font-semibold text-lg">Total</span>
-      <span className="text-green-600 font-bold text-lg">
-        Rp {totalHarga.toLocaleString("id-ID")}
-      </span>
-    </div>
-
-    {/* Tombol Bayar */}
-    <button
-      onClick={handleBayar}
-      disabled={!lokasiTerpilih || bibitTerpilih.length === 0}
-      className={`w-full py-3 rounded-xl font-semibold transition text-white text-lg ${
-        !lokasiTerpilih || bibitTerpilih.length === 0
-          ? "bg-gray-300 cursor-not-allowed"
-          : "bg-green-600 hover:bg-green-700"
-      }`}
-    >
-      Bayar
-    </button>
-  </div>
-</div>
+      </div>
     </section>
   );
 }
