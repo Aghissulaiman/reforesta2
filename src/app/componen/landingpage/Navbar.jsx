@@ -13,11 +13,18 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // Fungsi scroll ke section tertentu
+  const handleScrollTo = (id) => {
+    const section = document.getElementById(id);
+    if (section) {
+      section.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
   const navLinks = [
-    { name: "Beranda", href: "/" },
-    { name: "Tanam", href: "/user/login" },
-    { name: "Acara", href: "/acara" },
-    { name: "Contact Us", href: "/contact" },
+    { name: "Beranda", scrollTo: "hero-section" },
+    { name: "Acara", scrollTo: "acara-section" },
+    { name: "Contact Us", scrollTo: "contactus-section" },
   ];
 
   return (
@@ -28,7 +35,7 @@ export default function Navbar() {
       ${scrolled ? "bg-white/90 backdrop-blur-md" : "bg-white"}
       `}
     >
-      {/* Logo */}
+      {/* === LOGO === */}
       <Link href="/" className="flex items-center gap-2 group">
         <div className="p-1.5 rounded-full bg-[#047857]/10 group-hover:bg-[#047857]/20 transition">
           <svg
@@ -51,19 +58,28 @@ export default function Navbar() {
         </span>
       </Link>
 
-      {/* Menu */}
+      {/* === MENU === */}
       <div className="hidden md:flex items-center gap-6">
         {navLinks.map((link) => {
           const isActive = pathname === link.href;
+          if (link.scrollTo) {
+            return (
+              <button
+                key={link.name}
+                onClick={() => handleScrollTo(link.scrollTo)}
+                className="font-semibold text-sm px-4 py-2 rounded-full text-[#047857] hover:text-green-800 hover:bg-[#047857]/10 transition-all duration-300"
+              >
+                {link.name}
+              </button>
+            );
+          }
           return (
             <Link
               key={link.name}
               href={link.href}
-              className={`font-semibold text-sm px-4 py-2 transition-all rounded-full duration-300 ${
-                isActive
-                  ? "bg-[#047857] text-white shadow-md"
-                  : "text-[#047857] hover:text-green-800 hover:bg-[#047857]/10"
-              }`}
+              className={`font-semibold text-sm px-4 py-2 rounded-full transition-all duration-300 
+                text-[#047857] hover:text-green-800 hover:bg-[#047857]/10 
+                ${isActive ? "text-[#047857]" : ""}`}
             >
               {link.name}
             </Link>
@@ -71,7 +87,7 @@ export default function Navbar() {
         })}
       </div>
 
-      {/* Buttons */}
+      {/* === BUTTONS === */}
       <div className="flex gap-3">
         <Link
           href="/user/register"

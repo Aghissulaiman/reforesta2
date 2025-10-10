@@ -92,9 +92,9 @@ export default function Login() {
 
       // 4️⃣ Redirect berdasarkan role
       if (userDetail.role === "sekolah") {
-        router.push("/user/sekolah/home");
+        router.push("/user/home");
       } else {
-        router.push("/user/komunitas/home");
+        router.push("/user/home");
       }
     } catch (err) {
       console.error("LOGIN ERROR:", err);
@@ -192,7 +192,7 @@ export default function Login() {
           <div className="flex items-center justify-between mt-4">
             <span className="w-1/5 border-b md:w-1/4"></span>
             <Link
-              href="/register"
+              href="/user/register"
               className="text-xs text-gray-500 hover:underline"
             >
               Belum punya akun?
@@ -215,7 +215,7 @@ export default function Login() {
               Kita butuh kamu lagi. Bumi gak bisa nunggu.
             </p>
             <Link
-              href="/register"
+              href="/user/register"
               className="inline-block mt-4 px-6 py-2 bg-white text-[#059669] font-medium rounded-lg hover:bg-gray-50 transition"
             >
               Daftar Sekarang
