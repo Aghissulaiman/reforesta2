@@ -194,7 +194,7 @@ export default function Register() {
                   Sudah punya <span className="font-bold">Akun?</span>
                 </h2>
                 <Link
-                  href="/login"
+                  href="/user/login"
                   className="inline-block mt-3 w-50 h-10 px-6 py-2 bg-white text-[#059669] font-medium transition-colors duration-300 transform border rounded-lg hover:bg-gray-50 dark:hover:bg-[#059669]"
                 >
                   Masuk
