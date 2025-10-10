@@ -5,13 +5,12 @@ import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import { id } from "date-fns/locale";
 import { format, isSameDay } from "date-fns";
-import "./calendarCustom.css"; // tambahin custom css ini
+import "./calendarCustom.css";
 
-export default function AcaraSection() {
+export default function DaftarAcara({ onSelectAcara }) { // ✅ terima prop dari parent
   const [tab, setTab] = useState("berlangsung");
   const [date, setDate] = useState(new Date());
 
-  // daftar acara
   const acaraList = [
     { id: 1, nama: "Acara Hijau Hutan Bogor", status: "berlangsung", waktu: "07.00–10.00 WIB", tanggal: new Date(2025, 9, 6) },
     { id: 2, nama: "Acara Hijau Bandung", status: "berlangsung", waktu: "07.00–10.00 WIB", tanggal: new Date(2025, 9, 7) },
@@ -19,7 +18,6 @@ export default function AcaraSection() {
     { id: 4, nama: "Acara Hijau Depok", status: "akan", waktu: "09.00–12.00 WIB", tanggal: new Date(2025, 9, 13) },
   ];
 
-  // tanggal penanda
   const tanggalBerlangsung = acaraList.filter(a => a.status === "berlangsung").map(a => a.tanggal);
   const tanggalAkan = acaraList.filter(a => a.status === "akan").map(a => a.tanggal);
 
@@ -57,7 +55,8 @@ export default function AcaraSection() {
             .map(a => (
               <div
                 key={a.id}
-                className={`flex justify-between items-center rounded-xl px-4 py-3 border shadow-sm ${
+                onClick={() => onSelectAcara && onSelectAcara(a)} // ✅ kirim ke parent
+                className={`flex justify-between items-center rounded-xl px-4 py-3 border shadow-sm cursor-pointer ${
                   a.status === "berlangsung"
                     ? "bg-[#E7F8EE] border-[#059669]"
                     : "bg-gray-100 border-gray-300"
@@ -113,6 +112,7 @@ export default function AcaraSection() {
               }}
             />
           </div>
+
           {/* legenda */}
           <div className="flex justify-center gap-4 text-xs mt-3 text-gray-600">
             <div className="flex items-center gap-1">
