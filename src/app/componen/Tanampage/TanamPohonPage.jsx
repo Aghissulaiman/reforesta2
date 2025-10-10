@@ -75,31 +75,39 @@ const session = useSession();          // ambil session user aktif
 
 const handleBayar = async () => {
   try {
-    // 🧩 1️⃣ Validasi User & Input
-    if (!user) {
-      alert("Anda harus login untuk melanjutkan pembayaran.");
-      return;
-    }
 
+     const activeUser = session?.user;
+    
+    // 1. VALIDASI
+    // Validasi ini memastikan activeUser ada.
+    if (!activeUser) { 
+        alert("Anda harus login untuk melanjutkan pembayaran.");
+        return;
+    }
     if (!lokasiTerpilih || bibitTerpilih.length === 0) {
-      alert("Pilih lokasi dan minimal satu bibit terlebih dahulu.");
-      return;
+        alert("Pilih lokasi dan minimal satu bibit.");
+        return;
     }
 
-    // 🧾 2️⃣ Buat data transaksi awal
+    // 2. SIAPKAN PAYLOAD MIDTRANS
     const orderDetails = {
-      order_id: `ORDER-${Date.now()}`,
-      gross_amount: totalHarga,
-      transaction_status: "pending",
-      payment_type: "midtrans",
-      transaction_time: new Date().toISOString(),
-      user_id: user.id,
-      lokasi: lokasiTerpilih.daerah,
-      bibit: bibitTerpilih.map((b) => ({
-        nama: b.nama,
-        harga: b.harga,
-        jumlah: b.jumlah,
-      })),
+        gross_amount: totalHarga,
+        order_id: `ORDER-${Date.now()}`,
+        // 🚨 FIX: Gunakan activeUser (yang sudah divalidasi tidak NULL)
+        user_id: activeUser.id, 
+        items: bibitTerpilih.map(b => ({
+            // ...
+        })),
+        metadata: {
+            lokasi_tanam: lokasiTerpilih.daerah,
+            // 🚨 FIX: Gunakan activeUser
+            user_email: activeUser.email, 
+        },
+        customer_details: {
+            // 🚨 FIX: Gunakan activeUser
+            email: activeUser.email, 
+            // Tambahkan first_name, last_name, phone jika Anda menyimpannya
+        }
     };
 
     // 💾 3️⃣ Simpan transaksi ke database

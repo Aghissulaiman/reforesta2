@@ -28,7 +28,7 @@ async function fetchUserRoleAndDetail(email) {
     .from("Sekolah")
     .select("nama_sekolah")
     .eq("email_sekolah", email)
-    .single();
+    .maybeSingle();
 
   if (sekolahData) {
     return {
