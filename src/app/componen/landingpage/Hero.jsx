@@ -54,7 +54,7 @@ export default function Hero() {
           {/* Video Hero */}
           <div className="rounded-xl overflow-hidden shadow-lg w-[360px] sm:w-[420px] md:w-[500px] aspect-[16/9]">
             <video
-              src="/heroVideo.mp4" // ganti dengan video kamu
+              src="/nanem.mp4" // ganti dengan video kamu
               autoPlay
               loop
               muted
