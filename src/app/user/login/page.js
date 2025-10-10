@@ -1,71 +1,55 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
+import { useState } from "react";
 import { supabase } from "../../../../lib/supabaseClient";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
-// 🔹 Helper untuk ambil detail user & role
-async function fetchUserRoleAndDetail(userId) {
-  // Ambil role utama dari tabel user
-  const { data: userData, error: userError } = await supabase
-    .from("user")
-    .select("role")
-    .eq("id", userId)
-    .single();
+// 🔹 Ambil detail user berdasarkan email
+async function fetchUserRoleAndDetail(email) {
+  // 1️⃣ Cek di tabel Komunitas
+  const { data: komunitasData } = await supabase
+    .from("Komunitas")
+    .select("jenis_akun, nama_komunitas")
+    .eq("email_komunitas", email)
+    .limit(1)
+    .maybeSingle();
 
-  if (userError || !userData) throw new Error("Role pengguna tidak ditemukan.");
-
-  const mainRole = userData.role;
-  let userDetail = { role: mainRole, nama: "Pengguna" };
-
-  // Ambil detail tambahan berdasar role
-  if (mainRole === "sekolah") {
-    const { data: sekolahData } = await supabase
-      .from("Sekolah")
-      .select("nama_sekolah")
-      .eq("id", userId)
-      .single();
-
-    userDetail.nama = sekolahData?.nama_sekolah || "Sekolah";
-  } else if (mainRole === "komunitas") {
-    const { data: komunitasData } = await supabase
-      .from("Komunitas")
-      .select("jenis_akun, nama_komunitas")
-      .eq("id", userId)
-      .single();
-
-    if (komunitasData) {
-      const subRole = komunitasData.jenis_akun?.toLowerCase();
-      userDetail = {
-        role: subRole === "Donatur" ? "Donatur" : "Penanam",
-        nama: komunitasData.nama_komunitas || "Komunitas",
-      };
-    }
+  if (komunitasData) {
+    const subRole = komunitasData.jenis_akun?.toLowerCase();
+    return {
+      role: subRole === "donatur" ? "donatur" : "penanam",
+      nama: komunitasData.nama_komunitas || "Komunitas",
+    };
   }
 
-  return userDetail;
+  // 2️⃣ Cek di tabel Sekolah
+  const { data: sekolahData } = await supabase
+    .from("Sekolah")
+    .select("nama_sekolah")
+    .eq("email_sekolah", email)
+    .single();
+
+  if (sekolahData) {
+    return {
+      role: "sekolah",
+      nama: sekolahData.nama_sekolah || "Sekolah",
+    };
+  }
+
+  // ❌ Jika tidak ditemukan
+  throw new Error("Role pengguna tidak ditemukan di database.");
 }
 
-// 🔹 Komponen utama
 export default function Login() {
   const router = useRouter();
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Baca pesan dari query string (misal dari register)
-  const searchParams =
-    typeof window !== "undefined"
-      ? new URLSearchParams(window.location.search)
-      : null;
-  const message = searchParams?.get("message");
-
-  // 🔸 Handle input change
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
 
-  // 🔸 Handle login
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
@@ -77,13 +61,11 @@ export default function Login() {
 
     setLoading(true);
     try {
-      // 1️⃣ Login Supabase
-      const { data, error: authError } = await supabase.auth.signInWithPassword(
-        {
-          email: form.email,
-          password: form.password,
-        }
-      );
+      // 1️⃣ Login ke Supabase
+      const { data, error: authError } = await supabase.auth.signInWithPassword({
+        email: form.email,
+        password: form.password,
+      });
 
       if (authError) {
         if (authError.message.includes("Invalid login credentials"))
@@ -96,27 +78,26 @@ export default function Login() {
       const sessionUser = data.user;
       if (!sessionUser) throw new Error("User tidak ditemukan.");
 
-      // 2️⃣ Ambil role & detail user
-      const userDetail = await fetchUserRoleAndDetail(sessionUser.id);
+      // 2️⃣ Ambil role & nama dari database
+      const userDetail = await fetchUserRoleAndDetail(sessionUser.email);
 
-      // 3️⃣ Simpan ke sessionStorage
+      // 3️⃣ Simpan data user di localStorage (biar bisa dipakai payment)
       const user = {
         id: sessionUser.id,
         email: sessionUser.email,
         role: userDetail.role,
         nama: userDetail.nama,
       };
-      sessionStorage.setItem("user", JSON.stringify(user));
+      localStorage.setItem("user", JSON.stringify(user));
 
-      // 4️⃣ Tentukan redirect berdasarkan role
-      const redirectPath =
-        userDetail.role === "sekolah"
-          ? "/user/sekolah/home"
-          : "/user/komunitas/home";
-
-      router.push(redirectPath);
+      // 4️⃣ Redirect berdasarkan role
+      if (userDetail.role === "sekolah") {
+        router.push("/user/sekolah/home");
+      } else {
+        router.push("/user/komunitas/home");
+      }
     } catch (err) {
-      console.error("LOGIN FAILED:", err);
+      console.error("LOGIN ERROR:", err);
       setError(err.message || "Login gagal, coba lagi!");
     } finally {
       setLoading(false);
@@ -145,15 +126,14 @@ export default function Login() {
             </svg>
           </div>
 
-          <p className="mt-3 text-xl text-center text-[#059669]">
+          <p className="mt-3 text-xl text-center text-[#059669] font-semibold">
             Selamat Datang Kembali!
           </p>
 
-          {message && (
-            <p className="mt-2 text-center text-green-600 text-sm">{message}</p>
-          )}
           {error && (
-            <p className="mt-2 text-center text-red-500 text-sm">{error}</p>
+            <p className="mt-2 text-center text-red-500 text-sm font-medium">
+              {error}
+            </p>
           )}
 
           <form onSubmit={handleLogin}>
@@ -179,7 +159,7 @@ export default function Login() {
                   Password
                 </label>
                 <Link
-                  href="/reset-password"
+                  href="/lupaPassword"
                   className="text-xs text-gray-500 hover:underline"
                 >
                   Lupa Password?
@@ -196,7 +176,7 @@ export default function Login() {
               />
             </div>
 
-            {/* Submit Button */}
+            {/* Tombol Login */}
             <div className="mt-6">
               <button
                 type="submit"
@@ -235,7 +215,7 @@ export default function Login() {
               Kita butuh kamu lagi. Bumi gak bisa nunggu.
             </p>
             <Link
-              href="/user/register"
+              href="/register"
               className="inline-block mt-4 px-6 py-2 bg-white text-[#059669] font-medium rounded-lg hover:bg-gray-50 transition"
             >
               Daftar Sekarang
