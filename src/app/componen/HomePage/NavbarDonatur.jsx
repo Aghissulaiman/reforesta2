@@ -19,9 +19,9 @@ export default function NavbarDonatur({ user }) {
   ];
 
   const profileItems = [
-    { name: "Profile", path: "/user/home/profile" },
-    { name: "Riwayat", path: "/user/home/riwayat" },
-    { name: "Setting", path: "/user/home/setting" },
+    { name: "Profile", path: "/home/profile" },
+    { name: "Riwayat", path: "/home/riwayat" },
+    { name: "Setting", path: "/home/setting" },
     { name: "Logout", path: "/" },
   ];
 
@@ -37,13 +37,24 @@ export default function NavbarDonatur({ user }) {
 
   return (
     <nav className="w-full flex justify-center mt-6 relative">
-      <div className="flex items-center justify-between bg-white px-8 py-3 rounded-full border border-gray-200 shadow-sm w-[900px] max-w-[90%]">
+      <div className="absolute inset-0 bg-white -z-10" />
 
+      <div className="flex items-center justify-between bg-white px-8 py-3 rounded-full border border-gray-200 shadow-md w-[900px] max-w-[90%] transition-all duration-300">
+        {/* Logo */}
         <div className="flex items-center gap-2">
-          <Image src="/Logo.png" alt="Logo Reforesta" width={28} height={28} className="object-contain"/>
-          <span className="font-semibold text-green-700 text-lg">reforesta</span>
+          <Image
+            src="/Logo.png"
+            alt="Logo Reforesta"
+            width={28}
+            height={28}
+            className="object-contain"
+          />
+          <span className="font-semibold text-green-700 text-lg tracking-tight">
+            reforesta
+          </span>
         </div>
 
+        {/* Navigasi */}
         <ul className="flex items-center gap-6 font-medium relative">
           {navItems.map((item) => {
             const isActive = pathname === item.path;
@@ -52,14 +63,17 @@ export default function NavbarDonatur({ user }) {
                 {isActive && (
                   <motion.div
                     layoutId="activeBorder"
-                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                    className="absolute inset-0 bg-[#047857] px-8 py-4 rounded-full z-0"
+                    transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                    className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[#047857] rounded-full"
+                    style={{ zIndex: 0 }}
                   />
                 )}
                 <Link
                   href={item.path}
-                  className={`px-4 py-1 rounded-full transition-all duration-300 font-semibold relative z-10 ${
-                    isActive ? "text-white" : "text-green-700 hover:text-green-800"
+                  className={`relative z-10 px-5 py-2 rounded-full text-sm font-semibold transition-all duration-300 ${
+                    isActive
+                      ? "text-white"
+                      : "text-green-700 hover:text-green-800 hover:bg-green-50"
                   }`}
                 >
                   {item.name}
@@ -69,18 +83,29 @@ export default function NavbarDonatur({ user }) {
           })}
         </ul>
 
+        {/* Dropdown Profile */}
         <div className="relative" ref={dropdownRef}>
           <div
-            className="flex items-center gap-2 cursor-pointer px-2 py-1 hover:bg-green-50 rounded-full transition"
+            className="flex items-center gap-2 cursor-pointer px-3 py-1 hover:bg-green-50 rounded-full transition"
             onClick={() => setIsOpen(!isOpen)}
           >
             {user?.photo ? (
-              <img src={user.photo} alt="Avatar" className="w-6 h-6 rounded-full object-cover"/>
+              <img
+                src={user.photo}
+                alt="Avatar"
+                className="w-6 h-6 rounded-full object-cover"
+              />
             ) : (
               <User className="text-green-700 w-5 h-5" />
             )}
-            <span className="text-green-700 font-medium">{user?.name || "User"}</span>
-            <ChevronDown className={`text-green-700 w-4 h-4 transition-transform ${isOpen ? "rotate-180" : ""}`} />
+            <span className="text-green-700 font-medium">
+              {user?.name || "User"}
+            </span>
+            <ChevronDown
+              className={`text-green-700 w-4 h-4 transition-transform ${
+                isOpen ? "rotate-180" : ""
+              }`}
+            />
           </div>
 
           <AnimatePresence>

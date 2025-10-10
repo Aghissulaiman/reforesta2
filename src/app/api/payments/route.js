@@ -17,15 +17,18 @@ export async function POST(req) {
         order_id: body.order_id,
         gross_amount: body.gross_amount,
       },
+      item_details: body.items || [],
       customer_details: {
-        email: body.email,
-        name: body.user_name || "User Refroresta",
+        email: body.customer_details?.email || "user@tokov.id",
+        name: body.customer_details?.name || "User TOKOV",
       },
+      custom_field1: body.metadata?.lokasi_tanam || "",
+      custom_field2: body.metadata?.user_email || "",
     };
 
-    const token = await midtrans.createTransaction(transactionData);
+    const transaction = await midtrans.createTransaction(transactionData);
 
-    return NextResponse.json({ token: token.token }, { status: 200 });
+    return NextResponse.json({ token: transaction.token }, { status: 200 });
   } catch (error) {
     console.error("⚠️ MIDTRANS ERROR:", error.message);
     return NextResponse.json({ message: error.message }, { status: 500 });

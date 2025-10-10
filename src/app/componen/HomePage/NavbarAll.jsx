@@ -38,10 +38,9 @@ export default function NavbarAll({ user }) {
 
   return (
     <nav className="w-full flex justify-center mt-6 relative">
-      {/* Background putih lembut di belakang border */}
-      <div className="absolute inset-0 bg-white/80 backdrop-blur-md -z-10" />
+      <div className="absolute inset-0 bg-white -z-10" />
 
-      <div className="flex items-center justify-between bg-white/95 px-8 py-3 rounded-full border border-gray-200 shadow-md w-[900px] max-w-[90%] backdrop-blur-md transition-all duration-300">
+      <div className="flex items-center justify-between bg-white px-8 py-3 rounded-full border border-gray-200 shadow-md w-[900px] max-w-[90%] transition-all duration-300">
         {/* Logo */}
         <div className="flex items-center gap-2">
           <Image
@@ -65,16 +64,17 @@ export default function NavbarAll({ user }) {
                 {isActive && (
                   <motion.div
                     layoutId="activeBorder"
-                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                    className="absolute inset-0 bg-[#047857] rounded-full z-0"
+                    transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                    className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[#047857] rounded-full"
+                    style={{ zIndex: 0 }}
                   />
                 )}
                 <Link
                   href={item.path}
-                  className={`px-4 py-1 rounded-full transition-all duration-300 font-semibold relative z-10 ${
+                  className={`relative z-10 px-5 py-2 rounded-full text-sm font-semibold transition-all duration-300 ${
                     isActive
                       ? "text-white"
-                      : "text-green-700 hover:text-green-800"
+                      : "text-green-700 hover:text-green-800 hover:bg-green-50"
                   }`}
                 >
                   {item.name}
