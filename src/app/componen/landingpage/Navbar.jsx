@@ -15,7 +15,7 @@ export default function Navbar() {
 
   const navLinks = [
     { name: "Beranda", href: "/" },
-    { name: "Tanam", href: "/tanam" },
+    { name: "Tanam", href: "/user/login" },
     { name: "Acara", href: "/acara" },
     { name: "Contact Us", href: "/contact" },
   ];
@@ -74,13 +74,13 @@ export default function Navbar() {
       {/* Buttons */}
       <div className="flex gap-3">
         <Link
-          href="/register"
+          href="/user/register"
           className="px-5 py-1.5 text-sm font-medium rounded-full border border-[#047857] text-[#047857] hover:bg-[#047857] hover:text-white transition-all duration-300"
         >
           Daftar
         </Link>
         <Link
-          href="/login"
+          href="/user/login"
           className="px-5 py-1.5 text-sm font-medium rounded-full bg-[#047857] text-white hover:bg-[#036b4f] transition-all duration-300 shadow-sm"
         >
           Masuk

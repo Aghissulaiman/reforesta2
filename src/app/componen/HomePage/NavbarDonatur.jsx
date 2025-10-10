@@ -13,15 +13,15 @@ export default function NavbarDonatur({ user }) {
   const dropdownRef = useRef(null);
 
   const navItems = [
-    { name: "Beranda", path: "/home" },
-    { name: "Tanam", path: "/tanam" },
-    { name: "Acara", path: "/acara" },
+    { name: "Beranda", path: "/user/home" },
+    { name: "Tanam", path: "/user/tanam" },
+    { name: "Acara", path: "/user/acara" },
   ];
 
   const profileItems = [
-    { name: "Profile", path: "/home/profile" },
-    { name: "Riwayat", path: "/home/riwayat" },
-    { name: "Setting", path: "/home/setting" },
+    { name: "Profile", path: "/user/home/profile" },
+    { name: "Riwayat", path: "/user/home/riwayat" },
+    { name: "Setting", path: "/user/home/setting" },
     { name: "Logout", path: "/" },
   ];
 

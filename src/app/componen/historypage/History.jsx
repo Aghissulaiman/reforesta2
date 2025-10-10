@@ -81,66 +81,84 @@ export default function HistoryPembayaran() {
         <div className="space-y-6">
           {riwayat.map((trx, i) => (
             <motion.div
-              key={trx.order_id || i}
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.05, duration: 0.4 }}
-              className="bg-white rounded-2xl shadow-md p-6 border border-gray-100 hover:shadow-lg transition"
-            >
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3">
-                <div className="flex items-center gap-3">
-                  {getStatusIcon(trx.status)}
-                  <h3 className="text-lg font-semibold text-gray-800">
-                    {trx.order_id}
-                  </h3>
-                </div>
-                <p className="text-sm text-gray-500">
-                  {new Date(trx.transaction_time).toLocaleString("id-ID", {
-                    dateStyle: "medium",
-                    timeStyle: "short",
-                  })}
-                </p>
-              </div>
+  key={trx.order_id || i}
+  initial={{ opacity: 0, y: 40 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ delay: i * 0.05, duration: 0.4 }}
+  className="bg-white rounded-2xl shadow-md p-6 border border-gray-100 hover:shadow-lg transition"
+>
+  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3">
+    <div className="flex items-center gap-3">
+      {getStatusIcon(trx.status)}
+      <h3 className="text-lg font-semibold text-gray-800">
+        {trx.order_id}
+      </h3>
+    </div>
+    <p className="text-sm text-gray-500">
+      {trx.tanggal
+        ? new Date(trx.tanggal).toLocaleString("id-ID", {
+            dateStyle: "medium",
+            timeStyle: "short",
+          })
+        : "Tanggal tidak tersedia"}
+    </p>
+  </div>
 
-              <div className="text-gray-700 mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <p>
-                  <span className="font-medium">Lokasi: </span>
-                  {trx.lokasi}
-                </p>
-                <p>
-                  <span className="font-medium">Total: </span>Rp{" "}
-                  {trx.total_harga?.toLocaleString("id-ID")}
-                </p>
-              </div>
+  <div className="text-gray-700 mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
+    <p>
+      <span className="font-medium">Lokasi: </span>
+      {trx.lokasi || "-"}
+    </p>
+    <p>
+      <span className="font-medium">Total: </span>Rp{" "}
+      {trx.total_harga?.toLocaleString("id-ID")}
+    </p>
+  </div>
 
-              <div className="mt-4 bg-gray-50 p-4 rounded-xl">
-                <h4 className="font-semibold text-gray-800 mb-2">
-                  Bibit yang Ditambahkan:
-                </h4>
-                <ul className="list-disc ml-5 text-gray-600 space-y-1">
-                  {trx.bibit?.map((b, j) => (
-                    <li key={j}>
-                      {b.nama} — {b.jumlah}x @ Rp{" "}
-                      {b.harga.toLocaleString("id-ID")}
-                    </li>
-                  ))}
-                </ul>
-              </div>
+  <div className="mt-4 bg-gray-50 p-4 rounded-xl">
+    <h4 className="font-semibold text-gray-800 mb-2">
+      Bibit yang Ditambahkan:
+    </h4>
 
-              <div className="mt-4 flex justify-end">
-                <span
-                  className={`px-3 py-1.5 rounded-full text-sm font-semibold ${
-                    trx.status === "success"
-                      ? "bg-green-100 text-green-700"
-                      : trx.status === "pending"
-                      ? "bg-yellow-100 text-yellow-700"
-                      : "bg-red-100 text-red-700"
-                  }`}
-                >
-                  {trx.status.toUpperCase()}
-                </span>
-              </div>
-            </motion.div>
+    {(() => {
+      const bibitList = Array.isArray(trx.bibit)
+        ? trx.bibit
+        : typeof trx.bibit === "string"
+        ? JSON.parse(trx.bibit)
+        : [];
+
+      return (
+        <ul className="list-disc ml-5 text-gray-600 space-y-1">
+          {bibitList.length > 0 ? (
+            bibitList.map((b, j) => (
+              <li key={j}>
+                {b.nama} — {b.jumlah}x @ Rp{" "}
+                {b.harga?.toLocaleString("id-ID")}
+              </li>
+            ))
+          ) : (
+            <li className="text-gray-400">Tidak ada data bibit</li>
+          )}
+        </ul>
+      );
+    })()}
+  </div>
+
+  <div className="mt-4 flex justify-end">
+    <span
+      className={`px-3 py-1.5 rounded-full text-sm font-semibold ${
+        trx.status === "success"
+          ? "bg-green-100 text-green-700"
+          : trx.status === "pending"
+          ? "bg-yellow-100 text-yellow-700"
+          : "bg-red-100 text-red-700"
+      }`}
+    >
+      {trx.status?.toUpperCase()}
+    </span>
+  </div>
+</motion.div>
+
           ))}
         </div>
       )}

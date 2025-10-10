@@ -1,14 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import NavbarAll from "../componen/HomePage/NavbarAll";
-import NavbarDonatur from "../componen/HomePage/NavbarDonatur";
-import SekarangSection from "../componen/HomePage/SekarangSection";
-import DukungOleh from "../componen/HomePage/DukungOleh";
-import LanggananSection from "../componen/HomePage/LanggananSection";
-import Komunitas from "../componen/landingpage/Komunitas";
-import AcaraHijau from "../componen/landingpage/AcaraHijau";
-import Footer from "../componen/landingpage/Footer";
+import NavbarAll from "../../componen/HomePage/NavbarAll";
+import NavbarDonatur from "../../componen/HomePage/NavbarDonatur";
+import SekarangSection from "../../componen/HomePage/SekarangSection";
+import DukungOleh from "../../componen/HomePage/DukungOleh";
+import LanggananSection from "../../componen/HomePage/LanggananSection";
+import Komunitas from "../../componen/landingpage/Komunitas";
+import AcaraHijau from "../../componen/landingpage/AcaraHijau";
+import Footer from "../../componen/landingpage/Footer";
 
 export default function Home() {
   const [user, setUser] = useState(null);

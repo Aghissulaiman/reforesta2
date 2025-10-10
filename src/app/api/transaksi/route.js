@@ -15,6 +15,7 @@ export async function POST(req) {
 
   const { error } = await supabase.from("transaksi").insert([
   {
+    id_user: user.id,
     id_komunitas: body.id_komunitas, // ✅ sesuai dari body
     total_harga: parseInt(body.gross_amount),
     status: body.transaction_status,

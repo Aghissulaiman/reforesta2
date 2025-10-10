@@ -16,6 +16,7 @@ export async function GET() {
     .or(`id_user.eq.${user.id},id_komunitas.eq.${user.id}`)
     .order("tanggal", { ascending: false });
 
+    console.log(data)
   if (error) {
     console.error("Gagal ambil transaksi:", error.message);
     return new Response(JSON.stringify({ message: error.message }), { status: 500 });
