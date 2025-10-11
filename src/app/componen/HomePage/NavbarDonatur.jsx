@@ -6,11 +6,23 @@ import { usePathname } from "next/navigation";
 import { User, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useRef, useEffect } from "react";
+import { supabase } from "../../../../lib/supabaseClient";
+import Router from "next/router";
 
 export default function NavbarDonatur({ user }) {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
+
+   const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut(); // keluar dari Supabase
+      localStorage.removeItem("user"); // bersihkan localStorage
+      router.push("/"); // redirect ke landing
+    } catch (error) {
+      console.error("Gagal logout:", error.message);
+    }
+  };
 
   const navItems = [
     { name: "Beranda", path: "/user/home" },
@@ -117,16 +129,29 @@ export default function NavbarDonatur({ user }) {
                 transition={{ duration: 0.2, ease: "easeOut" }}
                 className="absolute right-0 mt-2 w-44 bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden z-50 ring-1 ring-black ring-opacity-5"
               >
-                {profileItems.map((item) => (
-                  <Link
-                    key={item.name}
-                    href={item.path}
-                    className="block px-4 py-3 text-gray-700 hover:bg-green-50 hover:text-green-700 transition font-medium"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    {item.name}
-                  </Link>
-                ))}
+                 {profileItems.map((item) =>
+                  item.name === "Logout" ? (
+                    <button
+                      key={item.name}
+                      onClick={() => {
+                        setIsOpen(false);
+                        handleLogout();
+                      }}
+                      className="w-full text-left px-4 py-3 text-gray-700 hover:bg-green-50 hover:text-green-700 transition font-medium"
+                    >
+                      {item.name}
+                    </button>
+                  ) : (
+                    <Link
+                      key={item.name}
+                      href={item.path}
+                      className="block px-4 py-3 text-gray-700 hover:bg-green-50 hover:text-green-700 transition font-medium"
+                      onClick={() => setIsOpen(false)}
+                    >
+                      {item.name}
+                    </Link>
+                  )
+                )}
               </motion.div>
             )}
           </AnimatePresence>

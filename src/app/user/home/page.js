@@ -48,7 +48,7 @@ export default function Home() {
       <div className="flex flex-col items-center justify-center h-screen bg-white text-center">
         <p className="text-gray-700 mb-3">Kamu belum login 😢</p>
         <a
-          href="/login"
+          href="/user/login"
           className="px-5 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
         >
           Masuk Sekarang

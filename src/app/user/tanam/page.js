@@ -47,7 +47,7 @@ export default function TanamPage() {
       <div className="flex flex-col items-center justify-center h-screen bg-white text-center">
         <p className="text-gray-700 mb-3">Akses ditolak. Silakan login untuk memulai penanaman. 🔒</p>
         <a
-          href="/login"
+          href="/user/login"
           className="px-5 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
         >
           Masuk Sekarang

@@ -4,6 +4,8 @@ import { useState } from "react";
 import { supabase } from "../../../../lib/supabaseClient";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import bcrypt from "bcryptjs";
+
 
 // Fungsi ambil role & nama user
 async function fetchUserRoleAndDetail(email) {
@@ -58,8 +60,46 @@ export default function Login() {
     }
 
     setLoading(true);
+
     try {
-      // 1️⃣ Login ke Supabase
+      // 🔹 1️⃣ Cek dulu apakah login sebagai ADMIN
+      // 🔹 1️⃣ Coba login sebagai admin dulu
+      const { data: adminData } = await supabase
+        .from("admin")
+        .select("*")
+        .eq("email", form.email)
+        .maybeSingle();
+
+      if (adminData) {
+        // Cek password admin (bcrypt)
+       let isMatch = false;
+
+// Kalau password belum di-hash, bandingkan langsung
+if (adminData.password.startsWith("$2")) {
+  // berarti ini format bcrypt hash
+  isMatch = await bcrypt.compare(form.password, adminData.password);
+} else {
+  // plaintext fallback (sementara)
+  isMatch = form.password === adminData.password;
+}
+
+if (!isMatch) throw new Error("Password salah!");
+        // Simpan sesi admin
+        localStorage.setItem(
+          "user",
+          JSON.stringify({
+            id: adminData.id,
+            email: adminData.email,
+            role: "admin",
+            nama: adminData.nama_admin || "Admin",
+          })
+        );
+
+        router.push("/admin/dashboard");
+        return;
+      }
+
+      // 🔹 2️⃣ Kalau bukan admin → login via Supabase Auth
       const { data, error: authError } = await supabase.auth.signInWithPassword({
         email: form.email,
         password: form.password,
@@ -70,17 +110,19 @@ export default function Login() {
 
       const sessionUser = data.user;
 
-      // 2️⃣ Ambil role & nama dari database
+      // 🔹 3️⃣ Ambil role user dari database
       const userDetail = await fetchUserRoleAndDetail(sessionUser.email);
 
-      // 3️⃣ Kirim ke API untuk set cookie HTTP-only
+      // 🔹 4️⃣ Simpan session di backend
       await fetch("/api/auth/set-cookie", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user: { id: sessionUser.id, email: sessionUser.email } }),
+        body: JSON.stringify({
+          user: { id: sessionUser.id, email: sessionUser.email },
+        }),
       });
 
-      // 4️⃣ Simpan role & nama di localStorage (opsional untuk front-end)
+      // 🔹 5️⃣ Simpan info user ke localStorage
       localStorage.setItem(
         "user",
         JSON.stringify({

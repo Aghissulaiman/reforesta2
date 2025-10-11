@@ -3,6 +3,7 @@
   import Script from "next/script";
   import { SupabaseProvider } from "../../lib/supabaseProvider";
   import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+  import useAuthRedirect from "../../hooks/useAuthRedirect";
 
   export const supabase = createClientComponentClient();
 
@@ -19,7 +20,7 @@
 
   // 🔹 Metadata wajib di top-level
   export const metadata = {
-    title: "TOKOV | Tanam Pohon",
+    title: "Reforestacia | Tanam Pohon",
     description: "E-commerce penghijauan dengan sistem penanaman pohon langsung.",
   };
 
@@ -38,6 +39,7 @@
           />
 
           {/* 🟢 Supabase Auth Provider */}
+          
           <SupabaseProvider>{children}</SupabaseProvider>
         </body>
       </html>
