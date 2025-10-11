@@ -2,23 +2,23 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { User, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useRef, useEffect } from "react";
 import { supabase } from "../../../../lib/supabaseClient";
-import Router from "next/router";
 
 export default function NavbarDonatur({ user }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
-   const handleLogout = async () => {
+  const handleLogout = async () => {
     try {
       await supabase.auth.signOut(); // keluar dari Supabase
       localStorage.removeItem("user"); // bersihkan localStorage
-      router.push("/"); // redirect ke landing
+      router.push("/"); // redirect ke halaman utama
     } catch (error) {
       console.error("Gagal logout:", error.message);
     }
@@ -129,7 +129,7 @@ export default function NavbarDonatur({ user }) {
                 transition={{ duration: 0.2, ease: "easeOut" }}
                 className="absolute right-0 mt-2 w-44 bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden z-50 ring-1 ring-black ring-opacity-5"
               >
-                 {profileItems.map((item) =>
+                {profileItems.map((item) =>
                   item.name === "Logout" ? (
                     <button
                       key={item.name}

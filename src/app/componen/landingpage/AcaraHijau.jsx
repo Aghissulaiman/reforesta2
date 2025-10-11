@@ -1,18 +1,29 @@
 "use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { useState, useEffect } from "react";
 
 export default function AcaraHijau() {
-  const events = [
+  const defaultEvents = [
     { title: "Acara Hijau Hutan Bogor", status: "Sedang Berlangsung", time: "07.00–10.00 WIB", active: true },
     { title: "Acara Hijau Gunung Salak", status: "Sedang Berlangsung", time: "08.00–11.00 WIB", active: true },
     { title: "Acara Hijau Taman Nasional", status: "Belum Dimulai", time: "09.00–12.00 WIB", active: false },
     { title: "Acara Hijau Kebun Raya", status: "Belum Dimulai", time: "10.00–13.00 WIB", active: false },
   ];
 
+  const [events, setEvents] = useState(defaultEvents);
+
+  // Ambil data tambahan dari localStorage
+  useEffect(() => {
+    const storedEvents = JSON.parse(localStorage.getItem("events")) || [];
+    if (storedEvents.length > 0) {
+      setEvents((prev) => [...prev, ...storedEvents]);
+    }
+  }, []);
+
   return (
     <section className="relative py-32 md:py-40 overflow-hidden bg-white">
-      {/* 🌍 Background Peta Dunia */}
       <div className="absolute inset-0 flex justify-center items-start pt-10">
         <Image
           src="/peta dunia.png"
@@ -23,7 +34,6 @@ export default function AcaraHijau() {
         />
       </div>
 
-      {/* 🧍‍♀️ Ilustrasi Orang Nanem */}
       <div className="absolute -bottom-8 left-0 w-[900px] max-w-[80%]">
         <Image
           src="/orangNanem.png"
@@ -34,14 +44,11 @@ export default function AcaraHijau() {
         />
       </div>
 
-      {/* 🌱 Konten */}
       <div className="relative z-10 container mx-auto px-6 md:px-12">
-        {/* Judul */}
         <h2 className="text-3xl md:text-4xl font-bold text-center text-[#111827] mb-12">
           Acara Hijau
         </h2>
 
-        {/* Grid Event Cards */}
         <div className="flex flex-col items-end gap-6 pr-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             {events.map((event, i) => (
@@ -64,7 +71,6 @@ export default function AcaraHijau() {
           </div>
         </div>
 
-        {/* 🔘 Tombol kanan bawah */}
         <div className="flex justify-end mt-10 pr-4">
           <Link
             href="/user/acara"

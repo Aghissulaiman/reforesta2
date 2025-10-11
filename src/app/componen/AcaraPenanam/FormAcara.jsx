@@ -1,53 +1,67 @@
 "use client";
 
 import { useState } from "react";
-// import { useAcara } from "../Acarapage/AcaraContext"; // Pastikan path ini benar
 
 export default function FormAcara() {
-  // const { addAcara } = useAcara(); // Uncomment jika context sudah siap digunakan
   const [form, setForm] = useState({
     title: "",
     status: "Sedang Berlangsung",
     time: "",
     desc: "",
     location: "",
-    image: null, // Ubah menjadi null untuk file
-    tanggal: new Date().toISOString().substr(0, 10), // Format tanggal default YYYY-MM-DD
+    image: null,
+    tanggal: new Date().toISOString().substr(0, 10),
   });
   const [preview, setPreview] = useState("");
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setForm(prev => ({ ...prev, [name]: value }));
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setForm(prev => ({ ...prev, image: file })); // Simpan file objek
+      setForm((prev) => ({ ...prev, image: file }));
       const reader = new FileReader();
       reader.onloadend = () => setPreview(reader.result);
       reader.readAsDataURL(file);
     } else {
-      setForm(prev => ({ ...prev, image: null }));
+      setForm((prev) => ({ ...prev, image: null }));
       setPreview("");
     }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Simulasikan penambahan acara jika context belum ada
-    console.log("Acara yang ditambahkan:", form);
-    // addAcara(form); // Uncomment jika context sudah siap digunakan
-    alert("Acara berhasil ditambahkan! (Simulasi)"); // Pesan simulasi
+
+    const newEvent = {
+      title: form.title,
+      status: form.status,
+      time: form.time,
+      desc: form.desc,
+      location: form.location,
+      tanggal: form.tanggal,
+      image: preview,
+      active: form.status === "Sedang Berlangsung",
+    };
+
+    // Simpan ke localStorage
+    const existing = JSON.parse(localStorage.getItem("events")) || [];
+    existing.push(newEvent);
+    localStorage.setItem("events", JSON.stringify(existing));
+
+    alert("✅ Acara berhasil ditambahkan!");
+
+    // Reset form
     setForm({
       title: "",
       status: "Sedang Berlangsung",
       time: "",
       desc: "",
       location: "",
-      image: null,
       tanggal: new Date().toISOString().substr(0, 10),
+      image: null,
     });
     setPreview("");
   };
@@ -63,11 +77,11 @@ export default function FormAcara() {
           onSubmit={handleSubmit}
           className="bg-white p-8 md:p-10 rounded-2xl border border-gray-200 space-y-7"
         >
-          {/* Group Input Fields */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Input Judul */}
             <div>
-              <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">Judul Acara</label>
+              <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
+                Judul Acara
+              </label>
               <input
                 id="title"
                 name="title"
@@ -79,9 +93,10 @@ export default function FormAcara() {
               />
             </div>
 
-            {/* Select Status */}
             <div>
-              <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-2">Status Acara</label>
+              <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-2">
+                Status Acara
+              </label>
               <select
                 id="status"
                 name="status"
@@ -91,13 +106,14 @@ export default function FormAcara() {
               >
                 <option value="Sedang Berlangsung">Sedang Berlangsung</option>
                 <option value="Akan Datang">Akan Datang</option>
-                <option value="Selesai">Selesai</option> {/* Tambahkan opsi Selesai */}
+                <option value="Selesai">Selesai</option>
               </select>
             </div>
 
-            {/* Input Waktu */}
             <div>
-              <label htmlFor="time" className="block text-sm font-medium text-gray-700 mb-2">Waktu Acara</label>
+              <label htmlFor="time" className="block text-sm font-medium text-gray-700 mb-2">
+                Waktu Acara
+              </label>
               <input
                 id="time"
                 name="time"
@@ -109,9 +125,10 @@ export default function FormAcara() {
               />
             </div>
 
-            {/* Input Lokasi */}
             <div>
-              <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-2">Lokasi Acara</label>
+              <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-2">
+                Lokasi Acara
+              </label>
               <input
                 id="location"
                 name="location"
@@ -123,23 +140,25 @@ export default function FormAcara() {
               />
             </div>
 
-            {/* Input Tanggal */}
             <div>
-              <label htmlFor="tanggal" className="block text-sm font-medium text-gray-700 mb-2">Tanggal Acara</label>
+              <label htmlFor="tanggal" className="block text-sm font-medium text-gray-700 mb-2">
+                Tanggal Acara
+              </label>
               <input
                 id="tanggal"
                 type="date"
                 name="tanggal"
-                value={form.tanggal} // Langsung gunakan string YYYY-MM-DD
-                onChange={handleChange} // Gunakan handleChange biasa
+                value={form.tanggal}
+                onChange={handleChange}
                 className="w-full border-gray-300 border rounded-lg px-4 py-2.5 text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
                 required
               />
             </div>
 
-            {/* Input Gambar */}
             <div>
-              <label htmlFor="image" className="block text-sm font-medium text-gray-700 mb-2">Gambar Acara</label>
+              <label htmlFor="image" className="block text-sm font-medium text-gray-700 mb-2">
+                Gambar Acara
+              </label>
               <input
                 id="image"
                 type="file"
@@ -160,9 +179,10 @@ export default function FormAcara() {
             </div>
           </div>
 
-          {/* Textarea Deskripsi */}
           <div>
-            <label htmlFor="desc" className="block text-sm font-medium text-gray-700 mb-2">Deskripsi Acara</label>
+            <label htmlFor="desc" className="block text-sm font-medium text-gray-700 mb-2">
+              Deskripsi Acara
+            </label>
             <textarea
               id="desc"
               name="desc"
@@ -175,7 +195,6 @@ export default function FormAcara() {
             />
           </div>
 
-          {/* Tombol Submit */}
           <button
             type="submit"
             className="w-full md:w-auto bg-[#059669] hover:bg-green-700 text-white font-semibold px-8 py-3 rounded-lg transition transform hover:scale-[1.01] shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
