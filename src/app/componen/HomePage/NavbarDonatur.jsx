@@ -2,7 +2,11 @@
 
 import Image from "next/image";
 import Link from "next/link";
+<<<<<<< HEAD
 import { usePathname, useRouter } from "next/navigation";
+=======
+import { usePathname, useRouter } from "next/navigation"; // ✅ tambahin useRouter
+>>>>>>> b7725368b8e572bf89c13ae2e847e26999b330f1
 import { User, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useRef, useEffect } from "react";
@@ -10,15 +14,24 @@ import { supabase } from "../../../../lib/supabaseClient";
 
 export default function NavbarDonatur({ user }) {
   const pathname = usePathname();
+<<<<<<< HEAD
   const router = useRouter();
+=======
+  const router = useRouter(); // ✅ inisialisasi router di sini
+>>>>>>> b7725368b8e572bf89c13ae2e847e26999b330f1
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
   const handleLogout = async () => {
     try {
       await supabase.auth.signOut(); // keluar dari Supabase
+<<<<<<< HEAD
       localStorage.removeItem("user"); // bersihkan localStorage
       router.push("/"); // redirect ke halaman utama
+=======
+      localStorage.removeItem("user"); // hapus data user
+      router.push("/"); // ✅ redirect ke landing
+>>>>>>> b7725368b8e572bf89c13ae2e847e26999b330f1
     } catch (error) {
       console.error("Gagal logout:", error.message);
     }
