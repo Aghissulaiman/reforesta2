@@ -13,15 +13,14 @@ export default function NavbarAdmin({ user }) {
   const dropdownRef = useRef(null);
 
   const navItems = [
-    { name: "Beranda", path: "/user/home" },
-    { name: "Tanam", path: "/user/tanam" },
-    { name: "Acara", path: "/user/acara" },
+    { name: "Dashboard", path: "/Admin/dashboard" },
+    { name: "Pengguna", path: "/Admin/pengguna" },
+    { name: "Transaksi", path: "/Admin/transaksi" },
   ];
 
   const profileItems = [
-    { name: "Profile", path: "/user/home/profile" },
-    { name: "Riwayat", path: "/user/home/riwayat" },
-    { name: "Setting", path: "/user/home/setting" },
+    { name: "Profile Admin", path: "/Admin/profile" },
+    { name: "Pengaturan", path: "/Admin/setting" },
     { name: "Logout", path: "/" },
   ];
 
@@ -37,29 +36,34 @@ export default function NavbarAdmin({ user }) {
 
   return (
     <nav className="w-full flex justify-center mt-6 relative">
-      <div className="flex items-center justify-between bg-white px-8 py-3 rounded-full border border-gray-200 shadow-sm w-[900px] max-w-[90%]">
+      <div className="flex items-center justify-between bg-white px-8 py-3 rounded-full border border-gray-200 shadow-sm w-[950px] max-w-[90%]">
 
+        {/* 🔹 Logo */}
         <div className="flex items-center gap-2">
-          <Image src="/Logo.png" alt="Logo Reforesta" width={28} height={28} className="object-contain"/>
-          <span className="font-semibold text-green-700 text-lg">reforesta</span>
+          <Image
+            src="/Logo.png"
+            alt="Logo Reforesta"
+            width={28}
+            height={28}
+            className="object-contain"
+          />
+          <span className="font-semibold text-green-700 text-lg">
+            reforesta admin
+          </span>
         </div>
 
+        {/* 🔹 Menu utama */}
         <ul className="flex items-center gap-6 font-medium relative">
           {navItems.map((item) => {
             const isActive = pathname === item.path;
             return (
-              <li key={item.path} className="relative">
-                {isActive && (
-                  <motion.div
-                    layoutId="activeBorder"
-                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                    className="absolute inset-0 bg-[#047857] px-8 py-4 rounded-full z-0"
-                  />
-                )}
+              <li key={item.path}>
                 <Link
                   href={item.path}
-                  className={`px-4 py-1 rounded-full transition-all duration-300 font-semibold relative z-10 ${
-                    isActive ? "text-white" : "text-green-700 hover:text-green-800"
+                  className={`px-4 py-2 rounded-full transition-all duration-300 font-semibold ${
+                    isActive
+                      ? "text-[#047857]" // hanya teks hijau, tanpa background
+                      : "text-green-700 hover:bg-[#047857] hover:text-white"
                   }`}
                 >
                   {item.name}
@@ -69,18 +73,29 @@ export default function NavbarAdmin({ user }) {
           })}
         </ul>
 
+        {/* 🔹 Dropdown admin */}
         <div className="relative" ref={dropdownRef}>
           <div
             className="flex items-center gap-2 cursor-pointer px-2 py-1 hover:bg-green-50 rounded-full transition"
             onClick={() => setIsOpen(!isOpen)}
           >
             {user?.photo ? (
-              <img src={user.photo} alt="Avatar" className="w-6 h-6 rounded-full object-cover"/>
+              <img
+                src={user.photo}
+                alt="Avatar"
+                className="w-6 h-6 rounded-full object-cover"
+              />
             ) : (
               <User className="text-green-700 w-5 h-5" />
             )}
-            <span className="text-green-700 font-medium">{user?.name || "User"}</span>
-            <ChevronDown className={`text-green-700 w-4 h-4 transition-transform ${isOpen ? "rotate-180" : ""}`} />
+            <span className="text-green-700 font-medium">
+              {user?.name || "Admin"}
+            </span>
+            <ChevronDown
+              className={`text-green-700 w-4 h-4 transition-transform ${
+                isOpen ? "rotate-180" : ""
+              }`}
+            />
           </div>
 
           <AnimatePresence>
