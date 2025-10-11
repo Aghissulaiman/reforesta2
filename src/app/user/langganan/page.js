@@ -1,83 +1,248 @@
 "use client";
 
 import { useState, useEffect } from "react";
-// FIX: Menggunakan absolute path alias (@/) untuk mengatasi Module not found
+import { Star, Home, Users, CheckCircle } from "lucide-react";
 import NavbarAll from "@/app/componen/HomePage/NavbarAll";
-import NavbarDonatur from "@/app/componen/HomePage/NavbarDonatur"; 
+import NavbarDonatur from "@/app/componen/HomePage/NavbarDonatur";
 import Footer from "@/app/componen/landingpage/Footer";
-import KenapaLangganan from "@/app/componen/langgananpage/KenapaLangganan";
-import LanggananSection2 from "@/app/componen/langgananpage/LanggananSection2";
-// LanggananSection dari Home juga diimpor, asumsikan ini adalah versi utama
-import LanggananSection from "@/app/componen/HomePage/LanggananSection"; 
 
 export default function Langganan() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const plans = [
+    {
+      icon: <Star className="w-6 h-6 text-green-500" />,
+      title: "Trial",
+      desc: "Coba layanan kami selama 3 bulan",
+      price: 0,
+      displayPrice: "GRATIS",
+      per: "/ 3 BULAN",
+      features: ["Akses terbatas", "Dukungan komunitas", "Contoh proyek"],
+      isPopular: false,
+    },
+    {
+      icon: <Home className="w-6 h-6 text-white" />,
+      title: "Standard",
+      desc: "Ideal untuk penggunaan pribadi",
+      price: 150000,
+      displayPrice: "Rp 150.000",
+      per: "/ BULAN",
+      features: [
+        "Semua fitur Trial",
+        "Akses penuh fitur",
+        "Dukungan 24/7",
+        "Analitik bulanan",
+      ],
+      isPopular: true,
+    },
+    {
+      icon: <Users className="w-6 h-6 text-green-500" />,
+      title: "Premium",
+      desc: "Paket hemat 3 bulan",
+      price: 400000,
+      displayPrice: "Rp 400.000",
+      per: "/ 3 BULAN",
+      features: [
+        "Semua fitur Standard",
+        "Akses fitur Premium",
+        "Konsultasi khusus",
+      ],
+      isPopular: false,
+    },
+  ];
+
+  // 🟢 Ambil user dari localStorage
   useEffect(() => {
-    const stored = localStorage.getItem("user");
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored);
-        // Memastikan role yang valid ada sebelum set user
-        if (parsed.email && (parsed.role === "penanam" || parsed.role === "donatur" || parsed.role === "sekolah")) {
-          setUser(parsed);
-        }
-      } catch (err) {
-        console.error("Gagal memuat user:", err);
-      }
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
     }
     setLoading(false);
   }, []);
 
-  // Tampilkan loading screen saat data sedang dimuat
-  if (loading) {
+  // 🟢 Load Midtrans Snap script
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://app.sandbox.midtrans.com/snap/snap.js";
+    script.setAttribute(
+      "data-client-key",
+      process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY
+    );
+    document.body.appendChild(script);
+    return () => document.body.removeChild(script);
+  }, []);
+
+  if (loading)
     return (
-      <div className="flex flex-col items-center justify-center h-screen bg-white">
-        <div className="w-12 h-12 border-4 border-green-500 border-t-transparent rounded-full animate-spin"></div>
-        <p className="text-gray-600 mt-4 animate-pulse">Memuat data pengguna...</p>
+      <div className="flex items-center justify-center h-screen bg-white">
+        <p className="text-gray-600 animate-pulse">Memuat data...</p>
       </div>
     );
-  }
 
-  // Jika user belum login, arahkan atau tampilkan pesan (Akses tetap dibuka, tetapi konten disesuaikan)
-  // Untuk halaman Langganan, kita asumsikan halaman ini bisa diakses publik tetapi Navbar disesuaikan.
+  const NavbarComponent =
+    user?.role === "donatur" ? (
+      <NavbarDonatur user={user} />
+    ) : (
+      <NavbarAll user={user} />
+    );
 
-  // Tentukan Navbar yang akan digunakan (jika user sudah login)
-  let NavbarComponent = <NavbarAll />;
-  if (user) {
-    if (user.role === "donatur") {
-      NavbarComponent = <NavbarDonatur user={user} />;
-    } else { // Termasuk penanam dan sekolah
-      NavbarComponent = <NavbarAll user={user} />;
+  // 🧠 Fungsi saat user pilih paket
+  const handleSelectPlan = async (plan) => {
+    try {
+      // Simpan data paket ke localStorage
+      localStorage.setItem("selectedPlan", JSON.stringify(plan));
+
+      // Kalau harga 0 (Trial) langsung aktifin tanpa bayar
+      if (plan.price === 0) {
+        alert("Kamu menggunakan paket Trial selama 3 bulan 🎉");
+        return;
+      }
+
+      // 🔹 Panggil API untuk bikin transaksi di backend
+      const res = await fetch("/api/midtrans/create-transaction", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          order_id: `ORDER-${Date.now()}`,
+          amount: plan.price,
+          name: user?.email || "Guest",
+          plan: plan.title,
+        }),
+      });
+
+      const data = await res.json();
+      if (!data.token) throw new Error("Gagal mendapatkan token Midtrans");
+
+      // 🔹 Tampilkan Snap Midtrans
+      window.snap.pay(data.token, {
+        onSuccess: function (result) {
+          console.log("Transaksi sukses:", result);
+          alert("Pembayaran berhasil ✅");
+          // Simpan status ke localStorage / Supabase (sesuai kebutuhan)
+        },
+        onPending: function () {
+          alert("Pembayaran pending, silakan selesaikan transaksi.");
+        },
+        onError: function () {
+          alert("Terjadi kesalahan saat transaksi ❌");
+        },
+        onClose: function () {
+          alert("Kamu menutup popup tanpa menyelesaikan pembayaran.");
+        },
+      });
+    } catch (err) {
+      console.error("Midtrans error:", err);
+      alert("Terjadi kesalahan: " + err.message);
     }
-  }
+  };
 
   return (
-    <div className="min-h-screen bg-green-50">
-      {/* Tampilkan Navbar sesuai status login dan role */}
+    <div className="min-h-screen bg-gray-50">
       {NavbarComponent}
-      
-      <main className="container mx-auto p-4 space-y-8">
-        <KenapaLangganan />
-        
-        {/* Tampilkan bagian Langganan hanya untuk user yang terdaftar sebagai Penanam */}
-        {user && user.role === "penanam" ? (
-            <LanggananSection2 />
-        ) : (
-            <div className="bg-white p-6 rounded-xl shadow-lg text-center">
-                <h3 className="text-xl font-bold text-green-700 mb-2">Tertarik Berlangganan?</h3>
-                <p className="text-gray-600 mb-4">Fitur langganan eksklusif untuk komunitas penanam kami. Silakan masuk sebagai **Penanam** untuk melihat detail paket.</p>
-                {!user && (
-                    <a href="/login" className="px-5 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
-                        Masuk Sekarang
-                    </a>
-                )}
-            </div>
-        )}
 
+      <main className="max-w-6xl mx-auto px-4 py-16">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl lg:text-4xl font-extrabold text-gray-900">
+            Paket Langganan
+          </h2>
+          <p className="mt-3 text-base text-gray-600 max-w-xl mx-auto">
+            Pilih paket terbaik untuk mendukung pengalamanmu.
+          </p>
+        </div>
+
+        {/* Kartu Paket Langganan */}
+        <div className="flex flex-col lg:flex-row justify-center items-center lg:items-stretch gap-6">
+          {plans.map((plan, index) => (
+            <div
+              key={index}
+              className={`${
+                plan.isPopular
+                  ? "bg-green-700 text-white p-7 rounded-xl shadow-2xl w-full md:w-[300px] transform scale-[1.03] hover:scale-[1.05] transition"
+                  : "bg-white p-6 rounded-xl shadow-lg border border-gray-100 w-full md:w-[280px] hover:shadow-xl hover:-translate-y-1 transition"
+              }`}
+            >
+              {/* Label Populer */}
+              {plan.isPopular && (
+                <div className="absolute top-0 right-0 -mt-6 -mr-6 bg-green-500 text-white text-xs font-bold px-2 py-0.5 rounded-bl-lg">
+                  POPULER
+                </div>
+              )}
+
+              <div className="text-center relative">
+                <div
+                  className={`flex justify-center mb-3 ${
+                    plan.isPopular ? "text-white" : "text-green-600"
+                  }`}
+                >
+                  {plan.icon}
+                </div>
+
+                <h3
+                  className={`text-xl font-bold mb-1 ${
+                    plan.isPopular ? "text-white" : "text-gray-900"
+                  }`}
+                >
+                  {plan.title}
+                </h3>
+                <p
+                  className={`text-xs mb-5 ${
+                    plan.isPopular ? "text-green-200" : "text-gray-500"
+                  }`}
+                >
+                  {plan.desc}
+                </p>
+
+                <div className="mb-6 border-t border-b border-opacity-20 border-current py-3">
+                  <h4
+                    className={`text-3xl font-extrabold ${
+                      plan.isPopular ? "text-white" : "text-gray-900"
+                    }`}
+                  >
+                    {plan.displayPrice}
+                  </h4>
+                  <p
+                    className={`text-sm font-medium ${
+                      plan.isPopular ? "text-green-300" : "text-gray-500"
+                    }`}
+                  >
+                    {plan.per}
+                  </p>
+                </div>
+              </div>
+
+              <ul
+                className={`text-left mb-6 space-y-2 text-sm ${
+                  plan.isPopular ? "text-green-100" : "text-gray-700"
+                }`}
+              >
+                {plan.features.map((feature, i) => (
+                  <li key={i} className="flex items-start">
+                    <CheckCircle
+                      className={`w-3.5 h-3.5 mt-1 mr-2.5 shrink-0 ${
+                        plan.isPopular ? "text-green-300" : "text-green-500"
+                      }`}
+                    />
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+
+              <button
+                onClick={() => handleSelectPlan(plan)}
+                className={`block w-full text-center px-5 py-2.5 text-sm rounded-lg font-semibold border-2 transition ${
+                  plan.isPopular
+                    ? "bg-white text-green-700 border-white hover:bg-gray-100"
+                    : "bg-green-600 text-white border-green-600 hover:bg-green-700"
+                }`}
+              >
+                {plan.price === 0 ? "Coba Gratis" : "Pilih Paket"}
+              </button>
+            </div>
+          ))}
+        </div>
       </main>
-      
+
       <Footer />
     </div>
   );

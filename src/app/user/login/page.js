@@ -95,7 +95,7 @@ if (!isMatch) throw new Error("Password salah!");
           })
         );
 
-        router.push("/admin/dashboard");
+        router.push("/Admin/dashboard");
         return;
       }
 

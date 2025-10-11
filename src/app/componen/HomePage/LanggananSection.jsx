@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
 import { Star, Home, Users, CheckCircle } from "lucide-react";
 
 export default function LanggananSection() {
@@ -9,8 +8,7 @@ export default function LanggananSection() {
       icon: <Star className="w-6 h-6 text-green-500" />,
       title: "Trial",
       desc: "Coba layanan kami selama 3 bulan",
-      price: 0,
-      displayPrice: "GRATIS",
+      price: "GRATIS",
       per: "/ 3 BULAN",
       buttonText: "Coba Gratis",
       features: ["Akses terbatas", "Dukungan komunitas", "Contoh proyek"],
@@ -20,8 +18,7 @@ export default function LanggananSection() {
       icon: <Home className="w-6 h-6 text-white" />,
       title: "Standard",
       desc: "Ideal untuk penggunaan pribadi",
-      price: 150000,
-      displayPrice: "RP 150.000",
+      price: "RP 150.000",
       per: "/ BULAN",
       buttonText: "Pilih Standard",
       features: [
@@ -36,8 +33,7 @@ export default function LanggananSection() {
       icon: <Users className="w-6 h-6 text-green-500" />,
       title: "Premium",
       desc: "Paket hemat 3 bulan",
-      price: 400000,
-      displayPrice: "RP 400.000",
+      price: "RP 400.000",
       per: "/ 3 BULAN",
       buttonText: "Pilih Premium",
       features: [
@@ -49,50 +45,35 @@ export default function LanggananSection() {
     },
   ];
 
-  // ✅ Muat Midtrans Snap.js
-  useEffect(() => {
-    const script = document.createElement("script");
-    script.src = "https://app.sandbox.midtrans.com/snap/snap.js";
-    script.setAttribute(
-      "data-client-key",
-      process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY
-    );
-    document.body.appendChild(script);
-    return () => document.body.removeChild(script);
-  }, []);
+  // Fungsi ketika user klik tombol paket
+ const handleSelectPlan = (plan) => {
+  try {
+    // 🔹 Ambil data penting aja (tanpa elemen React)
+    const planData = {
+      title: plan.title,
+      desc: plan.desc,
+      price: plan.price,
+      per: plan.per,
+      features: plan.features,
+      isPopular: plan.isPopular,
+    };
 
-  // ✅ Handle Klik Paket
-  const handleSelectPlan = async (plan) => {
-    try {
-      if (plan.price === 0) {
-        alert("Kamu memilih paket Trial (Gratis)");
-        return;
-      }
+    // 🔹 Simpan ke localStorage
+    localStorage.setItem("selectedPlan", JSON.stringify(planData));
 
-      const res = await fetch("/api/midtrans/create-transaction", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          planName: plan.title,
-          amount: plan.price,
-        }),
-      });
+    // 🔹 Redirect ke halaman langganan
+    window.location.href = "/user/langganan";
+  } catch (error) {
+    console.error("Gagal menyimpan paket:", error);
+  }
+};
 
-      const data = await res.json();
-      if (!data.token) throw new Error("Token Midtrans tidak ditemukan!");
-
-      window.snap.pay(data.token);
-    } catch (err) {
-      console.error("Midtrans error:", err);
-      alert("Gagal memproses pembayaran: " + err.message);
-    }
-  };
-
-  // ✅ Style reusable
+  // Style dasar kartu
   const baseCardStyle =
-    "bg-white p-6 rounded-xl shadow-lg border border-gray-100 w-full md:w-[280px] transition-all duration-300 hover:shadow-xl hover:-translate-y-1";
+    "bg-white p-6 rounded-xl shadow-lg border border-gray-100 w-full md:w-[280px] transition-all duration-300 ease-in-out hover:shadow-xl hover:translate-y-[-4px]";
   const popularCardStyle =
-    "bg-green-700 text-white p-7 rounded-xl shadow-2xl w-full md:w-[300px] transform scale-[1.03] z-10 transition-all duration-300 hover:scale-[1.05]";
+    "bg-green-700 text-white p-7 rounded-xl shadow-2xl w-full md:w-[300px] transform scale-[1.03] z-10 transition-all duration-300 ease-in-out hover:scale-[1.05]";
+
   const baseButtonStyle =
     "block w-full text-center px-5 py-2.5 text-sm rounded-lg font-semibold border-2 transition-all duration-300";
   const popularButtonStyle =
@@ -103,7 +84,7 @@ export default function LanggananSection() {
   return (
     <section className="relative py-16 bg-gray-50 overflow-hidden">
       <div className="max-w-6xl mx-auto px-4 relative z-10">
-        {/* 🔹 Header */}
+        {/* Judul */}
         <div className="text-center mb-12">
           <h2 className="text-3xl lg:text-4xl font-extrabold text-gray-900 mt-2">
             Paket Langganan
@@ -113,7 +94,7 @@ export default function LanggananSection() {
           </p>
         </div>
 
-        {/* 🔹 Cards */}
+        {/* Kartu Paket */}
         <div className="flex flex-col lg:flex-row justify-center items-center lg:items-stretch gap-6">
           {plans.map((plan, index) => (
             <div
@@ -157,7 +138,7 @@ export default function LanggananSection() {
                       plan.isPopular ? "text-white" : "text-gray-900"
                     }`}
                   >
-                    {plan.displayPrice}
+                    {plan.price}
                   </h4>
                   <p
                     className={`text-sm font-medium ${
@@ -169,7 +150,7 @@ export default function LanggananSection() {
                 </div>
               </div>
 
-              {/* Daftar fitur */}
+              {/* Daftar Fitur */}
               <ul
                 className={`text-left mb-6 space-y-2 text-sm ${
                   plan.isPopular ? "text-green-100" : "text-gray-700"
@@ -179,17 +160,15 @@ export default function LanggananSection() {
                   <li key={i} className="flex items-start">
                     <CheckCircle
                       className={`w-3.5 h-3.5 mt-1 mr-2.5 shrink-0 ${
-                        plan.isPopular
-                          ? "text-green-300"
-                          : "text-green-500"
+                        plan.isPopular ? "text-green-300" : "text-green-500"
                       }`}
-                    />
+                    />{" "}
                     {feature}
                   </li>
                 ))}
               </ul>
 
-              {/* Tombol */}
+              {/* Tombol Pilih Paket */}
               <button
                 onClick={() => handleSelectPlan(plan)}
                 className={`${baseButtonStyle} ${
