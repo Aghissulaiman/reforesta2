@@ -9,6 +9,8 @@ import LanggananSection from "../../componen/HomePage/LanggananSection";
 import Komunitas from "../../componen/landingpage/Komunitas";
 import AcaraHijau from "../../componen/landingpage/AcaraHijau";
 import Footer from "../../componen/landingpage/Footer";
+import DetailAcara from "@/app/componen/Acarapage/DetailAcara";
+import AcaraDetail from "@/app/componen/Acarapage/AcaraDetail";
 
 export default function Home() {
   const [user, setUser] = useState(null);

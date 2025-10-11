@@ -19,9 +19,9 @@ export default function NavbarDonatur({ user }) {
   ];
 
   const profileItems = [
-    { name: "Profile", path: "/home/profile" },
-    { name: "Riwayat", path: "/home/riwayat" },
-    { name: "Setting", path: "/home/setting" },
+    { name: "Profile", path: "/user/home/profile" },
+    { name: "Riwayat", path: "/user/home/riwayat" },
+    { name: "Setting", path: "/user/home/setting" },
     { name: "Logout", path: "/" },
   ];
 
