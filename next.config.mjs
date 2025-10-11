@@ -6,7 +6,8 @@ const nextConfig = {
       "www.static-src.com",
       "img.lazcdn.com",
       "down-id.img.susercontent.com",
-      "blue.kumparan.com"
+      "blue.kumparan.com",
+      "ackcmovpibecjfiqmirg.supabase.co", // ✅ tambahin ini bre
     ],
   },
 };
