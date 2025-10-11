@@ -34,9 +34,13 @@ export async function POST(req) {
         id_komunitas: body.id_komunitas || null,
         total_harga: parseInt(body.gross_amount),
         status: body.transaction_status || "pending",
-        metode_bayar: body.payment_type || "unknown",
+        metode_bayar: body.payment_type || "midtrans",
+        tipe_payment: body.tipe_payment || null,
+        tipe_user: body.tipe_user || "donatur", // 🧠 bisa 'donatur' / 'sekolah'
+        tipe_transaksi: body.tipe_transaksi || "bibit", // 🧠 atau 'langganan' / 'denda'
         tanggal: body.transaction_time || new Date().toISOString(),
-        detail_pesanan: body.order_id,
+        order_id: body.order_id,
+        detail_pesanan: body.detail_pesanan || {}, // 🧾 simpan data JSON detail
       },
     ]);
 
@@ -58,7 +62,9 @@ export async function POST(req) {
 export async function GET(req) {
   try {
     const supabase = createRouteHandlerClient({ cookies });
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
     if (!user) {
       return NextResponse.json(
@@ -71,7 +77,7 @@ export async function GET(req) {
       .from("transaksi")
       .select("*")
       .eq("id_user", user.id)
-      .order("tanggal", { ascending: false });
+      .order("created_at", { ascending: false });
 
     if (error) throw error;
 

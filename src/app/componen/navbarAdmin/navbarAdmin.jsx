@@ -2,13 +2,14 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { User, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useRef, useEffect } from "react";
 
 export default function NavbarAdmin({ user }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -21,9 +22,9 @@ export default function NavbarAdmin({ user }) {
   const profileItems = [
     { name: "Profile Admin", path: "/Admin/profile" },
     { name: "Pengaturan", path: "/Admin/setting" },
-    { name: "Logout", path: "/" },
   ];
 
+  // ✅ Tutup dropdown kalau klik di luar
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -33,6 +34,18 @@ export default function NavbarAdmin({ user }) {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  // ✅ Fungsi logout
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    localStorage.removeItem("selectedPlan");
+    setIsOpen(false);
+
+    // Biar smooth dikit
+    setTimeout(() => {
+      router.replace("/");
+    }, 300);
+  };
 
   return (
     <nav className="w-full flex justify-center mt-6 relative">
@@ -62,7 +75,7 @@ export default function NavbarAdmin({ user }) {
                   href={item.path}
                   className={`px-4 py-2 rounded-full transition-all duration-300 font-semibold ${
                     isActive
-                      ? "text-[#047857]" // hanya teks hijau, tanpa background
+                      ? "text-[#047857]"
                       : "text-green-700 hover:bg-[#047857] hover:text-white"
                   }`}
                 >
@@ -107,6 +120,7 @@ export default function NavbarAdmin({ user }) {
                 transition={{ duration: 0.2, ease: "easeOut" }}
                 className="absolute right-0 mt-2 w-44 bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden z-50 ring-1 ring-black ring-opacity-5"
               >
+                {/* 🔹 Link menu profil */}
                 {profileItems.map((item) => (
                   <Link
                     key={item.name}
@@ -117,6 +131,14 @@ export default function NavbarAdmin({ user }) {
                     {item.name}
                   </Link>
                 ))}
+
+                {/* 🔹 Tombol Logout */}
+                <button
+                  onClick={handleLogout}
+                  className="w-full text-left px-4 py-3 text-red-600 hover:bg-red-50 transition font-semibold"
+                >
+                  Logout
+                </button>
               </motion.div>
             )}
           </AnimatePresence>

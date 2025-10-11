@@ -79,7 +79,7 @@ export default function TanamPohonPage({user }) {
   await fetch("/api/transaksi", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    credentials: "include", // <--- WAJIB!
+    credentials: "include",
     body: JSON.stringify({
       order_id: orderDetails.order_id,
       gross_amount: orderDetails.gross_amount,
@@ -87,9 +87,12 @@ export default function TanamPohonPage({user }) {
       payment_type: result.payment_type,
       transaction_time: result.transaction_time || new Date().toISOString(),
       id_komunitas: lokasiTerpilih?.id || null,
+      tipe_transaksi: "bibit",
+      detail: bibitTerpilih, // list bibit yang dibeli
     }),
   });
 }
+
 
   // 💳 Fungsi pembayaran Midtrans
   const handleBayar = async () => {

@@ -19,7 +19,7 @@ import {
   FiActivity,
 } from "react-icons/fi";
 import { FaTree, FaGift } from "react-icons/fa";
-import NavbarAdmin from "@/app/componen/navbarAdmin/NavbarAdmin"; // 🔹 Import NavbarAdmin
+import NavbarAdmin from "@/app/componen/navbarAdmin/navbarAdmin";// 🔹 Import NavbarAdmin
 
 const formatRupiah = (value) =>
   `Rp ${value.toLocaleString("id-ID", { maximumFractionDigits: 0 })}`;
