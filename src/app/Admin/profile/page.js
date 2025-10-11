@@ -18,7 +18,7 @@ export default function ProfilePage() {
 
         // 🔹 Hanya ambil data dari tabel Admin
         const { data: admin, error } = await supabase
-          .from("Admin")
+          .from("admin")
           .select("*")
           .eq("id", user.id)
           .single();
