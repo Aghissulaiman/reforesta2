@@ -2,12 +2,13 @@
 
 import { useState } from "react";
 import { supabase } from "../../../../lib/supabaseClient";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import bcrypt from "bcryptjs";
 
-// 🔹 Ambil detail user berdasarkan email
+
+// Fungsi ambil role & nama user
 async function fetchUserRoleAndDetail(email) {
-  // 1️⃣ Cek di tabel Komunitas
   const { data: komunitasData } = await supabase
     .from("Komunitas")
     .select("jenis_akun, nama_komunitas")
@@ -23,12 +24,12 @@ async function fetchUserRoleAndDetail(email) {
     };
   }
 
-  // 2️⃣ Cek di tabel Sekolah
   const { data: sekolahData } = await supabase
     .from("Sekolah")
     .select("nama_sekolah")
     .eq("email_sekolah", email)
-    .single();
+    .single()
+    .catch(() => null);
 
   if (sekolahData) {
     return {
@@ -37,7 +38,6 @@ async function fetchUserRoleAndDetail(email) {
     };
   }
 
-  // ❌ Jika tidak ditemukan
   throw new Error("Role pengguna tidak ditemukan di database.");
 }
 
@@ -60,42 +60,80 @@ export default function Login() {
     }
 
     setLoading(true);
+
     try {
-      // 1️⃣ Login ke Supabase
+      // 🔹 1️⃣ Cek dulu apakah login sebagai ADMIN
+      // 🔹 1️⃣ Coba login sebagai admin dulu
+      const { data: adminData } = await supabase
+        .from("admin")
+        .select("*")
+        .eq("email", form.email)
+        .maybeSingle();
+
+      if (adminData) {
+        // Cek password admin (bcrypt)
+       let isMatch = false;
+
+// Kalau password belum di-hash, bandingkan langsung
+if (adminData.password.startsWith("$2")) {
+  // berarti ini format bcrypt hash
+  isMatch = await bcrypt.compare(form.password, adminData.password);
+} else {
+  // plaintext fallback (sementara)
+  isMatch = form.password === adminData.password;
+}
+
+if (!isMatch) throw new Error("Password salah!");
+        // Simpan sesi admin
+        localStorage.setItem(
+          "user",
+          JSON.stringify({
+            id: adminData.id,
+            email: adminData.email,
+            role: "admin",
+            nama: adminData.nama_admin || "Admin",
+          })
+        );
+
+        router.push("/admin/dashboard");
+        return;
+      }
+
+      // 🔹 2️⃣ Kalau bukan admin → login via Supabase Auth
       const { data, error: authError } = await supabase.auth.signInWithPassword({
         email: form.email,
         password: form.password,
       });
 
-      if (authError) {
-        if (authError.message.includes("Invalid login credentials"))
-          throw new Error("Email atau password salah.");
-        if (authError.message.includes("Email not confirmed"))
-          throw new Error("Silakan verifikasi email terlebih dahulu.");
-        throw authError;
-      }
+      if (authError) throw authError;
+      if (!data.user) throw new Error("User tidak ditemukan.");
 
       const sessionUser = data.user;
-      if (!sessionUser) throw new Error("User tidak ditemukan.");
 
-      // 2️⃣ Ambil role & nama dari database
+      // 🔹 3️⃣ Ambil role user dari database
       const userDetail = await fetchUserRoleAndDetail(sessionUser.email);
 
-      // 3️⃣ Simpan data user di localStorage (biar bisa dipakai payment)
-      const user = {
-        id: sessionUser.id,
-        email: sessionUser.email,
-        role: userDetail.role,
-        nama: userDetail.nama,
-      };
-      localStorage.setItem("user", JSON.stringify(user));
+      // 🔹 4️⃣ Simpan session di backend
+      await fetch("/api/auth/set-cookie", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user: { id: sessionUser.id, email: sessionUser.email },
+        }),
+      });
 
-      // 4️⃣ Redirect berdasarkan role
-      if (userDetail.role === "sekolah") {
-        router.push("/user/home");
-      } else {
-        router.push("/user/home");
-      }
+      // 🔹 5️⃣ Simpan info user ke localStorage
+      localStorage.setItem(
+        "user",
+        JSON.stringify({
+          id: sessionUser.id,
+          email: sessionUser.email,
+          role: userDetail.role,
+          nama: userDetail.nama,
+        })
+      );
+
+      router.push("/user/home");
     } catch (err) {
       console.error("LOGIN ERROR:", err);
       setError(err.message || "Login gagal, coba lagi!");
@@ -105,7 +143,7 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white">
+      <div className="min-h-screen flex items-center justify-center bg-white">
       <div className="flex w-full max-w-sm mx-auto overflow-hidden bg-white rounded-lg shadow-lg lg:max-w-4xl">
         {/* LEFT PANEL */}
         <div className="w-full px-6 py-8 md:px-8 lg:w-1/2">

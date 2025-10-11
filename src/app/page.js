@@ -8,8 +8,10 @@ import HubungiKami from "./componen/landingpage/HubungiKami";
 import Komunitas from "./componen/landingpage/Komunitas";
 import Navbar from "./componen/landingpage/Navbar";
 import CarouselRegion from "./componen/landingpage/CarouselRegion";
+import useAuthRedirect from "../../hooks/useAuthRedirect";
 
 export default function Home() {
+   useAuthRedirect()
   return (
     <div>
       <Navbar />

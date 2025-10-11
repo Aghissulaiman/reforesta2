@@ -1,31 +1,55 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { supabase } from "../lib/supabaseClient";
 
 export default function useAuthRedirect() {
   const router = useRouter();
   const pathname = usePathname();
+  const [user, setUser] = useState(undefined); // undefined dulu biar bisa nunggu localStorage kebaca
 
   useEffect(() => {
-    const checkSession = async () => {
-      const { data } = await supabase.auth.getSession();
-      const session = data?.session;
+    // Ambil data user dari localStorage
+    const storedUser = localStorage.getItem("user");
+    setUser(storedUser ? JSON.parse(storedUser) : null);
+  }, []);
 
-      // 🔹 kalau sudah login dan buka halaman login/register/landing → pindah ke /home
-      if (session && ["/", "/login", "/register"].includes(pathname)) {
-        router.replace("/home");
-        return;
+  useEffect(() => {
+    if (user === undefined) return; // ⏳ tunggu data user kebaca
+
+    const isPublicPage =
+      pathname === "/" ||
+      pathname.startsWith("/login") ||
+      pathname.startsWith("/register") ||
+      pathname.startsWith("/user/login") ||
+      pathname.startsWith("/user/register") ||
+      pathname.startsWith("/admin/login");
+
+    const isUserPage = pathname.startsWith("/user");
+    const isAdminPage = pathname.startsWith("/admin");
+
+    // 🔹 1️⃣ Kalau belum login tapi nyoba ke halaman private (user/admin)
+    if (!user && (isUserPage || isAdminPage)) {
+      router.replace("/");
+      return;
+    }
+
+    // 🔹 2️⃣ Kalau udah login sebagai ADMIN
+    if (user?.role === "admin") {
+      // Kalau nyasar ke halaman publik → redirect ke dashboard admin
+      if (isPublicPage || isUserPage) {
+        router.replace("/Admin/dashboard");
       }
+      return;
+    }
 
-      // 🔹 kalau belum login dan buka halaman private → redirect ke login
-      if (!session && ["/home", "/riwayat", "/profile"].includes(pathname)) {
-        router.replace("/login");
-        return;
+    // 🔹 3️⃣ Kalau udah login sebagai USER biasa
+    if (user && user.role !== "admin") {
+      // Kalau nyasar ke halaman publik atau admin → redirect ke home user
+      if (isPublicPage || isAdminPage) {
+        router.replace("/user/home");
       }
-    };
-
-    checkSession();
-  }, [pathname, router]);
+      return;
+    }
+  }, [user, pathname, router]);
 }

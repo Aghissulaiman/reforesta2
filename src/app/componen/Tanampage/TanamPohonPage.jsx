@@ -6,66 +6,29 @@ import { motion } from "framer-motion";
 import { FaChevronLeft, FaChevronRight, FaTrash } from "react-icons/fa";
 import usePohon from "../../../../hooks/pohon";
 import useDaerah from "../../../../hooks/daerah";
-import { supabase } from "../../../../lib/supabaseClient";
 
-export default function TanamPohonPage() {
+export default function TanamPohonPage({user }) {
   const { pohon, loading: loadingPohon, error: errorPohon } = usePohon();
   const { daerah, loading: loadingDaerah, error: errorDaerah } = useDaerah();
 
   const [index, setIndex] = useState(0);
   const [lokasiTerpilih, setLokasiTerpilih] = useState(null);
   const [bibitTerpilih, setBibitTerpilih] = useState([]);
-  const [user, setUser] = useState(null);
-  const [loadingUser, setLoadingUser] = useState(true);
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  // ✅ Muat script Midtrans Snap
+  // ✅ Load script Midtrans Snap sekali
   useEffect(() => {
     if (typeof window.snap === "undefined") {
       const script = document.createElement("script");
       script.src = "https://app.sandbox.midtrans.com/snap/snap.js";
-      script.setAttribute("data-client-key", process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY);
+      script.setAttribute(
+        "data-client-key",
+        process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY
+      );
+      script.id = "midtrans-script";
       document.body.appendChild(script);
     }
   }, []);
-
-  // ✅ Ambil user langsung dari Supabase
-  useEffect(() => {
-    const getUser = async () => {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        setUser(user);
-      } catch (err) {
-        console.error("Gagal ambil user:", err);
-      } finally {
-        setLoadingUser(false);
-      }
-    };
-    getUser();
-  }, []);
-
-  if (loadingUser) {
-    return (
-      <div className="w-full flex justify-center items-center py-20">
-        <p className="text-gray-500">Memuat data pengguna...</p>
-      </div>
-    );
-  }
-
-  if (!user) {
-    return (
-      <div className="w-full flex flex-col justify-center items-center py-20 space-y-4">
-        <p className="text-lg font-semibold text-gray-700">
-          Anda harus login terlebih dahulu untuk menanam pohon 🌱
-        </p>
-        <a
-          href="/auth/login"
-          className="px-6 py-3 bg-green-600 text-white font-semibold rounded-xl hover:bg-green-700 transition"
-        >
-          Login Sekarang
-        </a>
-      </div>
-    );
-  }
 
   // 🔹 Carousel kontrol
   const nextSlide = () => {
@@ -111,22 +74,44 @@ export default function TanamPohonPage() {
     0
   );
 
-  // 🔹 Fungsi pembayaran Midtrans
+  // ✅ Update status transaksi ke backend
+  async function updateStatus(result, orderDetails) {
+  await fetch("/api/transaksi", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include", // <--- WAJIB!
+    body: JSON.stringify({
+      order_id: orderDetails.order_id,
+      gross_amount: orderDetails.gross_amount,
+      transaction_status: result.transaction_status,
+      payment_type: result.payment_type,
+      transaction_time: result.transaction_time || new Date().toISOString(),
+      id_komunitas: lokasiTerpilih?.id || null,
+    }),
+  });
+}
+
+  // 💳 Fungsi pembayaran Midtrans
   const handleBayar = async () => {
+    if (isProcessing) return; // cegah double click
+    setIsProcessing(true);
+
     try {
-      if (!lokasiTerpilih) return alert("Pilih lokasi penanaman terlebih dahulu.");
-      if (!bibitTerpilih.length) return alert("Pilih minimal satu bibit pohon.");
-      if (!user) return alert("Silakan login terlebih dahulu.");
+      if (!lokasiTerpilih)
+        return alert("Pilih lokasi penanaman terlebih dahulu.");
+      if (!bibitTerpilih.length)
+        return alert("Pilih minimal satu bibit pohon.");
+      if (!user)
+        return alert("Silakan login terlebih dahulu.");
 
       const orderDetails = {
         order_id: `ORDER-${Date.now()}`,
         gross_amount: totalHarga,
-        user_id: user.id,
-        items: bibitTerpilih.map((item) => ({
-          id: item.id,
-          name: item.nama,
-          price: item.harga,
-          quantity: item.jumlah,
+        items: bibitTerpilih.map((b) => ({
+          id: b.id,
+          name: b.nama,
+          price: b.harga,
+          quantity: b.jumlah,
         })),
         metadata: {
           lokasi_tanam: lokasiTerpilih.daerah,
@@ -135,6 +120,7 @@ export default function TanamPohonPage() {
         customer_details: { email: user.email },
       };
 
+      // 🔹 Minta token ke backend
       const response = await fetch("/api/payments", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -154,52 +140,25 @@ export default function TanamPohonPage() {
         return;
       }
 
+      // ✅ Panggil snap.pay hanya sekali
       window.snap.pay(data.token, {
-        onSuccess: (result) => {
-          alert("✅ Pembayaran berhasil!");
-          updateStatus(orderDetails.order_id, "success", result);
-        },
-        onPending: (result) => {
-          alert("⏳ Pembayaran sedang diproses.");
-          updateStatus(orderDetails.order_id, "pending", result);
-        },
+        onSuccess: (result) => updateStatus(result, orderDetails),
+        onPending: (result) => updateStatus(result, orderDetails),
         onError: (result) => {
-          alert("❌ Pembayaran gagal.");
-          updateStatus(orderDetails.order_id, "failure", result);
+          console.error("Error Midtrans:", result);
+          alert("Terjadi kesalahan saat transaksi.");
+          updateStatus(result, orderDetails);
         },
         onClose: () => console.log("Pop-up Midtrans ditutup."),
       });
+
     } catch (err) {
       console.error("Error saat handleBayar:", err);
-      alert("Terjadi kesalahan tak terduga saat memproses pembayaran.");
+      alert("Terjadi kesalahan saat memproses pembayaran.");
+    } finally {
+      setIsProcessing(false);
     }
   };
-
-  async function updateStatus(order_id, status, result) {
-  try {
-    const res = await fetch("/api/transaksi", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        order_id,
-        status,
-        total: result.gross_amount,
-        nama: user.email, // atau ambil dari profil user
-        email: user.email,
-        tanggal: new Date().toISOString(),
-      }),
-    });
-
-    const data = await res.json();
-    if (!res.ok) {
-      console.error("Gagal simpan transaksi:", data.message);
-    } else {
-      console.log("✅ Transaksi berhasil disimpan:", data);
-    }
-  } catch (err) {
-    console.error("❌ Gagal menyimpan transaksi:", err);
-  }
-}
 
   // 🔹 Render halaman utama
   return (

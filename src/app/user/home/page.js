@@ -9,6 +9,8 @@ import LanggananSection from "../../componen/HomePage/LanggananSection";
 import Komunitas from "../../componen/landingpage/Komunitas";
 import AcaraHijau from "../../componen/landingpage/AcaraHijau";
 import Footer from "../../componen/landingpage/Footer";
+import DetailAcara from "@/app/componen/Acarapage/DetailAcara";
+import AcaraDetail from "@/app/componen/Acarapage/AcaraDetail";
 
 export default function Home() {
   const [user, setUser] = useState(null);
@@ -46,7 +48,7 @@ export default function Home() {
       <div className="flex flex-col items-center justify-center h-screen bg-white text-center">
         <p className="text-gray-700 mb-3">Kamu belum login 😢</p>
         <a
-          href="/login"
+          href="/user/login"
           className="px-5 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
         >
           Masuk Sekarang

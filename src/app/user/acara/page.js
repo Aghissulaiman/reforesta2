@@ -1,13 +1,15 @@
 "use client";
 
 import { useState, useEffect } from "react";
-// Menggunakan absolute path alias (@/) untuk mengatasi Module not found
 import NavbarAll from "@/app/componen/HomePage/NavbarAll";
 import NavbarDonatur from "@/app/componen/HomePage/NavbarDonatur"; 
 import Footer from "@/app/componen/landingpage/Footer";
+
+// Acara
 import AcaraHijau2 from "@/app/componen/Acarapage/AcaraHijau2";
 import DaftarAcara from "@/app/componen/Acarapage/DaftarAcara";
 import DetailAcara from "@/app/componen/Acarapage/DetailAcara";
+import { AcaraProvider } from "@/app/componen/Acarapage/AcaraContext";
 
 export default function Acara() {
   const [user, setUser] = useState(null);
@@ -18,7 +20,6 @@ export default function Acara() {
     if (stored) {
       try {
         const parsed = JSON.parse(stored);
-        // Memastikan role yang valid ada sebelum set user
         if (parsed.email && (parsed.role === "penanam" || parsed.role === "donatur" || parsed.role === "sekolah")) {
           setUser(parsed);
         }
@@ -29,7 +30,6 @@ export default function Acara() {
     setLoading(false);
   }, []);
 
-  // Tampilkan loading screen saat data sedang dimuat
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center h-screen bg-white">
@@ -39,32 +39,24 @@ export default function Acara() {
     );
   }
 
-  // Tentukan Navbar yang akan digunakan (jika user sudah login)
-  let NavbarComponent;
-
+  let NavbarComponent = <NavbarAll />;
   if (user) {
-    // Jika user login, tentukan Navbar berdasarkan role
-    if (user.role === "donatur") {
-      NavbarComponent = <NavbarDonatur user={user} />;
-    } else { // Termasuk penanam dan sekolah
-      NavbarComponent = <NavbarAll user={user} />;
-    }
-  } else {
-    // Jika user belum login, gunakan NavbarAll sebagai default public
-    NavbarComponent = <NavbarAll />;
+    NavbarComponent = user.role === "donatur" ? <NavbarDonatur user={user} /> : <NavbarAll user={user} />;
   }
 
   return (
     <div className="min-h-screen bg-green-50">
-      {/* Tampilkan Navbar sesuai status login dan role */}
       {NavbarComponent}
-      
-      <main className="container mx-auto p-4 space-y-8">
-        <AcaraHijau2 />
-        <DetailAcara />
-        <DaftarAcara />
-      </main>
-      
+
+      {/* Bungkus semua komponen acara dengan Provider */}
+      <AcaraProvider>
+        <main className="container mx-auto p-4 space-y-8">
+          <AcaraHijau2 />
+          <DetailAcara />
+          <DaftarAcara />
+        </main>
+      </AcaraProvider>
+
       <Footer />
     </div>
   );
