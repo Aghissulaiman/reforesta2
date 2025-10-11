@@ -14,28 +14,33 @@ export default function Riwayat() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!session?.user) {
-      setLoading(false);
-      return;
-    }
-
-    // Ambil role user dari tabel "user" Supabase
     const ambilRole = async () => {
-      const { data, error } = await supabase
-        .from("user")
-        .select("role")
-        .eq("id", session.user.id)
-        .maybeSingle();
+      // kalau belum login, hentikan aja
+      if (!session?.user) {
+        setLoading(false);
+        return;
+      }
 
-      if (error) console.error("Gagal ambil role:", error.message);
-      else setRole(data?.role);
+      try {
+        const { data, error } = await supabase
+          .from("user")
+          .select("role")
+          .eq("id", session.user.id)
+          .maybeSingle();
 
-      setLoading(false);
+        if (error) throw error;
+        setRole(data?.role || "donatur");
+      } catch (err) {
+        console.error("Gagal ambil role:", err.message);
+      } finally {
+        setLoading(false);
+      }
     };
 
     ambilRole();
   }, [session, supabase]);
 
+  // 🌀 Loading screen
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center h-screen bg-white">
@@ -47,6 +52,7 @@ export default function Riwayat() {
     );
   }
 
+  // 🔒 Jika belum login
   if (!session?.user) {
     return (
       <div className="flex flex-col items-center justify-center h-screen bg-white text-center">
@@ -63,6 +69,7 @@ export default function Riwayat() {
     );
   }
 
+  // 🧾 Tampilan utama riwayat
   return (
     <div className="min-h-screen bg-green-50">
       {role === "donatur" ? (

@@ -2,12 +2,11 @@
 
 import { useState } from "react";
 import { supabase } from "../../../../lib/supabaseClient";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
-// 🔹 Ambil detail user berdasarkan email
+// Fungsi ambil role & nama user
 async function fetchUserRoleAndDetail(email) {
-  // 1️⃣ Cek di tabel Komunitas
   const { data: komunitasData } = await supabase
     .from("Komunitas")
     .select("jenis_akun, nama_komunitas")
@@ -23,12 +22,12 @@ async function fetchUserRoleAndDetail(email) {
     };
   }
 
-  // 2️⃣ Cek di tabel Sekolah
   const { data: sekolahData } = await supabase
     .from("Sekolah")
     .select("nama_sekolah")
     .eq("email_sekolah", email)
-    .single();
+    .single()
+    .catch(() => null);
 
   if (sekolahData) {
     return {
@@ -37,7 +36,6 @@ async function fetchUserRoleAndDetail(email) {
     };
   }
 
-  // ❌ Jika tidak ditemukan
   throw new Error("Role pengguna tidak ditemukan di database.");
 }
 
@@ -67,35 +65,33 @@ export default function Login() {
         password: form.password,
       });
 
-      if (authError) {
-        if (authError.message.includes("Invalid login credentials"))
-          throw new Error("Email atau password salah.");
-        if (authError.message.includes("Email not confirmed"))
-          throw new Error("Silakan verifikasi email terlebih dahulu.");
-        throw authError;
-      }
+      if (authError) throw authError;
+      if (!data.user) throw new Error("User tidak ditemukan.");
 
       const sessionUser = data.user;
-      if (!sessionUser) throw new Error("User tidak ditemukan.");
 
       // 2️⃣ Ambil role & nama dari database
       const userDetail = await fetchUserRoleAndDetail(sessionUser.email);
 
-      // 3️⃣ Simpan data user di localStorage (biar bisa dipakai payment)
-      const user = {
-        id: sessionUser.id,
-        email: sessionUser.email,
-        role: userDetail.role,
-        nama: userDetail.nama,
-      };
-      localStorage.setItem("user", JSON.stringify(user));
+      // 3️⃣ Kirim ke API untuk set cookie HTTP-only
+      await fetch("/api/auth/set-cookie", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user: { id: sessionUser.id, email: sessionUser.email } }),
+      });
 
-      // 4️⃣ Redirect berdasarkan role
-      if (userDetail.role === "sekolah") {
-        router.push("/user/home");
-      } else {
-        router.push("/user/home");
-      }
+      // 4️⃣ Simpan role & nama di localStorage (opsional untuk front-end)
+      localStorage.setItem(
+        "user",
+        JSON.stringify({
+          id: sessionUser.id,
+          email: sessionUser.email,
+          role: userDetail.role,
+          nama: userDetail.nama,
+        })
+      );
+
+      router.push("/user/home");
     } catch (err) {
       console.error("LOGIN ERROR:", err);
       setError(err.message || "Login gagal, coba lagi!");
@@ -105,7 +101,7 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white">
+      <div className="min-h-screen flex items-center justify-center bg-white">
       <div className="flex w-full max-w-sm mx-auto overflow-hidden bg-white rounded-lg shadow-lg lg:max-w-4xl">
         {/* LEFT PANEL */}
         <div className="w-full px-6 py-8 md:px-8 lg:w-1/2">
