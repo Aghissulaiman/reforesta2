@@ -119,30 +119,49 @@ function CommunityStatsCard({ stats }) {
 
 // ========== COMPONENT: NAVBAR ==========
 function Navbar() {
+  const handleLogout = () => {
+    // 🔹 Hapus session dari localStorage
+    localStorage.removeItem("adminSession");
+
+    // 🔹 Redirect ke halaman login admin
+    window.location.href = "/user/login";
+  };
+
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white/70 backdrop-blur-md border-b border-gray-200 shadow-sm">
       <div className="max-w-7xl mx-auto px-6 py-3 flex justify-between items-center">
         <h1 className="text-3xl font-extrabold text-green-700 tracking-tight flex items-center">
           <FaTree className="mr-2 text-lime-500" /> Reforestacia
         </h1>
+
         <ul className="flex gap-8 text-gray-600 font-semibold text-base">
-          {["Dashboard", "Pengguna", "Transaksi", "Keluar"].map((item) => (
+          {["Dashboard", "Pengguna", "Transaksi"].map((item) => (
             <li
               key={item}
               className={`cursor-pointer transition-all duration-200 
-              ${item === "Dashboard"
-                  ? "text-green-700 border-b-2 border-lime-500"
-                  : "hover:text-green-700 hover:border-b-2 hover:border-lime-300" 
-              } py-1`}
+                ${
+                  item === "Dashboard"
+                    ? "text-green-700 border-b-2 border-lime-500"
+                    : "hover:text-green-700 hover:border-b-2 hover:border-lime-300"
+                } py-1`}
             >
               {item}
             </li>
           ))}
+
+          {/* Tombol Keluar */}
+          <li
+            onClick={handleLogout}
+            className="cursor-pointer text-red-600 hover:text-red-700 font-bold py-1 hover:border-b-2 hover:border-red-400 transition-all duration-200"
+          >
+            Keluar
+          </li>
         </ul>
       </div>
     </nav>
   );
 }
+
 
 // ========== PAGE: DASHBOARD ==========
 export default function Dashboard() {
