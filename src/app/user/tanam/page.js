@@ -64,7 +64,7 @@ export default function TanamPage() {
   const SelectedNavbar =
     user.role === "penanam" || user.role === "sekolah"
       ? NavbarAll
-      : NavbarDonatur; // 🌳 LOGIKA KONDISIONAL UNTUK KONTEN UTAMA 🌳
+      : NavbarDonatur; //  LOGIKA KONDISIONAL UNTUK KONTEN UTAMA 🌳
 
   let MainContentComponent; // Peran "Komunitas" diidentifikasi sebagai "penanam" atau "donatur" (berdasarkan kode login sebelumnya)
 
