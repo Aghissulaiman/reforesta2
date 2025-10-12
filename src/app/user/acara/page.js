@@ -48,8 +48,9 @@ export default function Acara() {
 
   let NavbarComponent = <NavbarAll />;
   if (user) {
+    // 💡 LOGIKA BARU: NavbarDonatur digunakan untuk role 'donatur' dan 'sekolah'
     NavbarComponent =
-      user.role === "donatur" ? (
+      user.role === "donatur" || user.role === "sekolah" ? (
         <NavbarDonatur user={user} />
       ) : (
         <NavbarAll user={user} />
