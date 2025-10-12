@@ -27,9 +27,8 @@ async function fetchUserRoleAndDetail(email) {
   const { data: sekolahData } = await supabase
     .from("Sekolah")
     .select("nama_sekolah")
-    .eq("email_sekolah", email)
+    .eq("email", email)
     .single()
-    .catch(() => null);
 
   if (sekolahData) {
     return {

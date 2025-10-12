@@ -1,7 +1,32 @@
 // components/HubungiKami.jsx
-import React from "react";
+import React, { useState } from "react";
 
 export default function HubungiKami() {
+  const [status, setStatus] = useState("");
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setStatus("loading");
+
+    const formData = new FormData(e.target);
+
+    // Kirim data ke Formspree
+    const response = await fetch("https://formspree.io/f/xwprrzer", {
+      method: "POST",
+      body: formData,
+      headers: {
+        Accept: "application/json",
+      },
+    });
+
+    if (response.ok) {
+      setStatus("success");
+      e.target.reset();
+    } else {
+      setStatus("error");
+    }
+  };
+
   return (
     <section className="relative py-16 bg-white">
       <div className="container mx-auto px-6">
@@ -26,7 +51,8 @@ export default function HubungiKami() {
                 <div>
                   <h3 className="font-semibold text-gray-800">Alamat</h3>
                   <p className="text-gray-600 text-xs mt-1">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed
+                    do
                   </p>
                 </div>
                 <div>
@@ -49,26 +75,40 @@ export default function HubungiKami() {
             <p className="mb-6 text-gray-700 text-sm">
               Umpan Balik Kalian ibaratkan pohon yang disiram dan terus berkembang
             </p>
-            <form className="flex flex-col gap-4">
+
+            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
               <input
                 type="text"
+                name="nama"
                 placeholder="Nama"
+                required
                 className="w-full bg-white rounded-lg border border-[#047857] py-2 px-3 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#047857]"
               />
               <input
                 type="email"
+                name="email"
                 placeholder="Email"
+                required
                 className="w-full bg-white rounded-lg border border-[#047857] py-2 px-3 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#047857]"
               />
               <textarea
+                name="pesan"
                 placeholder="Pesan"
+                required
                 className="w-full bg-white h-40 rounded-lg border border-[#047857] py-3 px-4 text-sm text-gray-800 resize-none focus:outline-none focus:ring-2 focus:ring-[#047857]"
               ></textarea>
               <button
                 type="submit"
+                disabled={status === "loading"}
                 className="bg-white text-[#047857] font-semibold py-2 rounded-full border border-[#047857] hover:bg-[#047857] hover:text-white transition"
               >
-                Kirim
+                {status === "loading"
+                  ? "Mengirim..."
+                  : status === "success"
+                  ? "Terkirim ✅"
+                  : status === "error"
+                  ? "Gagal Mengirim ❌"
+                  : "Kirim"}
               </button>
             </form>
           </div>

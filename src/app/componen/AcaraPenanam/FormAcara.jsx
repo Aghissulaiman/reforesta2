@@ -4,179 +4,332 @@ import { useState, useEffect } from "react";
 import { supabase } from "../../../../lib/supabaseClient";
 
 export default function FormAcara() {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [preview, setPreview] = useState("");
   const [form, setForm] = useState({
-    title: "",
+    judul_acara: "",
     status: "Sedang Berlangsung",
-    time: "",
-    desc: "",
-    location: "",
-    image: null,
-    tanggal: new Date().toISOString().slice(0, 10),
+    waktu: "",
+    deskripsi: "",
+    lokasi: "",
+    tanggal: new Date().toISOString().substr(0, 10),
+    gambar: null,
   });
 
-  // 🧩 Ambil user yang login
+  const [preview, setPreview] = useState("");
+  const [penanggungJawab, setPenanggungJawab] = useState([
+    { name: "", role: "" },
+    { name: "", role: "" },
+    { name: "", role: "" },
+  ]);
+
+  const [acaraList, setAcaraList] = useState([]);
+  const [loadingList, setLoadingList] = useState(true);
+
+  // 🔹 Ambil semua acara yang dimiliki user
   useEffect(() => {
-    const fetchUser = async () => {
-      const { data, error } = await supabase.auth.getUser();
-      if (error) console.error(error);
-      if (data?.user) setUser(data.user);
+    const fetchAcara = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from("acara_penanaman")
+        .select("*")
+        .eq("id_user", user.id)
+        .order("created_at", { ascending: false });
+
+      if (!error) setAcaraList(data || []);
+      setLoadingList(false);
     };
-    fetchUser();
+
+    fetchAcara();
   }, []);
 
-  // 📝 Handle input text dan select
+  // 🔹 Handle perubahan form input
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  // 🖼️ Handle upload gambar
+  // 🔹 Handle gambar preview
   const handleImageChange = (e) => {
     const file = e.target.files[0];
-    if (!file) return;
-    setForm((prev) => ({ ...prev, image: file }));
-
-    const reader = new FileReader();
-    reader.onloadend = () => setPreview(reader.result);
-    reader.readAsDataURL(file);
+    if (file) {
+      setForm((prev) => ({ ...prev, gambar: file }));
+      const reader = new FileReader();
+      reader.onloadend = () => setPreview(reader.result);
+      reader.readAsDataURL(file);
+    } else {
+      setForm((prev) => ({ ...prev, gambar: null }));
+      setPreview("");
+    }
   };
 
-  // 💾 Submit acara
+  // 🔹 Ubah data penanggung jawab
+  const handlePenanggungJawabChange = (index, key, value) => {
+    const copy = [...penanggungJawab];
+    copy[index][key] = value;
+    setPenanggungJawab(copy);
+  };
+
+  // 🔹 Submit acara baru
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!user) return alert("❌ Anda harus login terlebih dahulu!");
-
-    setLoading(true);
 
     try {
       let imageUrl = null;
 
-      // 🔹 Upload gambar ke storage (kalau ada)
-      if (form.image) {
-        const fileExt = form.image.name.split(".").pop();
-        const fileName = `${Date.now()}.${fileExt}`;
-        const filePath = `acara/${fileName}`;
-
-        const { error: uploadError } = await supabase.storage
+      // Upload gambar ke Supabase Storage
+      if (form.gambar) {
+        const { data: uploadData, error: uploadError } = await supabase.storage
           .from("gambar_acara")
-          .upload(filePath, form.image);
+          .upload(`acara/${Date.now()}_${form.gambar.name}`, form.gambar);
 
         if (uploadError) throw uploadError;
 
-        const { data } = supabase.storage
+        const { data: publicUrl } = supabase.storage
           .from("gambar_acara")
-          .getPublicUrl(filePath);
+          .getPublicUrl(uploadData.path);
 
-        imageUrl = data.publicUrl;
+        imageUrl = publicUrl.publicUrl;
       }
 
-      // 🔹 Simpan ke database
-      const { error: insertError } = await supabase
-        .from("acara_penanaman")
-        .insert([
-          {
-            id_user: user.id,
-            judul_acara: form.title,
-            lokasi: form.location,
-            tanggal: form.tanggal,
-            waktu: form.time,
-            deskripsi: form.desc,
-            status: form.status,
-            gambar: imageUrl,
-          },
-        ]);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        alert("Harap login terlebih dahulu!");
+        return;
+      }
+
+      // Insert ke database
+     // ...
+const { error: insertError } = await supabase
+  .from("acara_penanaman")
+  .insert([
+    {
+      id_user: user.id,
+      judul_acara: form.judul_acara,
+      deskripsi: form.deskripsi,
+      lokasi: form.lokasi,
+      tanggal: form.tanggal,
+      waktu: form.waktu,
+      status: form.status,
+      gambar: imageUrl,
+      penanggung_jawab: penanggungJawab, // 🟢 array JSON langsung
+      // ❌ HAPUS galeri: [] karena sudah di tabel galeri_acara
+    },
+  ]);
+
 
       if (insertError) throw insertError;
 
-      alert("✅ Acara berhasil ditambahkan!");
+      alert("✅ Acara berhasil disimpan!");
+
+      // Refresh list acara
+      const { data } = await supabase
+        .from("acara_penanaman")
+        .select("*")
+        .eq("id_user", user.id)
+        .order("created_at", { ascending: false });
+
+      setAcaraList(data || []);
+
+      // Reset form
       setForm({
-        title: "",
+        judul_acara: "",
         status: "Sedang Berlangsung",
-        time: "",
-        desc: "",
-        location: "",
-        image: null,
-        tanggal: new Date().toISOString().slice(0, 10),
+        waktu: "",
+        deskripsi: "",
+        lokasi: "",
+        tanggal: new Date().toISOString().substr(0, 10),
+        gambar: null,
       });
       setPreview("");
+      setPenanggungJawab([
+        { name: "", role: "" },
+        { name: "", role: "" },
+        { name: "", role: "" },
+      ]);
     } catch (err) {
-      console.error(err);
-      alert("❌ " + err.message);
-    } finally {
-      setLoading(false);
+      console.error("Error insert:", err);
+      alert("❌ Gagal menyimpan acara: " + err.message);
     }
   };
 
+  // 🔹 Upload dokumentasi ke galeri acara
+  // 🔹 Upload dokumentasi ke tabel galeri_acara
+const handleUploadDokumentasi = async (acaraId, files) => {
+  if (!files?.length) return;
+
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      alert("Harap login terlebih dahulu!");
+      return;
+    }
+
+    const uploadedUrls = [];
+
+    for (const file of files) {
+      // Upload ke storage
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from("gambar_acara")
+        .upload(`galeri/${Date.now()}_${file.name}`, file);
+
+      if (uploadError) throw uploadError;
+
+      // Ambil public URL
+      const { data: publicUrl } = supabase.storage
+        .from("gambar_acara")
+        .getPublicUrl(uploadData.path);
+
+      uploadedUrls.push(publicUrl.publicUrl);
+    }
+
+    // Simpan ke tabel galeri_acara
+    const galeriRows = uploadedUrls.map((url) => ({
+      id_acara: acaraId,
+      foto_url: url, // ✅ kolom sesuai tabel kamu
+      id_user: user.id,
+    }));
+
+    const { error: insertError } = await supabase
+      .from("galeri_acara")
+      .insert(galeriRows);
+
+    if (insertError) throw insertError;
+
+    alert("📸 Dokumentasi berhasil ditambahkan!");
+  } catch (err) {
+    console.error("Gagal upload dokumentasi:", err);
+    alert("❌ Gagal upload dokumentasi: " + err.message);
+  }
+};
+
+
+
   return (
-    <div className="min-h-screen w-full bg-white flex flex-col items-center justify-start p-6 md:p-10">
-      <div className="w-full max-w-5xl">
-        <h2 className="text-4xl font-extrabold text-[#064E3B] text-center mb-10">
+    <div className="min-h-screen bg-gray-50 py-12 md:py-16 px-4 md:px-8 lg:px-16">
+      <div className="max-w-4xl mx-auto space-y-10">
+        <h2 className="text-3xl font-extrabold text-[#064E3B] text-center">
           Buat Acara Penanaman Baru
         </h2>
 
+        {/* 🔹 Container daftar acara */}
+        {!loadingList && acaraList.length > 0 && (
+          <div className="space-y-5">
+            <h3 className="text-xl font-semibold text-[#064E3B] mb-3">
+              Acara Kamu
+            </h3>
+            {acaraList.map((acara) => (
+              <div
+                key={acara.id}
+                className="border rounded-xl p-5 flex justify-between items-center bg-white shadow-sm"
+              >
+                <div>
+                  <h4 className="font-semibold text-lg">{acara.judul_acara}</h4>
+                  <p className="text-sm text-gray-600 line-clamp-2">{acara.deskripsi}</p>
+                  <p className="text-sm text-gray-500 mt-1">
+                    {acara.tanggal} — {acara.waktu}
+                  </p>
+                </div>
+
+                <label className="cursor-pointer bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg">
+                  Tambah Dokumentasi
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => handleUploadDokumentasi(acara.id, e.target.files)}
+                  />
+                </label>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* 🔹 Form Tambah Acara */}
         <form
           onSubmit={handleSubmit}
-          className="bg-gray-50 shadow-md p-8 rounded-2xl border border-gray-200 space-y-8"
+          className="bg-white p-8 md:p-10 rounded-2xl border border-gray-200 space-y-7 shadow-sm"
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Input
-              label="Judul Acara"
-              id="title"
-              name="title"
-              value={form.title}
-              onChange={handleChange}
-              placeholder="Ex: Bersih-bersih Hutan Kota"
-              required
-            />
+            {/* Judul */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Judul Acara
+              </label>
+              <input
+                name="judul_acara"
+                value={form.judul_acara}
+                onChange={handleChange}
+                placeholder="Ex: Bersih-bersih Hutan Kota"
+                className="w-full border-gray-300 border rounded-lg px-4 py-2.5 text-gray-800"
+                required
+              />
+            </div>
 
-            <Select
-              label="Status Acara"
-              id="status"
-              name="status"
-              value={form.status}
-              onChange={handleChange}
-              options={[
-                "Sedang Berlangsung",
-                "Akan Datang",
-                "Selesai",
-              ]}
-            />
+            {/* Status */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Status Acara
+              </label>
+              <select
+                name="status"
+                value={form.status}
+                onChange={handleChange}
+                className="w-full border-gray-300 border rounded-lg px-4 py-2.5 text-gray-800"
+              >
+                <option value="Sedang Berlangsung">Sedang Berlangsung</option>
+                <option value="Akan Datang">Akan Datang</option>
+                <option value="Selesai">Selesai</option>
+              </select>
+            </div>
 
-            <Input
-              label="Waktu Acara"
-              id="time"
-              name="time"
-              value={form.time}
-              onChange={handleChange}
-              placeholder="Ex: 08:00 - 12:00 WIB"
-              required
-            />
+            {/* Waktu */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Waktu Acara
+              </label>
+              <input
+                name="waktu"
+                value={form.waktu}
+                onChange={handleChange}
+                placeholder="08:00 - 12:00 WIB"
+                className="w-full border-gray-300 border rounded-lg px-4 py-2.5 text-gray-800"
+                required
+              />
+            </div>
 
-            <Input
-              label="Lokasi Acara"
-              id="location"
-              name="location"
-              value={form.location}
-              onChange={handleChange}
-              placeholder="Ex: Taman Nasional Gunung Gede Pangrango"
-              required
-            />
+            {/* Lokasi */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Lokasi Acara
+              </label>
+              <input
+                name="lokasi"
+                value={form.lokasi}
+                onChange={handleChange}
+                placeholder="Ex: Taman Nasional Gunung Gede"
+                className="w-full border-gray-300 border rounded-lg px-4 py-2.5 text-gray-800"
+                required
+              />
+            </div>
 
-            <Input
-              label="Tanggal Acara"
-              id="tanggal"
-              type="date"
-              name="tanggal"
-              value={form.tanggal}
-              onChange={handleChange}
-              required
-            />
+            {/* Tanggal */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Tanggal Acara
+              </label>
+              <input
+                type="date"
+                name="tanggal"
+                value={form.tanggal}
+                onChange={handleChange}
+                className="w-full border-gray-300 border rounded-lg px-4 py-2.5 text-gray-800"
+                required
+              />
+            </div>
 
-            {/* Upload Gambar */}
+            {/* Gambar */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Gambar Acara
@@ -185,17 +338,14 @@ export default function FormAcara() {
                 type="file"
                 accept="image/*"
                 onChange={handleImageChange}
-                className="w-full text-gray-800 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 cursor-pointer border border-gray-300 rounded-lg p-2"
+                className="w-full border border-gray-300 rounded-lg p-2 text-sm"
               />
               {preview && (
-                <div className="mt-4">
-                  <p className="text-sm font-medium text-gray-700 mb-2">
-                    Pratinjau Gambar:
-                  </p>
+                <div className="mt-3">
                   <img
                     src={preview}
-                    alt="Preview Acara"
-                    className="w-full h-56 object-cover rounded-lg border border-gray-200"
+                    alt="Preview"
+                    className="w-full h-48 object-cover rounded-lg"
                   />
                 </div>
               )}
@@ -208,70 +358,54 @@ export default function FormAcara() {
               Deskripsi Acara
             </label>
             <textarea
-              name="desc"
-              value={form.desc}
+              name="deskripsi"
+              value={form.deskripsi}
               onChange={handleChange}
+              rows={5}
               placeholder="Ceritakan detail acara ini..."
-              className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500"
-              rows={6}
+              className="w-full border-gray-300 border rounded-lg px-4 py-2.5 text-gray-800"
               required
             />
           </div>
 
-          <div className="flex justify-center">
-            <button
-              type="submit"
-              disabled={loading}
-              className={`bg-[#059669] hover:bg-green-700 text-white font-semibold px-10 py-3 rounded-lg transition transform hover:scale-[1.02] shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 ${
-                loading ? "opacity-70 cursor-not-allowed" : ""
-              }`}
-            >
-              {loading ? "Menyimpan..." : "Tambah Acara Baru"}
-            </button>
+          {/* Penanggung Jawab */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-4">
+              Penanggung Jawab
+            </label>
+            {penanggungJawab.map((p, i) => (
+              <div key={i} className="flex gap-2 mb-3">
+                <input
+                  type="text"
+                  placeholder={`Nama ${i + 1}`}
+                  value={p.name}
+                  onChange={(e) =>
+                    handlePenanggungJawabChange(i, "name", e.target.value)
+                  }
+                  className="border p-2 rounded w-1/2"
+                />
+                <input
+                  type="text"
+                  placeholder={`Jabatan ${i + 1}`}
+                  value={p.role}
+                  onChange={(e) =>
+                    handlePenanggungJawabChange(i, "role", e.target.value)
+                  }
+                  className="border p-2 rounded w-1/2"
+                />
+              </div>
+            ))}
           </div>
+
+          {/* Tombol Submit */}
+          <button
+            type="submit"
+            className="w-full md:w-auto bg-[#059669] hover:bg-green-700 text-white font-semibold px-8 py-3 rounded-lg transition"
+          >
+            Tambah Acara Baru
+          </button>
         </form>
       </div>
-    </div>
-  );
-}
-
-/* 🔧 Komponen kecil agar kode utama bersih */
-function Input({ label, ...props }) {
-  return (
-    <div>
-      <label
-        htmlFor={props.id}
-        className="block text-sm font-medium text-gray-700 mb-2"
-      >
-        {label}
-      </label>
-      <input
-        {...props}
-        className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500"
-      />
-    </div>
-  );
-}
-
-function Select({ label, id, name, value, onChange, options }) {
-  return (
-    <div>
-      <label htmlFor={id} className="block text-sm font-medium text-gray-700 mb-2">
-        {label}
-      </label>
-      <select
-        id={id}
-        name={name}
-        value={value}
-        onChange={onChange}
-        className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500"
-      >
-        {options.map((opt) => (
-          <option key={opt} value={opt}>
-            {opt}
-          </option>
-        ))}
-      </select>
     </div>
   );
 }

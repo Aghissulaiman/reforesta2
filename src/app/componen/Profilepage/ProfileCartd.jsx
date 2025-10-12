@@ -31,7 +31,7 @@ export default function ProfilePage() {
         let { data: sekolah } = await supabase
           .from("Sekolah")
           .select("*")
-          .eq("no", user.id)
+          .eq("email", user.email)
           .single();
 
         if (sekolah) {
