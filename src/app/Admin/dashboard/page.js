@@ -19,7 +19,8 @@ import {
   FiActivity,
 } from "react-icons/fi";
 import { FaTree, FaGift } from "react-icons/fa";
-import NavbarAdmin from "@/app/componen/navbarAdmin/navbarAdmin";// 🔹 Import NavbarAdmin
+import NavbarAdmin from "@/app/componen/navbarAdmin/navbarAdmin";
+// import { supabase } from "@/lib/supabaseClient"; // 🔹 Supabase disiapkan tapi belum dipakai
 
 const formatRupiah = (value) =>
   `Rp ${value.toLocaleString("id-ID", { maximumFractionDigits: 0 })}`;
@@ -27,6 +28,71 @@ const formatRupiah = (value) =>
 const gradientBorder =
   "bg-white/50 backdrop-blur-xl border border-gray-100 shadow-xl ring-1 ring-lime-100";
 const cardAnimation = { type: "spring", stiffness: 200, damping: 20 };
+
+// 🔹 Fungsi placeholder (wadah) untuk fetch dari Supabase nanti
+async function fetchStatsFromSupabase() {
+  try {
+    // const { data, error } = await supabase.from("stats").select("*");
+    // if (error) throw error;
+    // return data;
+
+    // sementara return dummy data
+    return {
+      totalUsers: 523,
+      totalFunds: 4780000,
+      totalDonors: 87,
+      instansiSekolah: 18,
+      komunitasPenanam: 45,
+      komunitasDonatur: 32,
+    };
+  } catch (err) {
+    console.error("Error fetching stats:", err);
+    return null;
+  }
+}
+
+async function fetchChartDataFromSupabase() {
+  try {
+    // const { data, error } = await supabase.from("chart_data").select("*");
+    // if (error) throw error;
+    // return data;
+
+    // dummy sementara
+    return [
+      { month: "Jan", total: 300000 },
+      { month: "Feb", total: 500000 },
+      { month: "Mar", total: 450000 },
+      { month: "Apr", total: 700000 },
+      { month: "Mei", total: 850000 },
+      { month: "Jun", total: 900000 },
+      { month: "Jul", total: 950000 },
+      { month: "Agu", total: 1100000 },
+      { month: "Sep", total: 1200000 },
+      { month: "Okt", total: 1300000 },
+    ];
+  } catch (err) {
+    console.error("Error fetching chart data:", err);
+    return [];
+  }
+}
+
+async function fetchTransactionsFromSupabase() {
+  try {
+    // const { data, error } = await supabase.from("transactions").select("*");
+    // if (error) throw error;
+    // return data;
+
+    // dummy sementara
+    return [
+      { name: "Komunitas Alam Lestari", amount: 250000, date: "2025-10-08" },
+      { name: "Sekolah Harapan Bangsa", amount: 500000, date: "2025-10-07" },
+      { name: "Komunitas Hijau Daun", amount: 100000, date: "2025-10-06" },
+    ];
+  } catch (err) {
+    console.error("Error fetching transactions:", err);
+    return [];
+  }
+}
 
 function StatCard({ title, value, icon, accentColor = "text-green-600" }) {
   return (
@@ -111,44 +177,36 @@ function CommunityStatsCard({ stats }) {
 }
 
 export default function Dashboard() {
-  const [stats] = useState({
-    totalUsers: 523,
-    totalFunds: 4780000,
-    totalDonors: 87,
-    instansiSekolah: 18,
-    komunitasPenanam: 45,
-    komunitasDonatur: 32,
-  });
+  const [stats, setStats] = useState({});
+  const [chartData, setChartData] = useState([]);
+  const [transactions, setTransactions] = useState([]);
 
-  const [chartData] = useState([
-    { month: "Jan", total: 300000 },
-    { month: "Feb", total: 500000 },
-    { month: "Mar", total: 450000 },
-    { month: "Apr", total: 700000 },
-    { month: "Mei", total: 850000 },
-    { month: "Jun", total: 900000 },
-    { month: "Jul", total: 950000 },
-    { month: "Agu", total: 1100000 },
-    { month: "Sep", total: 1200000 },
-    { month: "Okt", total: 1300000 },
-  ]);
+  // 🔹 Ambil data (sementara dummy, nanti tinggal ganti ke Supabase)
+  useEffect(() => {
+    (async () => {
+      const s = await fetchStatsFromSupabase();
+      const c = await fetchChartDataFromSupabase();
+      const t = await fetchTransactionsFromSupabase();
+      setStats(s);
+      setChartData(c);
+      setTransactions(t);
+    })();
+  }, []);
 
-  const [transactions] = useState([
-    { name: "Komunitas Alam Lestari", amount: 250000, date: "2025-10-08" },
-    { name: "Sekolah Harapan Bangsa", amount: 500000, date: "2025-10-07" },
-    { name: "Komunitas Hijau Daun", amount: 100000, date: "2025-10-06" },
-  ]);
+  if (!stats || !chartData.length) return <div className="p-10">Loading...</div>;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-lime-100/50">
-      {/* 🔹 NavbarAdmin dipakai di sini */}
+      {/* 🔹 NavbarAdmin tetap seperti sebelumnya */}
       <NavbarAdmin user={{ name: "Admin" }} />
 
       <main className="pt-32 px-6 max-w-7xl mx-auto pb-24">
         <h2 className="text-4xl font-extrabold text-green-800 mb-10 border-l-4 border-lime-500 pl-4">
           👋 Administrator Dashboard
         </h2>
-        {/* konten dashboard seperti sebelumnya */}
+
+        {/* Di bawah sini tetap sama seperti tampilan aslimu */}
+        {/* Tambahkan komponen dashboard lainnya di sini */}
       </main>
     </div>
   );
