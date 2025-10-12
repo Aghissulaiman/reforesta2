@@ -79,11 +79,54 @@ REFORESTA dibuat untuk:
 ---
 
 ## 📂 Struktur Direktori (Ringkasan)
+src/
+├── app/
+│ ├── api/
+│ ├── components/
+│ ├── pages/
+│ └── layout.js
+├── lib/
+│ └── supabaseClient.js
+├── public/
+│ └── images/
+└── styles/
+└── globals.css
 
+---
 
+## ⚙️ Cara Instalasi & Menjalankan Proyek
+
+Ikuti langkah-langkah berikut untuk menjalankan **Reforesta** secara lokal:
+
+### 1. Clone Repository
+```bash
+git clone https://github.com/username/reforesta.git
+cd reforesta
+
+### 2. install deppendencies
+
+Gunakan **npm** atau **yarn**:
+
+```bash
 npm install
 # atau
 yarn install
 
-
+# Jalankan Server Development
 npm run dev
+
+
+Buka browser dan akses:
+
+http://localhost:3000
+
+
+---
+
+💡 **Penjelasan singkat:**
+- ` ```bash ` → warna biru/ijo untuk command line.  
+- ` ```js ` → warna kuning/ungu untuk kode JavaScript.  
+- ` ```json ` → warna hijau untuk config (misal `.env` atau `package.json`).  
+
+Kamu mau sekalian aku ubah semua code block di README kamu biar **auto warna semua (bash/js/json)**?  
+Biar hasil preview di GitHub full berwarna kayak project open-source profesional.

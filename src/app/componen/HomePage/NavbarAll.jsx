@@ -49,7 +49,7 @@ export default function NavbarAll({ user }) {
   }, []);
 
   return (
-    <nav className="w-full flex justify-center mt-10 z-50 sticky top-0 left-0 bg-transparent">
+    <nav className="w-full flex justify-center mt-10 z-50  sticky top-0 left-0 bg-transparent">
       {/* Container utama navbar */}
       <div className="flex items-center justify-between px-6 py-3 
         rounded-full border border-gray-200 shadow-md 
