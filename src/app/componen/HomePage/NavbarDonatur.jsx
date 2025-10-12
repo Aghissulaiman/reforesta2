@@ -27,7 +27,7 @@ export default function NavbarDonatur({ user }) {
   const navItems = [
     { name: "Beranda", path: "/user/home" },
     { name: "Tanam", path: "/user/tanam" },
-    { name: "Acara", path: "/user/acarapage" },
+    { name: "Acara", path: "/user/acara" },
   ];
 
   const profileItems = [

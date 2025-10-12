@@ -5,9 +5,10 @@ import { supabase } from "../../../../lib/supabaseClient";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import bcrypt from "bcryptjs";
+// Tambahkan ikon mata dari heroicons atau library lain jika menggunakan Tailwind,
+// tapi di sini saya akan gunakan path SVG standar untuk kemudahan.
 
-
-// Fungsi ambil role & nama user
+// Fungsi ambil role & nama user (TIDAK BERUBAH)
 async function fetchUserRoleAndDetail(email) {
   const { data: komunitasData } = await supabase
     .from("Komunitas")
@@ -45,9 +46,16 @@ export default function Login() {
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  // 💡 STATE BARU untuk mengontrol visibilitas password
+  const [showPassword, setShowPassword] = useState(false); 
 
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
+
+  // 💡 FUNGSI BARU untuk mengganti state showPassword
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -62,7 +70,7 @@ export default function Login() {
 
     try {
       // 🔹 1️⃣ Cek dulu apakah login sebagai ADMIN
-      // 🔹 1️⃣ Coba login sebagai admin dulu
+      // ... (Kode untuk Admin tidak berubah) ...
       const { data: adminData } = await supabase
         .from("admin")
         .select("*")
@@ -71,18 +79,18 @@ export default function Login() {
 
       if (adminData) {
         // Cek password admin (bcrypt)
-       let isMatch = false;
+        let isMatch = false;
 
-// Kalau password belum di-hash, bandingkan langsung
-if (adminData.password.startsWith("$2")) {
-  // berarti ini format bcrypt hash
-  isMatch = await bcrypt.compare(form.password, adminData.password);
-} else {
-  // plaintext fallback (sementara)
-  isMatch = form.password === adminData.password;
-}
+        // Kalau password belum di-hash, bandingkan langsung
+        if (adminData.password.startsWith("$2")) {
+          // berarti ini format bcrypt hash
+          isMatch = await bcrypt.compare(form.password, adminData.password);
+        } else {
+          // plaintext fallback (sementara)
+          isMatch = form.password === adminData.password;
+        }
 
-if (!isMatch) throw new Error("Password salah!");
+        if (!isMatch) throw new Error("Password salah!");
         // Simpan sesi admin
         localStorage.setItem(
           "user",
@@ -147,6 +155,7 @@ if (!isMatch) throw new Error("Password salah!");
         {/* LEFT PANEL */}
         <div className="w-full px-6 py-8 md:px-8 lg:w-1/2">
           <div className="flex justify-center mb-2 -mt-4">
+            {/* SVG Logo (TIDAK BERUBAH) */}
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="w-20 h-20 text-[#059669]"
@@ -174,7 +183,7 @@ if (!isMatch) throw new Error("Password salah!");
           )}
 
           <form onSubmit={handleLogin}>
-            {/* Email */}
+            {/* Email (TIDAK BERUBAH) */}
             <div className="mt-4">
               <label className="block mb-2 text-sm font-medium text-gray-600">
                 Email
@@ -189,7 +198,7 @@ if (!isMatch) throw new Error("Password salah!");
               />
             </div>
 
-            {/* Password */}
+            {/* 🔑 Password (MODIFIKASI DI SINI) 🔑 */}
             <div className="mt-4">
               <div className="flex justify-between">
                 <label className="block mb-2 text-sm font-medium text-gray-600">
@@ -203,17 +212,44 @@ if (!isMatch) throw new Error("Password salah!");
                 </Link>
               </div>
 
-              <input
-                name="password"
-                type="password"
-                value={form.password}
-                onChange={handleChange}
-                className="block w-full px-4 py-2 text-black placeholder-gray-400 border border-[#059669] rounded-lg focus:border-[#059669] focus:ring-0 focus:outline-none"
-                placeholder="Masukkan password"
-              />
+              {/* 💡 CONTAINER BARU untuk input dan tombol mata */}
+              <div className="relative">
+                <input
+                  name="password"
+                  // 💡 TIPE INPUT DINAMIS
+                  type={showPassword ? "text" : "password"}
+                  value={form.password}
+                  onChange={handleChange}
+                  className="block w-full px-4 py-2 text-black placeholder-gray-400 border border-[#059669] rounded-lg focus:border-[#059669] focus:ring-0 focus:outline-none pr-10" // pr-10 agar tidak tertutup ikon
+                  placeholder="Masukkan password"
+                />
+                
+                {/* 💡 TOMBOL MATA (Eye Icon) */}
+                <button
+                  type="button"
+                  onClick={togglePasswordVisibility}
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-600 hover:text-[#059669]"
+                  aria-label={showPassword ? "Sembunyikan password" : "Tampilkan password"}
+                >
+                  {showPassword ? (
+                    // Ikon mata terbuka (Eye Open)
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.437 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                    </svg>
+
+                  ) : (
+                    // Ikon mata tertutup (Eye Closed)
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M3.981 12C4.17 10.305 4.966 8.75 6 7.5m4.237 2.053a2 2 0 0 1 2.83 2.83M18.019 12a9.143 9.143 0 0 1-1.002 2.662l-.768-1.535M12 21c-3.132 0-6.185-.708-8.775-2.008M21 12c-.22.684-.537 1.348-.936 1.977m-8.583 3.659a2 2 0 0 1-2.83 2.83m.222-7.51a.75.75 0 0 0 0 1.06l.477.477M12 3a9.143 9.143 0 0 0-8.775 2.008M21 12c-.22.684-.537 1.348-.936 1.977" />
+                    </svg>
+
+                  )}
+                </button>
+              </div>
             </div>
 
-            {/* Tombol Login */}
+            {/* Tombol Login (TIDAK BERUBAH) */}
             <div className="mt-6">
               <button
                 type="submit"
@@ -225,7 +261,7 @@ if (!isMatch) throw new Error("Password salah!");
             </div>
           </form>
 
-          {/* Register link */}
+          {/* Register link (TIDAK BERUBAH) */}
           <div className="flex items-center justify-between mt-4">
             <span className="w-1/5 border-b md:w-1/4"></span>
             <Link
@@ -238,7 +274,7 @@ if (!isMatch) throw new Error("Password salah!");
           </div>
         </div>
 
-        {/* RIGHT PANEL */}
+        {/* RIGHT PANEL (TIDAK BERUBAH) */}
         <div
           className="relative hidden lg:flex lg:w-1/2 items-center justify-center rounded-tr-lg rounded-br-lg bg-cover bg-center"
           style={{ backgroundImage: "url('/gambar-pohon.png')" }}
