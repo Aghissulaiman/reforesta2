@@ -2,10 +2,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
+import { Menu, X } from "lucide-react";
 
 export default function Navbar() {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
@@ -18,6 +20,7 @@ export default function Navbar() {
     const section = document.getElementById(id);
     if (section) {
       section.scrollIntoView({ behavior: "smooth" });
+      setIsOpen(false); // Tutup menu saat item diklik di mobile
     }
   };
 
@@ -30,7 +33,7 @@ export default function Navbar() {
   return (
     <nav
       className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 
-      flex items-center justify-between px-8 py-3 rounded-full border border-gray-200
+      flex items-center justify-between px-6 py-3 rounded-full border border-gray-200
       shadow-lg transition-all duration-300 w-[90%] max-w-6xl
       ${scrolled ? "bg-white/90 backdrop-blur-md" : "bg-white"}
       `}
@@ -58,7 +61,7 @@ export default function Navbar() {
         </span>
       </Link>
 
-      {/* === MENU === */}
+      {/* === MENU DESKTOP === */}
       <div className="hidden md:flex items-center gap-6">
         {navLinks.map((link) => {
           const isActive = pathname === link.href;
@@ -87,8 +90,8 @@ export default function Navbar() {
         })}
       </div>
 
-      {/* === BUTTONS === */}
-      <div className="flex gap-3">
+      {/* === BUTTONS DESKTOP === */}
+      <div className="hidden md:flex gap-3">
         <Link
           href="/user/register"
           className="px-5 py-1.5 text-sm font-medium rounded-full border border-[#047857] text-[#047857] hover:bg-[#047857] hover:text-white transition-all duration-300"
@@ -102,6 +105,53 @@ export default function Navbar() {
           Masuk
         </Link>
       </div>
+
+      {/* === TOGGLE MENU MOBILE === */}
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="md:hidden p-2 rounded-full hover:bg-[#047857]/10 transition"
+      >
+        {isOpen ? (
+          <X className="w-6 h-6 text-[#047857]" />
+        ) : (
+          <Menu className="w-6 h-6 text-[#047857]" />
+        )}
+      </button>
+
+      {/* === MENU MOBILE === */}
+      {isOpen && (
+        <div
+          className="absolute top-16 left-0 w-full bg-white shadow-lg rounded-2xl border border-gray-200
+          flex flex-col items-center py-4 gap-4 animate-fadeIn md:hidden"
+        >
+          {navLinks.map((link) => (
+            <button
+              key={link.name}
+              onClick={() => handleScrollTo(link.scrollTo)}
+              className="text-[#047857] font-medium text-sm px-4 py-2 rounded-full hover:bg-[#047857]/10 w-[80%] transition"
+            >
+              {link.name}
+            </button>
+          ))}
+
+          <div className="flex flex-col w-[80%] gap-2 mt-2">
+            <Link
+              href="/user/register"
+              onClick={() => setIsOpen(false)}
+              className="w-full text-center px-5 py-2 text-sm font-medium rounded-full border border-[#047857] text-[#047857] hover:bg-[#047857] hover:text-white transition-all duration-300"
+            >
+              Daftar
+            </Link>
+            <Link
+              href="/user/login"
+              onClick={() => setIsOpen(false)}
+              className="w-full text-center px-5 py-2 text-sm font-medium rounded-full bg-[#047857] text-white hover:bg-[#036b4f] transition-all duration-300 shadow-sm"
+            >
+              Masuk
+            </Link>
+          </div>
+        </div>
+      )}
     </nav>
   );
 }
