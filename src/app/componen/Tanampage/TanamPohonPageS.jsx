@@ -240,7 +240,7 @@ export default function TanamPohonPageS({ user }) {
         <div>
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Pilih Lokasi Penanaman</h2>
           {loadingDaerah ? (
-            <p className="text-gray-500">Memuat data lokasi...</p>
+            <p className="text-gray-500">Memuat data lokasi..</p>
           ) : errorDaerah ? (
             <p className="text-red-500">Error: {errorDaerah}</p>
           ) : (
