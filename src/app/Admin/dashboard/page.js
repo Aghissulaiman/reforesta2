@@ -20,80 +20,46 @@ import {
 } from "react-icons/fi";
 import { FaTree, FaGift } from "react-icons/fa";
 import NavbarAdmin from "@/app/componen/navbarAdmin/navbarAdmin";
-// import { supabase } from "@/lib/supabaseClient"; // 🔹 Supabase disiapkan tapi belum dipakai
 
 const formatRupiah = (value) =>
   `Rp ${value.toLocaleString("id-ID", { maximumFractionDigits: 0 })}`;
 
 const gradientBorder =
-  "bg-white/50 backdrop-blur-xl border border-gray-100 shadow-xl ring-1 ring-lime-100";
+  "bg-white/60 backdrop-blur-xl border border-gray-200 shadow-lg ring-1 ring-lime-100";
 const cardAnimation = { type: "spring", stiffness: 200, damping: 20 };
 
-// 🔹 Fungsi placeholder (wadah) untuk fetch dari Supabase nanti
-async function fetchStatsFromSupabase() {
-  try {
-    // const { data, error } = await supabase.from("stats").select("*");
-    // if (error) throw error;
-    // return data;
+// ==================== DATA DUMMY ====================
+const dummyStats = {
+  totalUsers: 523,
+  totalFunds: 4780000,
+  totalDonors: 87,
+  instansiSekolah: 18,
+  komunitasPenanam: 45,
+  komunitasDonatur: 32,
+};
 
-    // sementara return dummy data
-    return {
-      totalUsers: 523,
-      totalFunds: 4780000,
-      totalDonors: 87,
-      instansiSekolah: 18,
-      komunitasPenanam: 45,
-      komunitasDonatur: 32,
-    };
-  } catch (err) {
-    console.error("Error fetching stats:", err);
-    return null;
-  }
-}
+const dummyChart = [
+  { month: "Jan", total: 300000 },
+  { month: "Feb", total: 500000 },
+  { month: "Mar", total: 450000 },
+  { month: "Apr", total: 700000 },
+  { month: "Mei", total: 850000 },
+  { month: "Jun", total: 900000 },
+  { month: "Jul", total: 950000 },
+  { month: "Agu", total: 1100000 },
+  { month: "Sep", total: 1200000 },
+  { month: "Okt", total: 1300000 },
+];
 
-async function fetchChartDataFromSupabase() {
-  try {
-    // const { data, error } = await supabase.from("chart_data").select("*");
-    // if (error) throw error;
-    // return data;
+const dummyTransactions = [
+  { name: "Komunitas Alam Lestari", amount: 250000, date: "2025-10-08" },
+  { name: "Sekolah Harapan Bangsa", amount: 500000, date: "2025-10-07" },
+  { name: "Komunitas Hijau Daun", amount: 100000, date: "2025-10-06" },
+  { name: "Yayasan Bumi Indah", amount: 450000, date: "2025-10-05" },
+  { name: "SMAN 1 Sejuk Rimba", amount: 750000, date: "2025-10-04" },
+];
 
-    // dummy sementara
-    return [
-      { month: "Jan", total: 300000 },
-      { month: "Feb", total: 500000 },
-      { month: "Mar", total: 450000 },
-      { month: "Apr", total: 700000 },
-      { month: "Mei", total: 850000 },
-      { month: "Jun", total: 900000 },
-      { month: "Jul", total: 950000 },
-      { month: "Agu", total: 1100000 },
-      { month: "Sep", total: 1200000 },
-      { month: "Okt", total: 1300000 },
-    ];
-  } catch (err) {
-    console.error("Error fetching chart data:", err);
-    return [];
-  }
-}
-
-async function fetchTransactionsFromSupabase() {
-  try {
-    // const { data, error } = await supabase.from("transactions").select("*");
-    // if (error) throw error;
-    // return data;
-
-    // dummy sementara
-    return [
-      { name: "Komunitas Alam Lestari", amount: 250000, date: "2025-10-08" },
-      { name: "Sekolah Harapan Bangsa", amount: 500000, date: "2025-10-07" },
-      { name: "Komunitas Hijau Daun", amount: 100000, date: "2025-10-06" },
-    ];
-  } catch (err) {
-    console.error("Error fetching transactions:", err);
-    return [];
-  }
-}
-
+// ==================== KOMPONEN KARTU STATISTIK ====================
 function StatCard({ title, value, icon, accentColor = "text-green-600" }) {
   return (
     <motion.div
@@ -118,6 +84,7 @@ function StatCard({ title, value, icon, accentColor = "text-green-600" }) {
   );
 }
 
+// ==================== KOMPONEN STAT KOMUNITAS ====================
 function StatItem({ icon, title, value, color, isTotal = false }) {
   const motionProps = isTotal
     ? {}
@@ -176,28 +143,22 @@ function CommunityStatsCard({ stats }) {
   );
 }
 
+// ==================== DASHBOARD ADMIN ====================
 export default function Dashboard() {
   const [stats, setStats] = useState({});
   const [chartData, setChartData] = useState([]);
   const [transactions, setTransactions] = useState([]);
 
-  // 🔹 Ambil data (sementara dummy, nanti tinggal ganti ke Supabase)
   useEffect(() => {
-    (async () => {
-      const s = await fetchStatsFromSupabase();
-      const c = await fetchChartDataFromSupabase();
-      const t = await fetchTransactionsFromSupabase();
-      setStats(s);
-      setChartData(c);
-      setTransactions(t);
-    })();
+    setStats(dummyStats);
+    setChartData(dummyChart);
+    setTransactions(dummyTransactions);
   }, []);
 
   if (!stats || !chartData.length) return <div className="p-10">Loading...</div>;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-lime-100/50">
-      {/* 🔹 NavbarAdmin tetap seperti sebelumnya */}
       <NavbarAdmin user={{ name: "Admin" }} />
 
       <main className="pt-32 px-6 max-w-7xl mx-auto pb-24">
@@ -205,8 +166,89 @@ export default function Dashboard() {
           👋 Administrator Dashboard
         </h2>
 
-        {/* Di bawah sini tetap sama seperti tampilan aslimu */}
-        {/* Tambahkan komponen dashboard lainnya di sini */}
+        {/* ===== GRID STAT ===== */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
+          <StatCard
+            title="Total Pengguna"
+            value={stats.totalUsers}
+            icon={<FiUsers />}
+          />
+          <StatCard
+            title="Dana Terkumpul"
+            value={formatRupiah(stats.totalFunds)}
+            icon={<FiDollarSign />}
+            accentColor="text-lime-600"
+          />
+          <StatCard
+            title="Jumlah Donatur"
+            value={stats.totalDonors}
+            icon={<FiHeart />}
+            accentColor="text-rose-600"
+          />
+        </div>
+
+        {/* ===== KOMUNITAS CARD ===== */}
+        <CommunityStatsCard stats={stats} />
+
+        {/* ===== CHART DONASI ===== */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={cardAnimation}
+          className={`mt-10 rounded-xl p-6 ${gradientBorder}`}
+        >
+          <h3 className="text-xl font-bold text-green-700 mb-6 flex items-center border-b pb-3">
+            <FiBook className="mr-2 text-lime-500" /> Grafik Dana Bulanan
+          </h3>
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={chartData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="month" />
+              <YAxis />
+              <Tooltip
+                formatter={(value) => formatRupiah(value)}
+                labelFormatter={(label) => `Bulan: ${label}`}
+              />
+              <Line
+                type="monotone"
+                dataKey="total"
+                stroke="#16a34a"
+                strokeWidth={3}
+                dot={{ r: 4 }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </motion.div>
+
+        {/* ===== TRANSAKSI TERBARU ===== */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={cardAnimation}
+          className={`mt-10 rounded-xl p-6 ${gradientBorder}`}
+        >
+          <h3 className="text-xl font-bold text-green-700 mb-6 flex items-center border-b pb-3">
+            <FiDollarSign className="mr-2 text-lime-500" /> Riwayat Transaksi
+          </h3>
+          <ul className="divide-y divide-gray-200">
+            {transactions.map((t, i) => (
+              <li
+                key={i}
+                className="py-4 flex justify-between items-center hover:bg-lime-50 transition"
+              >
+                <div>
+                  <p className="font-semibold text-gray-800">{t.name}</p>
+                  <p className="text-sm text-gray-500">
+                    {new Date(t.date).toLocaleDateString("id-ID")}
+                  </p>
+                </div>
+                <span className="font-bold text-green-700">
+                  {formatRupiah(t.amount)}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </motion.div>
       </main>
     </div>
   );

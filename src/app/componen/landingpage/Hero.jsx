@@ -92,20 +92,19 @@ export default function Hero() {
           <div className="flex flex-col items-center md:items-end relative">
             
             {/* Video Hero */}
-            <motion.div
-              className="rounded-xl overflow-hidden shadow-lg w-[360px] sm:w-[420px] md:w-[500px] aspect-[16/9]"
-              whileHover={{ scale: 1.03 }}
-              transition={{ duration: 0.4 }}
-            >
-              <video
-                src="/nanem.mp4"
-                autoPlay
-                loop
-                muted
-                playsInline
-                className="w-full h-full object-cover"
-              />
-            </motion.div>
+         <motion.div
+  className="relative z-10 rounded-xl overflow-hidden shadow-lg w-[360px] sm:w-[420px] md:w-[500px] aspect-[16/9]"
+  whileHover={{ scale: 1.03 }}
+  transition={{ duration: 0.4 }}
+>
+  <Image
+    src="/Tanaman1.png"
+    alt="Tanaman 1"
+    fill
+    className="object-cover w-full h-full"
+  />
+</motion.div>
+
 
             {/* Kotak Statistik */}
             <ScrollAnimate type="fade-up" delay={0.5}>
