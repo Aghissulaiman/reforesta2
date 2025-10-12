@@ -1,8 +1,38 @@
-// components/HubungiKami.jsx
-import React, { useState } from "react";
+"use client";
+import React, { useState, useRef, useEffect } from "react";
+import { motion, useAnimation } from "framer-motion";
 
 export default function HubungiKami() {
   const [status, setStatus] = useState("");
+  const controls = useAnimation();
+  const ref = useRef(null);
+
+  // Animasi muncul saat komponen terlihat di layar
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            controls.start({
+              opacity: 1,
+              y: 0,
+              transition: { duration: 0.7, ease: "easeOut" },
+            });
+          } else {
+            controls.start({
+              opacity: 0,
+              y: 60,
+              transition: { duration: 0.7, ease: "easeOut" },
+            });
+          }
+        });
+      },
+      { threshold: 0.2 }
+    );
+
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, [controls]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -10,13 +40,10 @@ export default function HubungiKami() {
 
     const formData = new FormData(e.target);
 
-    // Kirim data ke Formspree
     const response = await fetch("https://formspree.io/f/xwprrzer", {
       method: "POST",
       body: formData,
-      headers: {
-        Accept: "application/json",
-      },
+      headers: { Accept: "application/json" },
     });
 
     if (response.ok) {
@@ -28,7 +55,12 @@ export default function HubungiKami() {
   };
 
   return (
-    <section className="relative py-16 bg-white">
+    <motion.section
+      ref={ref}
+      animate={controls}
+      initial={{ opacity: 0, y: 60 }}
+      className="relative py-16 bg-white"
+    >
       <div className="container mx-auto px-6">
         {/* Judul */}
         <h2 className="text-2xl md:text-3xl font-bold text-center text-gray-900 mb-10">
@@ -37,7 +69,13 @@ export default function HubungiKami() {
 
         <div className="flex flex-col md:flex-row items-start justify-center gap-10">
           {/* Map + Info */}
-          <div className="w-full md:w-[65%] relative rounded-2xl overflow-hidden shadow-md">
+          <motion.div
+            initial={{ opacity: 0, x: -80 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.7 }}
+            viewport={{ once: false, amount: 0.2 }}
+            className="w-full md:w-[65%] relative rounded-2xl overflow-hidden shadow-md"
+          >
             <iframe
               src="https://maps.google.com/maps?width=100%&height=600&hl=id&q=Depok%20Indonesia&ie=UTF8&t=&z=14&iwloc=B&output=embed"
               className="w-full h-[450px]"
@@ -45,7 +83,6 @@ export default function HubungiKami() {
               loading="lazy"
             ></iframe>
 
-            {/* Box Info */}
             <div className="absolute bottom-6 left-6 bg-white p-6 rounded-xl shadow-md w-[90%] md:w-[80%]">
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
@@ -68,12 +105,19 @@ export default function HubungiKami() {
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
 
           {/* Form */}
-          <div className="w-full md:w-[30%]">
+          <motion.div
+            initial={{ opacity: 0, x: 80 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.7 }}
+            viewport={{ once: false, amount: 0.2 }}
+            className="w-full md:w-[30%]"
+          >
             <p className="mb-6 text-gray-700 text-sm">
-              Umpan Balik Kalian ibaratkan pohon yang disiram dan terus berkembang
+              Umpan Balik Kalian ibaratkan pohon yang disiram dan terus
+              berkembang
             </p>
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -111,9 +155,9 @@ export default function HubungiKami() {
                   : "Kirim"}
               </button>
             </form>
-          </div>
+          </motion.div>
         </div>
       </div>
-    </section>
+    </motion.section>
   );
 }

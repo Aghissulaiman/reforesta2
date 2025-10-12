@@ -1,5 +1,7 @@
 "use client";
 
+import { useRef, useEffect } from "react";
+import { motion, useAnimation } from "framer-motion";
 import { Star, Home, Users, CheckCircle } from "lucide-react";
 
 export default function LanggananSection() {
@@ -45,35 +47,57 @@ export default function LanggananSection() {
     },
   ];
 
-  // Fungsi ketika user klik tombol paket
- const handleSelectPlan = (plan) => {
-  try {
-    // 🔹 Ambil data penting aja (tanpa elemen React)
-    const planData = {
-      title: plan.title,
-      desc: plan.desc,
-      price: plan.price,
-      per: plan.per,
-      features: plan.features,
-      isPopular: plan.isPopular,
-    };
+  const handleSelectPlan = (plan) => {
+    try {
+      const planData = {
+        title: plan.title,
+        desc: plan.desc,
+        price: plan.price,
+        per: plan.per,
+        features: plan.features,
+        isPopular: plan.isPopular,
+      };
+      localStorage.setItem("selectedPlan", JSON.stringify(planData));
+      window.location.href = "/user/langganan";
+    } catch (error) {
+      console.error("Gagal menyimpan paket:", error);
+    }
+  };
 
-    // 🔹 Simpan ke localStorage
-    localStorage.setItem("selectedPlan", JSON.stringify(planData));
+  // === ANIMASI SCROLL TANPA FILE TAMBAHAN ===
+  const controls = useAnimation();
+  const ref = useRef(null);
 
-    // 🔹 Redirect ke halaman langganan
-    window.location.href = "/user/langganan";
-  } catch (error) {
-    console.error("Gagal menyimpan paket:", error);
-  }
-};
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            controls.start({
+              opacity: 1,
+              y: 0,
+              transition: { duration: 0.7, ease: "easeOut" },
+            });
+          } else {
+            controls.start({
+              opacity: 0,
+              y: 70,
+              transition: { duration: 0.7, ease: "easeOut" },
+            });
+          }
+        });
+      },
+      { threshold: 0.2 }
+    );
 
-  // Style dasar kartu
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, [controls]);
+
   const baseCardStyle =
     "bg-white p-6 rounded-xl shadow-lg border border-gray-100 w-full md:w-[280px] transition-all duration-300 ease-in-out hover:shadow-xl hover:translate-y-[-4px]";
   const popularCardStyle =
     "bg-green-700 text-white p-7 rounded-xl shadow-2xl w-full md:w-[300px] transform scale-[1.03] z-10 transition-all duration-300 ease-in-out hover:scale-[1.05]";
-
   const baseButtonStyle =
     "block w-full text-center px-5 py-2.5 text-sm rounded-lg font-semibold border-2 transition-all duration-300";
   const popularButtonStyle =
@@ -82,27 +106,47 @@ export default function LanggananSection() {
     "bg-green-600 text-white border-green-600 hover:bg-green-700";
 
   return (
-    <section className="relative py-16 bg-gray-50 overflow-hidden">
+    <motion.section
+      ref={ref}
+      animate={controls}
+      initial={{ opacity: 0, y: 70 }}
+      className="relative py-16 bg-gray-50 overflow-hidden"
+    >
       <div className="max-w-6xl mx-auto px-4 relative z-10">
-        {/* Judul */}
-        <div className="text-center mb-12">
+        {/* === Judul === */}
+        <motion.div
+          initial={{ opacity: 0, y: -50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7 }}
+          viewport={{ once: false, amount: 0.2 }}
+          className="text-center mb-12"
+        >
           <h2 className="text-3xl lg:text-4xl font-extrabold text-gray-900 mt-2">
             Paket Langganan
           </h2>
           <p className="mt-3 text-base text-gray-600 max-w-xl mx-auto">
             Mulai tingkatkan pengalaman Anda dengan penawaran terbaik kami.
           </p>
-        </div>
+        </motion.div>
 
-        {/* Kartu Paket */}
+        {/* === Kartu Paket === */}
         <div className="flex flex-col lg:flex-row justify-center items-center lg:items-stretch gap-6">
           {plans.map((plan, index) => (
-            <div
+            <motion.div
               key={index}
+              initial={{
+                opacity: 0,
+                y: index % 2 === 0 ? 50 : -50, // kiri-kanan beda arah
+              }}
+              whileInView={{
+                opacity: 1,
+                y: 0,
+              }}
+              transition={{ duration: 0.6, delay: index * 0.15 }}
+              viewport={{ once: false, amount: 0.2 }}
               className={plan.isPopular ? popularCardStyle : baseCardStyle}
             >
               <div className="text-center relative">
-                {/* Badge populer */}
                 {plan.isPopular && (
                   <div className="absolute top-0 right-0 -mt-6 -mr-6 bg-green-500 text-white text-xs font-bold px-2 py-0.5 rounded-bl-lg">
                     POPULER
@@ -150,7 +194,6 @@ export default function LanggananSection() {
                 </div>
               </div>
 
-              {/* Daftar Fitur */}
               <ul
                 className={`text-left mb-6 space-y-2 text-sm ${
                   plan.isPopular ? "text-green-100" : "text-gray-700"
@@ -162,13 +205,12 @@ export default function LanggananSection() {
                       className={`w-3.5 h-3.5 mt-1 mr-2.5 shrink-0 ${
                         plan.isPopular ? "text-green-300" : "text-green-500"
                       }`}
-                    />{" "}
+                    />
                     {feature}
                   </li>
                 ))}
               </ul>
 
-              {/* Tombol Pilih Paket */}
               <button
                 onClick={() => handleSelectPlan(plan)}
                 className={`${baseButtonStyle} ${
@@ -177,10 +219,10 @@ export default function LanggananSection() {
               >
                 {plan.buttonText}
               </button>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>
-    </section>
+    </motion.section>
   );
 }

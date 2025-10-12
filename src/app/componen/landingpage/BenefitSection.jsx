@@ -1,5 +1,8 @@
 "use client";
 
+import { motion, useAnimation } from "framer-motion";
+import { useInView } from "react-intersection-observer";
+import { useEffect } from "react";
 import { ThumbsUp, Laptop, Newspaper } from "lucide-react";
 
 export default function BenefitSection() {
@@ -21,11 +24,38 @@ export default function BenefitSection() {
     },
   ];
 
+  // Animasi umum
+  const fadeVariant = {
+    hiddenDown: { opacity: 0, y: 50 },
+    hiddenUp: { opacity: 0, y: -50 },
+    visible: { opacity: 1, y: 0 },
+  };
+
+  // Hook untuk memantau apakah section terlihat
+  const [ref, inView] = useInView({ triggerOnce: false, threshold: 0.2 });
+  const controls = useAnimation();
+
+  useEffect(() => {
+    if (inView) {
+      controls.start("visible");
+    } else {
+      controls.start("hiddenDown"); // Saat discroll keluar, sembunyikan lagi
+    }
+  }, [inView, controls]);
 
   return (
-    <section  className="relative bg-gradient-to-b from-white via-green-50 to-white py-24 overflow-hidden">
+    <section
+      ref={ref}
+      className="relative bg-gradient-to-b from-white via-green-50 to-white py-24 overflow-hidden"
+    >
       {/* Judul Section */}
-      <div className="text-center mb-16">
+      <motion.div
+        variants={fadeVariant}
+        initial="hiddenUp"
+        animate={controls}
+        transition={{ duration: 0.7 }}
+        className="text-center mb-16"
+      >
         <h2 className="text-3xl md:text-4xl font-extrabold text-[#065f46]">
           Kenapa Harus <span className="text-[#059669]">Reforestacia?</span>
         </h2>
@@ -33,13 +63,21 @@ export default function BenefitSection() {
           Kami percaya penghijauan bisa dimulai dari langkah kecil.  
           Berikut keuntungan yang kamu dapatkan bersama kami.
         </p>
-      </div>
+      </motion.div>
 
       {/* Konten Benefit */}
       <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 px-8 md:px-16">
         {benefits.map((item, index) => (
-          <div
+          <motion.div
             key={index}
+            variants={fadeVariant}
+            initial={index % 2 === 0 ? "hiddenDown" : "hiddenUp"}
+            animate={controls}
+            transition={{
+              duration: 0.7,
+              delay: index * 0.2,
+              ease: "easeOut",
+            }}
             className="group bg-white border border-green-100 hover:border-green-400 shadow-md hover:shadow-xl rounded-2xl p-8 flex flex-col items-center text-center transition-all duration-300 hover:-translate-y-2"
           >
             {/* Icon */}
@@ -56,7 +94,7 @@ export default function BenefitSection() {
             <p className="text-gray-600 text-sm leading-relaxed">
               {item.text}
             </p>
-          </div>
+          </motion.div>
         ))}
       </div>
 

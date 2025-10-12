@@ -1,10 +1,9 @@
 "use client";
 
-
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Image from "next/image";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
-import { motion } from "framer-motion";
+import { motion, useInView } from "framer-motion";
 
 export default function CarouselRegion() {
   const lokasi = [
@@ -17,6 +16,8 @@ export default function CarouselRegion() {
   ];
 
   const [index, setIndex] = useState(0);
+  const sectionRef = useRef(null);
+  const isInView = useInView(sectionRef, { once: false, amount: 0.3 });
 
   const nextSlide = () => setIndex((prev) => (prev + 1) % lokasi.length);
   const prevSlide = () => setIndex((prev) => (prev - 1 + lokasi.length) % lokasi.length);
@@ -29,9 +30,14 @@ export default function CarouselRegion() {
     return "hidden";
   };
 
-
   return (
-    <section className="py-16 bg-white text-center">
+    <motion.section
+      ref={sectionRef}
+      initial={{ opacity: 0, y: 80 }}
+      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 80 }}
+      transition={{ duration: 0.8, ease: "easeOut" }}
+      className="py-16 bg-white text-center"
+    >
       <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 mb-10">
         Ribuan bibit telah tumbuh menjadi pohon <br /> lewat platform ini
       </h2>
@@ -88,13 +94,11 @@ export default function CarouselRegion() {
                     fill
                     className="object-cover"
                   />
-                  {/* Overlay gelap */}
                   <div
                     className={`absolute inset-0 ${
                       pos === "center" ? "bg-black/30" : "bg-black/70"
                     } transition-all duration-500`}
                   />
-                  {/* Judul */}
                   <h3
                     className={`absolute inset-0 flex items-center justify-center text-white font-semibold text-lg transition-opacity duration-500 ${
                       pos === "center" ? "opacity-100" : "opacity-0"
@@ -128,7 +132,6 @@ export default function CarouselRegion() {
           ></div>
         ))}
       </div>
-      
-    </section>
+    </motion.section>
   );
 }
