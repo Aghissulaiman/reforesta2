@@ -96,13 +96,17 @@ export default function AcaraHijau() {
 
 
             <motion.div variants={textVariants}>
-              <Link
-                href="/events"
+              <button
+                onClick={() => {
+                  const section = document.getElementById("daftar-acara");
+                  section?.scrollIntoView({ behavior: "smooth" });
+                }}
                 className="inline-flex items-center px-10 py-3.5 bg-green-700 text-white text-lg font-bold rounded-xl shadow-xl shadow-green-300 hover:bg-green-800 transition duration-300 transform hover:scale-[1.05]"
               >
                 Jelajahi Acara Sekarang &rarr;
-              </Link>
+              </button>
             </motion.div>
+
           </div>
 
           {/* BAGIAN GAMBAR (KANAN) - Visual Asimetris & Mengambang */}

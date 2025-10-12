@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import NavbarAll from "@/app/componen/HomePage/NavbarAll";
-import NavbarDonatur from "@/app/componen/HomePage/NavbarDonatur"; 
+import NavbarDonatur from "@/app/componen/HomePage/NavbarDonatur";
 import Footer from "@/app/componen/landingpage/Footer";
 
 // Acara
@@ -20,7 +20,12 @@ export default function Acara() {
     if (stored) {
       try {
         const parsed = JSON.parse(stored);
-        if (parsed.email && (parsed.role === "penanam" || parsed.role === "donatur" || parsed.role === "sekolah")) {
+        if (
+          parsed.email &&
+          (parsed.role === "penanam" ||
+            parsed.role === "donatur" ||
+            parsed.role === "sekolah")
+        ) {
           setUser(parsed);
         }
       } catch (err) {
@@ -34,17 +39,22 @@ export default function Acara() {
     return (
       <div className="flex flex-col items-center justify-center h-screen bg-white">
         <div className="w-12 h-12 border-4 border-green-500 border-t-transparent rounded-full animate-spin"></div>
-        <p className="text-gray-600 mt-4 animate-pulse">Memuat data pengguna...</p>
+        <p className="text-gray-600 mt-4 animate-pulse">
+          Memuat data pengguna...
+        </p>
       </div>
     );
   }
 
-  let NavbarComponent = <NavbarAll />; // Default untuk non-authenticated
+  let NavbarComponent = <NavbarAll />;
   if (user) {
-    // Role 'donatur' dan 'sekolah' akan menggunakan NavbarDonatur. Role 'penanam' akan menggunakan NavbarAll.
-    NavbarComponent = (user.role === "donatur" || user.role === "sekolah") 
-      ? <NavbarDonatur user={user} /> 
-      : <NavbarAll user={user} />;
+    // 💡 LOGIKA BARU: NavbarDonatur digunakan untuk role 'donatur' dan 'sekolah'
+    NavbarComponent =
+      user.role === "donatur" || user.role === "sekolah" ? (
+        <NavbarDonatur user={user} />
+      ) : (
+        <NavbarAll user={user} />
+      );
   }
 
   return (
@@ -55,8 +65,10 @@ export default function Acara() {
       <AcaraProvider>
         <main className="container mx-auto p-4 space-y-8">
           <AcaraHijau2 />
+          <div id="daftar-acara">
+            <DaftarAcara />
+          </div>
           <DetailAcara />
-          <DaftarAcara />
         </main>
       </AcaraProvider>
 
