@@ -1,26 +1,17 @@
-import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
-import { cookies } from "next/headers";
+export async function GET(req) {
+  const { searchParams } = new URL(req.url);
+  const user_id = searchParams.get("user_id");
 
-export async function GET() {
-  const supabase = createRouteHandlerClient({ cookies });
-  const { data: { user } } = await supabase.auth.getUser();
-
-  if (!user) {
-    return new Response(JSON.stringify({ message: "User belum login" }), { status: 401 });
+  if (!user_id) {
+    return NextResponse.json({ error: "User ID tidak ditemukan" }, { status: 400 });
   }
 
-  // 🔹 Ambil semua transaksi yang terkait user ini (baik donatur maupun komunitas)
   const { data, error } = await supabase
     .from("transaksi")
     .select("*")
-    .or(`id_user.eq.${user.id},id_komunitas.eq.${user.id}`)
+    .eq("user_id", user_id)
     .order("tanggal", { ascending: false });
 
-    console.log(data)
-  if (error) {
-    console.error("Gagal ambil transaksi:", error.message);
-    return new Response(JSON.stringify({ message: error.message }), { status: 500 });
-  }
-
-  return new Response(JSON.stringify(data), { status: 200 });
+  if (error) throw error;
+  return NextResponse.json(data);
 }

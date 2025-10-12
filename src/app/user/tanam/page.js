@@ -85,6 +85,8 @@ export default function TanamPage() {
       {/* Navbar sesuai role */}
       <SelectedNavbar user={user} />
       
+    <div className="h-28"></div>
+
       <main className="flex-grow">
         {/* Menampilkan Komponen Konten Utama berdasarkan role (hanya satu) */}
         {MainContentComponent}

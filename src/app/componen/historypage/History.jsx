@@ -12,15 +12,15 @@ export default function HistoryPembayaran() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (session?.user?.id) {
-      ambilData(session.user.id);
-    }
-  }, [session]);
+  if (session?.user?.id) {
+    ambilData(session.user.id);
+  }
+}, [session]);
 
- const ambilData = async () => {
+const ambilData = async (userId) => {
   try {
     setLoading(true);
-    const res = await fetch("/api/transaksi/user");
+    const res = await fetch(`/api/transaksi/user?user_id=${userId}`);
     if (!res.ok) throw new Error("Gagal ambil data transaksi");
     const data = await res.json();
     setRiwayat(data || []);
