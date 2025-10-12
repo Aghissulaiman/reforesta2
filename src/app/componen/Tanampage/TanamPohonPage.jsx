@@ -99,75 +99,86 @@ export default function TanamPohonPage({ user }) {
 
   // 💳 Fungsi pembayaran Midtrans
   const handleBayar = async () => {
-    if (isProcessing) return;
-    setIsProcessing(true);
+  if (isProcessing) return;
+  setIsProcessing(true);
 
-    try {
-      if (!lokasiTerpilih)
-        return alert("Pilih lokasi penanaman terlebih dahulu.");
-      if (!bibitTerpilih.length)
-        return alert("Pilih minimal satu bibit pohon.");
-      if (!user) return alert("Silakan login terlebih dahulu.");
+  try {
+    if (!lokasiTerpilih)
+      return alert("Pilih lokasi penanaman terlebih dahulu.");
+    if (!bibitTerpilih.length)
+      return alert("Pilih minimal satu bibit pohon.");
+    if (!user) return alert("Silakan login terlebih dahulu.");
 
-      const orderDetails = {
-        order_id: `ORDER-${Date.now()}`,
-        gross_amount: totalHarga,
-        items: bibitTerpilih.map((b) => ({
-          id: b.id,
-          name: b.nama,
-          price: b.harga,
-          quantity: b.jumlah,
-        })),
-        metadata: {
-          lokasi_tanam: lokasiTerpilih.daerah,
-          user_email: user.email,
-        },
-        customer_details: { email: user.email },
-      };
+    const orderDetails = {
+      order_id: `ORDER-${Date.now()}`,
+      gross_amount: totalHarga,
+      items: bibitTerpilih.map((b) => ({
+        id: b.id,
+        name: b.nama,
+        price: b.harga,
+        quantity: b.jumlah,
+      })),
+      metadata: {
+        lokasi_tanam: lokasiTerpilih.daerah,
+        user_email: user.email,
+      },
+      customer_details: { email: user.email },
+    };
 
-      const response = await fetch("/api/payments", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(orderDetails),
-      });
+    // 🔹 Panggil API server untuk bikin transaksi
+    const response = await fetch("/api/payments", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(orderDetails),
+    });
 
-      const data = await response.json();
+    const data = await response.json();
 
-      if (!response.ok || !data.token) {
-        console.error("Payment API error:", data);
-        alert(`Gagal memproses transaksi. ${data.message || "Server error"}`);
-        return;
-      }
-
-      if (typeof window.snap === "undefined") {
-        alert("Midtrans Snap belum dimuat. Coba refresh halaman.");
-        return;
-      }
-
-      window.snap.pay(data.token, {
-        onSuccess: (result) => {
-          updateStatus(result, orderDetails);
-          alert(
-            idAcara
-              ? `✅ Pembayaran untuk acara (ID: ${idAcara}) berhasil!`
-              : "✅ Pembayaran berhasil!"
-          );
-        },
-        onPending: (result) => updateStatus(result, orderDetails),
-        onError: (result) => {
-          console.error("Error Midtrans:", result);
-          alert("Terjadi kesalahan saat transaksi.");
-          updateStatus(result, orderDetails);
-        },
-        onClose: () => console.log("Pop-up Midtrans ditutup."),
-      });
-    } catch (err) {
-      console.error("Error saat handleBayar:", err);
-      alert("Terjadi kesalahan saat memproses pembayaran.");
-    } finally {
-      setIsProcessing(false);
+    if (!response.ok || !data.token) {
+      console.error("Payment API error:", data);
+      alert(`Gagal memproses transaksi. ${data.message || "Server error"}`);
+      return;
     }
-  };
+
+    if (typeof window.snap === "undefined") {
+      alert("Midtrans Snap belum dimuat. Coba refresh halaman.");
+      return;
+    }
+
+    // 🔹 Panggil Snap popup
+    window.snap.pay(data.token, {
+      onSuccess: (result) => {
+        console.log("✅ Pembayaran sukses:", result);
+        updateStatus(result, orderDetails);
+
+        // 🔸 Redirect ke halaman sukses
+        window.location.href = "/user/tanam"; 
+      },
+      onPending: (result) => {
+        console.log("🕓 Pembayaran pending:", result);
+        updateStatus(result, orderDetails);
+
+        // 🔸 Redirect ke halaman pending
+        window.location.href = "/user/pending";
+      },
+      onError: (result) => {
+        console.error("❌ Error Midtrans:", result);
+        updateStatus(result, orderDetails);
+
+        // 🔸 Redirect ke halaman gagal
+        window.location.href = "/user/failed";
+      },
+      onClose: () => {
+        console.log("❗ Pop-up Midtrans ditutup sebelum selesai.");
+      },
+    });
+  } catch (err) {
+    console.error("Error saat handleBayar:", err);
+    alert("Terjadi kesalahan saat memproses pembayaran.");
+  } finally {
+    setIsProcessing(false);
+  }
+};
 
   // 🔹 Render halaman utama
   return (

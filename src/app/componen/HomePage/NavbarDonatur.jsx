@@ -48,7 +48,7 @@ export default function NavbarDonatur({ user }) {
   }, []);
 
   return (
-    <nav className="w-full flex justify-center mt-10 z-50 fixed top-0 left-0 bg-transparent">
+    <nav className="w-full flex justify-center mt-10 z-50 sticky top-0 left-0 bg-transparent">
       {/* Navbar Container */}
       <div
         className="flex items-center justify-between px-6 py-3 
