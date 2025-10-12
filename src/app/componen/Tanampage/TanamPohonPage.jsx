@@ -7,6 +7,8 @@ import { FaChevronLeft, FaChevronRight, FaTrash } from "react-icons/fa";
 import { useSearchParams } from "next/navigation";
 import usePohon from "../../../../hooks/pohon";
 import useDaerah from "../../../../hooks/daerah";
+import Swal from "sweetalert2";
+import "sweetalert2/dist/sweetalert2.min.css";
 
 export default function TanamPohonPage({ user }) {
   const { pohon, loading: loadingPohon, error: errorPohon } = usePohon();
@@ -19,7 +21,7 @@ export default function TanamPohonPage({ user }) {
   const [bibitTerpilih, setBibitTerpilih] = useState([]);
   const [isProcessing, setIsProcessing] = useState(false);
 
-  // ✅ Load script Midtrans Snap sekali
+  // ✅ Load Midtrans Snap
   useEffect(() => {
     if (typeof window.snap === "undefined") {
       const script = document.createElement("script");
@@ -33,7 +35,7 @@ export default function TanamPohonPage({ user }) {
     }
   }, []);
 
-  // 🔹 Carousel kontrol
+  // === Carousel ===
   const nextSlide = () => {
     const newIndex = (index + 1) % daerah.length;
     setIndex(newIndex);
@@ -54,7 +56,7 @@ export default function TanamPohonPage({ user }) {
     return "hidden";
   };
 
-  // 🔹 Pilih & update bibit
+  // === Bibit Handler ===
   const toggleBibit = (item) => {
     const exists = bibitTerpilih.find((b) => b.nama === item.nama);
     if (exists) {
@@ -77,7 +79,7 @@ export default function TanamPohonPage({ user }) {
     0
   );
 
-  // ✅ Update status transaksi ke backend
+  // === Update status transaksi ===
   async function updateStatus(result, orderDetails) {
     await fetch("/api/transaksi", {
       method: "POST",
@@ -90,24 +92,31 @@ export default function TanamPohonPage({ user }) {
         payment_type: result.payment_type,
         transaction_time: result.transaction_time || new Date().toISOString(),
         id_komunitas: lokasiTerpilih?.id || null,
-        id_acara: idAcara || null, // ✅ simpan id acara jika dari halaman acara
+        id_acara: idAcara || null,
         tipe_transaksi: "bibit",
         detail: bibitTerpilih,
       }),
     });
   }
 
-  // 💳 Fungsi pembayaran Midtrans
+  // === Midtrans Handler ===
   const handleBayar = async () => {
     if (isProcessing) return;
     setIsProcessing(true);
 
     try {
-      if (!lokasiTerpilih)
-        return alert("Pilih lokasi penanaman terlebih dahulu.");
-      if (!bibitTerpilih.length)
-        return alert("Pilih minimal satu bibit pohon.");
-      if (!user) return alert("Silakan login terlebih dahulu.");
+      if (!lokasiTerpilih) {
+        Swal.fire("Peringatan", "Pilih lokasi penanaman terlebih dahulu.", "warning");
+        return;
+      }
+      if (!bibitTerpilih.length) {
+        Swal.fire("Peringatan", "Pilih minimal satu bibit pohon.", "warning");
+        return;
+      }
+      if (!user) {
+        Swal.fire("Login Diperlukan", "Silakan login terlebih dahulu.", "info");
+        return;
+      }
 
       const orderDetails = {
         order_id: `ORDER-${Date.now()}`,
@@ -135,46 +144,50 @@ export default function TanamPohonPage({ user }) {
 
       if (!response.ok || !data.token) {
         console.error("Payment API error:", data);
-        alert(`Gagal memproses transaksi. ${data.message || "Server error"}`);
+        Swal.fire("Gagal", `Transaksi gagal: ${data.message || "Server error"}`, "error");
         return;
       }
 
       if (typeof window.snap === "undefined") {
-        alert("Midtrans Snap belum dimuat. Coba refresh halaman.");
+        Swal.fire("Error", "Midtrans Snap belum dimuat. Coba refresh halaman.", "error");
         return;
       }
 
       window.snap.pay(data.token, {
         onSuccess: (result) => {
           updateStatus(result, orderDetails);
-          alert(
+          Swal.fire(
+            "Berhasil!",
             idAcara
-              ? `✅ Pembayaran untuk acara (ID: ${idAcara}) berhasil!`
-              : "✅ Pembayaran berhasil!"
+              ? `Pembayaran untuk acara (ID: ${idAcara}) berhasil!`
+              : "Pembayaran berhasil!",
+            "success"
           );
         },
         onPending: (result) => updateStatus(result, orderDetails),
         onError: (result) => {
           console.error("Error Midtrans:", result);
-          alert("Terjadi kesalahan saat transaksi.");
+          Swal.fire("Gagal", "Terjadi kesalahan saat transaksi.", "error");
           updateStatus(result, orderDetails);
         },
-        onClose: () => console.log("Pop-up Midtrans ditutup."),
+        onClose: () => {
+          Swal.fire("Dibatalkan", "Transaksi dibatalkan oleh pengguna.", "info");
+        },
       });
     } catch (err) {
       console.error("Error saat handleBayar:", err);
-      alert("Terjadi kesalahan saat memproses pembayaran.");
+      Swal.fire("Error", "Terjadi kesalahan saat memproses pembayaran.", "error");
     } finally {
       setIsProcessing(false);
     }
   };
 
-  // 🔹 Render halaman utama
+  // === Render ===
   return (
     <section className="w-full px-6 py-10 flex flex-col lg:flex-row gap-10">
-      {/* BAGIAN KIRI */}
+      {/* === KIRI === */}
       <div className="flex-1 space-y-12">
-        {/* Carousel Lokasi */}
+        {/* Lokasi */}
         <div>
           <h2 className="text-2xl font-bold text-gray-900 mb-4">
             Pilih Lokasi Penanaman
@@ -254,7 +267,7 @@ export default function TanamPohonPage({ user }) {
           )}
         </div>
 
-        {/* Pilih Bibit */}
+        {/* Bibit */}
         <div>
           <h2 className="text-2xl font-bold text-gray-900 mb-4">
             Pilih Bibit Pohon
@@ -304,7 +317,7 @@ export default function TanamPohonPage({ user }) {
         </div>
       </div>
 
-      {/* BAGIAN KANAN */}
+      {/* === KANAN === */}
       <div className="w-full lg:w-[360px]">
         <div className="sticky top-24 bg-white rounded-2xl shadow-xl p-6 space-y-4">
           <h3 className="text-xl font-semibold text-gray-800 mb-2">
@@ -360,7 +373,9 @@ export default function TanamPohonPage({ user }) {
                       <button
                         onClick={() =>
                           setBibitTerpilih(
-                            bibitTerpilih.filter((item) => item.nama !== b.nama)
+                            bibitTerpilih.filter(
+                              (item) => item.nama !== b.nama
+                            )
                           )
                         }
                         className="text-red-500 hover:text-red-600"
@@ -390,7 +405,7 @@ export default function TanamPohonPage({ user }) {
                 : "bg-green-600 hover:bg-green-700"
             }`}
           >
-            Bayar
+            {isProcessing ? "Memproses..." : "Bayar"}
           </button>
         </div>
       </div>

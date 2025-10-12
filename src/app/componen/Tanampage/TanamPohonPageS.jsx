@@ -1,11 +1,11 @@
 "use client";
-
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { FaChevronLeft, FaChevronRight, FaTrash } from "react-icons/fa";
 import usePohon from "../../../../hooks/pohon";
 import useDaerah from "../../../../hooks/daerah";
+import Swal from "sweetalert2"; // ✅ Tambahkan SweetAlert2
 
 export default function TanamPohonPageS({ user }) {
   const { pohon, loading: loadingPohon, error: errorPohon } = usePohon();
@@ -77,21 +77,30 @@ export default function TanamPohonPageS({ user }) {
     0
   );
   const totalDenda = jumlahMurid * 1000;
-  const totalHarga = totalBibit; // ✅ cuma total bibit dikirim ke Midtrans
+  const totalHarga = totalBibit;
 
   // === 💳 Handle Bayar ===
   const handleBayar = async () => {
     if (!lokasiTerpilih || bibitTerpilih.length === 0) {
-      alert("Pilih lokasi dan bibit terlebih dahulu.");
+      Swal.fire({
+        icon: "warning",
+        title: "Pilih Lokasi & Bibit",
+        text: "Silakan pilih lokasi penanaman dan bibit pohon terlebih dahulu.",
+        confirmButtonColor: "#059669",
+      });
       return;
     }
 
     if (totalDenda < totalBibit) {
-      alert(
-        `Dana denda tidak mencukupi.\n` +
-          `Total bibit: Rp ${totalBibit.toLocaleString("id-ID")}\n` +
-          `Dana tersedia: Rp ${totalDenda.toLocaleString("id-ID")}`
-      );
+      Swal.fire({
+        icon: "error",
+        title: "Dana Tidak Cukup",
+        html: `
+          Total bibit: <b>Rp ${totalBibit.toLocaleString("id-ID")}</b><br>
+          Dana tersedia: <b>Rp ${totalDenda.toLocaleString("id-ID")}</b>
+        `,
+        confirmButtonColor: "#d33",
+      });
       return;
     }
 
@@ -124,32 +133,74 @@ export default function TanamPohonPageS({ user }) {
       const data = await response.json();
       if (!response.ok || !data.token) {
         console.error("Payment API error:", data);
-        alert(`Gagal memproses transaksi. ${data.message || "Server error"}`);
+        Swal.fire({
+          icon: "error",
+          title: "Gagal Memproses Transaksi",
+          text: data.message || "Terjadi kesalahan pada server.",
+          confirmButtonColor: "#d33",
+        });
         return;
       }
 
       if (typeof window.snap === "undefined") {
-        alert("Midtrans Snap belum dimuat. Coba refresh halaman.");
+        Swal.fire({
+          icon: "error",
+          title: "Midtrans Belum Siap",
+          text: "Coba muat ulang halaman dan ulangi transaksi.",
+          confirmButtonColor: "#d33",
+        });
         return;
       }
 
       window.snap.pay(data.token, {
-        onSuccess: (result) => console.log("Sukses:", result),
-        onPending: (result) => console.log("Pending:", result),
+        onSuccess: (result) => {
+          Swal.fire({
+            icon: "success",
+            title: "Pembayaran Berhasil!",
+            text: "Terima kasih telah berkontribusi menanam pohon 🌱",
+            confirmButtonColor: "#059669",
+          });
+          console.log("Sukses:", result);
+        },
+        onPending: (result) => {
+          Swal.fire({
+            icon: "info",
+            title: "Menunggu Pembayaran",
+            text: "Transaksi kamu sedang diproses.",
+            confirmButtonColor: "#059669",
+          });
+          console.log("Pending:", result);
+        },
         onError: (result) => {
           console.error("Error Midtrans:", result);
-          alert("Terjadi kesalahan saat transaksi.");
+          Swal.fire({
+            icon: "error",
+            title: "Transaksi Gagal",
+            text: "Terjadi kesalahan saat memproses pembayaran.",
+            confirmButtonColor: "#d33",
+          });
         },
-        onClose: () => console.log("Pop-up Midtrans ditutup."),
+        onClose: () => {
+          Swal.fire({
+            icon: "warning",
+            title: "Dibatalkan",
+            text: "Kamu menutup jendela pembayaran.",
+            confirmButtonColor: "#059669",
+          });
+        },
       });
     } catch (err) {
       console.error("Error saat handleBayar:", err);
-      alert("Terjadi kesalahan saat memproses pembayaran.");
+      Swal.fire({
+        icon: "error",
+        title: "Kesalahan Sistem",
+        text: "Terjadi kesalahan saat memproses pembayaran.",
+        confirmButtonColor: "#d33",
+      });
     } finally {
       setIsProcessing(false);
     }
   };
-
   // === 🧱 Render ===
   return (
     <section className="w-full px-6 py-10 flex flex-col lg:flex-row gap-10">
