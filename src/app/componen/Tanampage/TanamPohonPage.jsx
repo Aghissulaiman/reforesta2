@@ -184,7 +184,7 @@ export default function TanamPohonPage({ user }) {
 
   // === Render ===
   return (
-    <section className="w-full px-6 py-10 flex flex-col lg:flex-row gap-10">
+    <section className="w-full -mt-30 px-40 py-10 flex flex-col lg:flex-row gap-10">
       {/* === KIRI === */}
       <div className="flex-1 space-y-12">
         {/* Lokasi */}
