@@ -79,8 +79,7 @@ export default function Home() {
       )}
 
       <AcaraHijau />
-      <DetailAcara />
-      <AcaraDetail />
+     
       
       <DukungOleh />
       <Footer />
