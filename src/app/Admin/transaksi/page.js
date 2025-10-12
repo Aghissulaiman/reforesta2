@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import NavbarAdmin from "@/app/componen/navbarAdmin/NavbarAdmin";
+import NavbarAdmin from "@/app/componen/navbarAdmin/navbarAdmin";
 
 export default function TransaksiPage() {
   const [transactions, setTransactions] = useState([

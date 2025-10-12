@@ -70,103 +70,44 @@ export default function TanamPohonPageS({ user }) {
   };
 
   // 🔹 Hitung total harga (bibit + denda)
-  const totalBibit = bibitTerpilih.reduce(
-    (acc, b) => acc + b.harga * b.jumlah,
-    0
-  );
-  const totalDenda = jumlahMurid * 1000;
-  const totalHarga = totalBibit + totalDenda;
+  
 
-  // ✅ Update status transaksi ke backend
-  async function updateStatus(result, orderDetails) {
-    await fetch("/api/transaksi", {
+    const response = await fetch("/api/payments", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({
-        order_id: orderDetails.order_id,
-        gross_amount: orderDetails.gross_amount,
-        transaction_status: result.transaction_status,
-        payment_type: result.payment_type,
-        transaction_time: result.transaction_time || new Date().toISOString(),
-        id_komunitas: lokasiTerpilih?.id || null,
-      }),
+      body: JSON.stringify(orderDetails),
     });
-  }
 
-  // 💳 Fungsi pembayaran Midtrans
-  const handleBayar = async () => {
-    if (isProcessing) return;
-    setIsProcessing(true);
+    const data = await response.json();
 
-    try {
-      if (!lokasiTerpilih)
-        return alert("Pilih lokasi penanaman terlebih dahulu.");
-      if (!bibitTerpilih.length)
-        return alert("Pilih minimal satu bibit pohon.");
-      if (!user) return alert("Silakan login terlebih dahulu.");
-
-      const orderDetails = {
-        order_id: `ORDER-${Date.now()}`,
-        gross_amount: totalHarga,
-        items: [
-          ...bibitTerpilih.map((b) => ({
-            id: b.id,
-            name: b.nama,
-            price: b.harga,
-            quantity: b.jumlah,
-          })),
-          {
-            id: "DENDA_MURID",
-            name: `Denda ${jumlahMurid} murid`,
-            price: 1000,
-            quantity: jumlahMurid,
-          },
-        ],
-        metadata: {
-          lokasi_tanam: lokasiTerpilih.daerah,
-          user_email: user.email,
-          jumlah_murid: jumlahMurid,
-        },
-        customer_details: { email: user.email },
-      };
-
-      const response = await fetch("/api/payments", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(orderDetails),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok || !data.token) {
-        console.error("Payment API error:", data);
-        alert(`Gagal memproses transaksi. ${data.message || "Server error"}`);
-        return;
-      }
-
-      if (typeof window.snap === "undefined") {
-        alert("Midtrans Snap belum dimuat. Coba refresh halaman.");
-        return;
-      }
-
-      window.snap.pay(data.token, {
-        onSuccess: (result) => updateStatus(result, orderDetails),
-        onPending: (result) => updateStatus(result, orderDetails),
-        onError: (result) => {
-          console.error("Error Midtrans:", result);
-          alert("Terjadi kesalahan saat transaksi.");
-          updateStatus(result, orderDetails);
-        },
-        onClose: () => console.log("Pop-up Midtrans ditutup."),
-      });
-    } catch (err) {
-      console.error("Error saat handleBayar:", err);
-      alert("Terjadi kesalahan saat memproses pembayaran.");
-    } finally {
-      setIsProcessing(false);
+    if (!response.ok || !data.token) {
+      console.error("Payment API error:", data);
+      alert(`Gagal memproses transaksi. ${data.message || "Server error"}`);
+      return;
     }
-  };
+
+    if (typeof window.snap === "undefined") {
+      alert("Midtrans Snap belum dimuat. Coba refresh halaman.");
+      return;
+    }
+
+    window.snap.pay(data.token, {
+      onSuccess: (result) => updateStatus(result, orderDetails),
+      onPending: (result) => updateStatus(result, orderDetails),
+      onError: (result) => {
+        console.error("Error Midtrans:", result);
+        alert("Terjadi kesalahan saat transaksi.");
+        updateStatus(result, orderDetails);
+      },
+      onClose: () => console.log("Pop-up Midtrans ditutup."),
+    });
+  } catch (err) {
+    console.error("Error saat handleBayar:", err);
+    alert("Terjadi kesalahan saat memproses pembayaran.");
+  } finally {
+    setIsProcessing(false);
+  }
+};
 
   // 🔹 Render halaman
   return (
