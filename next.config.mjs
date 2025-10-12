@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+    output: "export",
   images: {
     domains: [
       "gratisongkir-storage.com",
@@ -11,5 +12,7 @@ const nextConfig = {
     ],
   },
 };
+
+module.exports = nextConfig;
 
 export default nextConfig;

@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import { id } from "date-fns/locale";
-import { format, isSameDay } from "date-fns";
+import { format, isSameDay, parseISO } from "date-fns";
+import { supabase } from "../../../../lib/supabaseClient";
 import "./calendarCustom.css";
 
 export default function DaftarAcara() {
@@ -14,27 +15,51 @@ export default function DaftarAcara() {
   const [date, setDate] = useState(new Date());
   const [acaraList, setAcaraList] = useState([]);
 
-  // 🔹 Ambil data dari localStorage saat pertama kali
+  // 🔹 Ambil data acara dari Supabase (sama kayak landing page)
   useEffect(() => {
-    const stored = JSON.parse(localStorage.getItem("events")) || [];
-    setAcaraList(stored);
+    const fetchAcara = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("acara_penanaman")
+          .select("*")
+          .order("tanggal", { ascending: true });
+
+        if (error) throw error;
+
+        // 🔹 Format tanggal jadi object Date
+        const formatted = data.map((a) => ({
+          ...a,
+          tanggal: typeof a.tanggal === "string" ? parseISO(a.tanggal) : a.tanggal,
+        }));
+
+        setAcaraList(formatted);
+      } catch (err) {
+        console.error("Gagal mengambil data acara:", err.message);
+      }
+    };
+
+    fetchAcara();
   }, []);
 
+  // 🔹 Tentuin tanggal mana aja yang ada acara berlangsung / akan datang
   const tanggalBerlangsung = acaraList
-    .filter(a => a.status.toLowerCase() === "sedang berlangsung")
-    .map(a => new Date(a.tanggal));
+    .filter((a) => a.status?.toLowerCase() === "sedang berlangsung")
+    .map((a) => a.tanggal);
 
   const tanggalAkan = acaraList
-    .filter(a => a.status.toLowerCase() === "akan datang")
-    .map(a => new Date(a.tanggal));
+    .filter((a) => a.status?.toLowerCase() === "akan datang")
+    .map((a) => a.tanggal);
 
-  const filteredAcara = useMemo(() => 
-    acaraList.filter(a =>
-      tab === "berlangsung"
-        ? a.status.toLowerCase() === "sedang berlangsung"
-        : a.status.toLowerCase() === "akan datang"
-    ),
-  [tab, acaraList]);
+  // 🔹 Filter sesuai tab aktif
+  const filteredAcara = useMemo(
+    () =>
+      acaraList.filter((a) =>
+        tab === "berlangsung"
+          ? a.status?.toLowerCase() === "sedang berlangsung"
+          : a.status?.toLowerCase() === "akan datang"
+      ),
+    [tab, acaraList]
+  );
 
   const handleClickAcara = (id) => {
     router.push(`/user/acara/${id}`);
@@ -70,37 +95,47 @@ export default function DaftarAcara() {
 
         {/* daftar acara */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {filteredAcara.length > 0 ? (
-            filteredAcara.map((a, i) => (
-              <div
-                key={i}
-                onClick={() => handleClickAcara(i)}
-                className={`flex justify-between items-center rounded-xl px-4 py-3 border shadow-sm cursor-pointer hover:shadow-md transition ${
-                  a.status.toLowerCase() === "sedang berlangsung"
-                    ? "bg-[#E7F8EE] border-[#059669]"
-                    : "bg-gray-100 border-gray-300"
-                }`}
-              >
-                <div>
-                  <p className="font-semibold text-sm text-gray-800">{a.title}</p>
-                  <p className="text-xs text-gray-600">{a.status}</p>
-                </div>
-                <div
-                  className={`rounded-lg px-3 py-1 text-[10px] font-semibold ${
-                    a.status.toLowerCase() === "sedang berlangsung"
-                      ? "bg-[#059669] text-white"
-                      : "bg-gray-400 text-white"
-                  }`}
-                >
-                  {a.time}
-                </div>
-              </div>
-            ))
-          ) : (
-            <div className="md:col-span-2 p-4 text-center text-gray-500 bg-gray-50 rounded-lg">
-              Tidak ada acara yang ditemukan pada kategori ini.
-            </div>
-          )}
+          {filteredAcara.map((a) => (
+  <div
+    key={a.id}
+    onClick={() => handleClickAcara(a.id)}
+    className={`rounded-xl border shadow-sm cursor-pointer hover:shadow-md transition p-4 ${
+      a.status?.toLowerCase() === "sedang berlangsung"
+        ? "bg-[#E7F8EE] border-[#059669]"
+        : "bg-gray-100 border-gray-300"
+    }`}
+  >
+    <div className="flex justify-between items-center mb-2">
+      <h3 className="font-semibold text-base text-gray-800">{a.title}</h3>
+      <span
+        className={`text-[11px] font-semibold px-3 py-1 rounded-full ${
+          a.status?.toLowerCase() === "sedang berlangsung"
+            ? "bg-[#059669] text-white"
+            : "bg-gray-400 text-white"
+        }`}
+      >
+        {a.status}
+      </span>
+    </div>
+
+    <p className="text-sm text-gray-600 mb-1">
+      🗓️ {format(a.tanggal, "EEEE, d MMM yyyy", { locale: id })}
+    </p>
+
+    {a.time && (
+      <p className="text-sm text-gray-600 mb-1">🕒 {a.time}</p>
+    )}
+
+    {a.lokasi && (
+      <p className="text-sm text-gray-600 mb-1">📍 {a.lokasi}</p>
+    )}
+
+    {a.deskripsi && (
+      <p className="text-xs text-gray-500 mt-2 line-clamp-2">{a.deskripsi}</p>
+    )}
+  </div>
+))}
+
         </div>
       </div>
 
@@ -121,10 +156,10 @@ export default function DaftarAcara() {
               className="custom-calendar w-full"
               tileContent={({ date, view }) => {
                 if (view === "month") {
-                  if (tanggalBerlangsung.some(d => isSameDay(d, date))) {
+                  if (tanggalBerlangsung.some((d) => isSameDay(d, date))) {
                     return <div className="dot-dot bg-[#059669]"></div>;
                   }
-                  if (tanggalAkan.some(d => isSameDay(d, date))) {
+                  if (tanggalAkan.some((d) => isSameDay(d, date))) {
                     return <div className="dot-dot bg-gray-400"></div>;
                   }
                 }
