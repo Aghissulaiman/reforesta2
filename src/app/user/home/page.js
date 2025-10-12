@@ -1,14 +1,15 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import NavbarAll from "../../componen/HomePage/NavbarAll";
-import NavbarDonatur from "../../componen/HomePage/NavbarDonatur";
-import SekarangSection from "../../componen/HomePage/SekarangSection";
-import DukungOleh from "../../componen/HomePage/DukungOleh";
-import LanggananSection from "../../componen/HomePage/LanggananSection";
-import Komunitas from "../../componen/landingpage/Komunitas";
-import AcaraHijau from "../../componen/landingpage/AcaraHijau";
-import Footer from "../../componen/landingpage/Footer";
+// Menggunakan absolute path untuk konsistensi
+import NavbarAll from "@/app/componen/HomePage/NavbarAll";
+import NavbarDonatur from "@/app/componen/HomePage/NavbarDonatur";
+import SekarangSection from "@/app/componen/HomePage/SekarangSection";
+import DukungOleh from "@/app/componen/HomePage/DukungOleh";
+import LanggananSection from "@/app/componen/HomePage/LanggananSection";
+import Komunitas from "@/app/componen/landingpage/Komunitas";
+import AcaraHijau from "@/app/componen/landingpage/AcaraHijau";
+import Footer from "@/app/componen/landingpage/Footer";
 import DetailAcara from "@/app/componen/Acarapage/DetailAcara";
 import AcaraDetail from "@/app/componen/Acarapage/AcaraDetail";
 
@@ -56,23 +57,31 @@ export default function Home() {
       </div>
     );
   }
+  
+  // Tentukan Navbar yang akan digunakan (Perbaikan Logic)
+  // Jika role-nya donatur ATAU sekolah, gunakan NavbarDonatur. Selain itu (penanam), gunakan NavbarAll.
+  const SelectedNavbar = 
+    (user.role === "donatur" || user.role === "sekolah") 
+    ? NavbarDonatur 
+    : NavbarAll;
 
   return (
     <div className="bg-green-50 min-h-screen">
-      {/* Navbar sesuai role */}
-      {/* Asumsi: Role "penanam" dan "sekolah" menggunakan NavbarAll */}
-      {(user.role === "penanam" || user.role === "sekolah") && <NavbarAll user={user} />}
-      {user.role === "donatur" && <NavbarDonatur user={user} />}
+      {/* Navbar sesuai role: 'donatur' dan 'sekolah' menggunakan NavbarDonatur, 'penanam' menggunakan NavbarAll */}
+      <SelectedNavbar user={user} />
 
       <SekarangSection />
       <Komunitas />
 
-      {/* FIX: LanggananSection hanya muncul jika role adalah "penanam" */}
+      {/* LanggananSection hanya muncul jika role adalah "penanam" */}
       {user.role === "penanam" && (
         <LanggananSection />
       )}
 
       <AcaraHijau />
+      <DetailAcara />
+      <AcaraDetail />
+      
       <DukungOleh />
       <Footer />
     </div>

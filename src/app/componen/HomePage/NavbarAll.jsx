@@ -17,7 +17,7 @@ export default function NavbarAll({ user }) {
   const navItems = [
     { name: "Beranda", path: "/user/home" },
     { name: "Tanam", path: "/user/tanam" },
-    { name: "Acara", path: "/user/acarapage" },
+    { name: "Acara", path: "/user/acara" },
     { name: "Langganan", path: "/user/langganan" },
   ];
 

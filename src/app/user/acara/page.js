@@ -39,15 +39,13 @@ export default function Acara() {
     );
   }
 
-  let NavbarComponent = <NavbarAll />;
+  let NavbarComponent = <NavbarAll />; // Default untuk non-authenticated
   if (user) {
-    // MODIFIKASI DIMULAI DI SINI
     // Role 'donatur' dan 'sekolah' akan menggunakan NavbarDonatur. Role 'penanam' akan menggunakan NavbarAll.
     NavbarComponent = (user.role === "donatur" || user.role === "sekolah") 
       ? <NavbarDonatur user={user} /> 
       : <NavbarAll user={user} />;
   }
-  // MODIFIKASI BERAKHIR DI SINI
 
   return (
     <div className="min-h-screen bg-green-50">

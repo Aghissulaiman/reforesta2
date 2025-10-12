@@ -51,13 +51,18 @@ export default function Profile() {
       </div>
     );
   }
+  
+  // LOGIKA NAVIGASI BARU: Tentukan Navbar berdasarkan role
+  // Perbaikan: 'sekolah' dikelompokkan dengan 'donatur' untuk menggunakan NavbarDonatur.
+  const SelectedNavbar = 
+    (user.role === "donatur" || user.role === "sekolah") 
+    ? NavbarDonatur 
+    : NavbarAll;
 
   return (
     <div className="min-h-screen bg-green-50">
-      {/* Navbar sesuai role */}
-      {/* Role "penanam" dan "sekolah" menggunakan NavbarAll */}
-      {(user.role === "penanam" || user.role === "sekolah") && <NavbarAll user={user} />}
-      {user.role === "donatur" && <NavbarDonatur user={user} />}
+      {/* Render Navbar yang dipilih */}
+      <SelectedNavbar user={user} />
       
       <main className="container mx-auto p-4">
         {/* ProfileCard */}

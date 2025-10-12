@@ -22,6 +22,7 @@ export default function Riwayat() {
       }
 
       try {
+        // ASUMSI: Role 'sekolah', 'donatur', atau 'penanam' tersimpan di kolom 'role' tabel 'user'
         const { data, error } = await supabase
           .from("user")
           .select("role")
@@ -29,9 +30,12 @@ export default function Riwayat() {
           .maybeSingle();
 
         if (error) throw error;
-        setRole(data?.role || "donatur");
+        // Jika role tidak ditemukan, default ke 'penanam' (sesuai logika NavbarAll default)
+        setRole(data?.role || "penanam"); 
       } catch (err) {
         console.error("Gagal ambil role:", err.message);
+        // Atur role sebagai penanam jika ada error fetch
+        setRole("penanam");
       } finally {
         setLoading(false);
       }
@@ -72,7 +76,8 @@ export default function Riwayat() {
   // 🧾 Tampilan utama riwayat
   return (
     <div className="min-h-screen bg-green-50">
-      {role === "donatur" ? (
+      {/* Logika Navbar: 'donatur' dan 'sekolah' menggunakan NavbarDonatur */}
+      {role === "donatur" || role === "sekolah" ? (
         <NavbarDonatur user={session.user} />
       ) : (
         <NavbarAll user={session.user} />
